@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>{{title}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one column; diagram on a fixed white "drawing sheet" (AWS icon colours need it), page chrome follows the theme. */
+:root{
+  --bg:#F4F6F8; --fg:#16202B; --muted:#5A6573; --line:#D8DEE5; --card:#FFFFFF; --accent:#E07A00;
+  --sheet:#FFFFFF;
+  {{flow_vars}}
+  --sans:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F151C; --fg:#E6EBF0; --muted:#9AA6B3; --line:#2A3540; --card:#17202A; --accent:#F59E0B; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F151C; --fg:#E6EBF0; --muted:#9AA6B3; --line:#2A3540; --card:#17202A; --accent:#F59E0B; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:16px}
+header h1{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);max-width:70ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 14px var(--sans);border:1px solid var(--line);background:var(--card);color:var(--fg);
+  border-radius:999px;padding:9px 14px;min-height:40px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sheet svg{display:block;width:100%;min-width:1100px;height:auto}
+.hint{font-size:13px;color:var(--muted);margin:-8px 0 0}
+#detail{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+#detail h2{margin:0;font-size:17px}
+#detail .aws{font:500 13px var(--mono);color:var(--muted);margin-top:2px}
+#detail p{margin:8px 0 0;max-width:72ch}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 16px}
+summary{cursor:pointer;font-weight:600;padding:14px 0;min-height:24px}
+details ol,details ul{margin:0 0 14px;padding-left:20px}
+details li{margin:4px 0}
+/* diagram */
+svg text{font-family:var(--sans)}
+.gl{font-size:13px;font-weight:600}
+.gs{font-size:12px;font-weight:400;fill:#5A6573}
+.nl{font-size:13px;font-weight:600;fill:#16202B}
+.ns{font-size:11.5px;fill:#545B64}
+.ns2{font-size:12.5px;fill:#3A4450}
+.poolbox{fill:#FFFFFF;stroke:#E8C9A8;stroke-width:1}
+.bedbox{fill:#F7F2FF;stroke:#8C4FFF;stroke-width:1.6}
+.hit{fill:transparent}
+.node{cursor:pointer;outline:none}
+.node:hover .hit,.node:focus-visible .hit{fill:rgba(224,122,0,.08)}
+.node.sel .hit{fill:rgba(224,122,0,.14);stroke:#E07A00;stroke-width:1.2}
+.node.sel .poolbox{stroke:#E07A00;stroke-width:2}
+.trunk{stroke:#7D8998;stroke-width:5;fill:none;stroke-linecap:round}
+.flow{fill:none;stroke-width:2.2;transition:opacity .2s}
+{{flow_rules}}
+.flabel{font-size:12px;font-weight:600;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.badge circle{stroke:#fff;stroke-width:2}
+.bt{font-size:12px;font-weight:700;fill:#fff}
+body[data-flow] .flow{opacity:.1}
+@media (prefers-reduced-motion: reduce){.flow{transition:none}}
+</style>
+</head><body><div class="wrap">
+  <header>
+    <h1>{{title}}</h1>
+    <p>{{intro}}</p>
+  </header>
+
+  <div class="chips" role="group" aria-label="Highlight a flow">
+    <button class="chip" id="f-all" data-f="" aria-pressed="true">All flows</button>
+    {{chips}}
+  </div>
+
+  <div class="sheet">{{svg}}</div>
+  <p class="hint">{{hint}}</p>
+
+  <section id="detail" aria-live="polite">
+    <h2>Tap a component</h2>
+    <p>Each icon and each layer has a short description of its role.</p>
+  </section>
+
+  {{sections}}
+</div>
+
+<script>
+const D = {{detail_map}};
+const det = document.getElementById('detail');
+function show(id){
+  const d = D[id]; if(!d) return;
+  document.querySelectorAll('.node.sel').forEach(n=>n.classList.remove('sel'));
+  document.querySelectorAll(`.node[data-id="${id}"]`).forEach(n=>n.classList.add('sel'));
+  det.innerHTML = `<h2></h2><div class="aws"></div><p></p>`;
+  det.querySelector('h2').textContent = d[0];
+  det.querySelector('.aws').textContent = d[1];
+  det.querySelector('p').textContent = d[2];
+}
+document.querySelectorAll('.node').forEach(n=>{
+  n.addEventListener('click',()=>{show(n.dataset.id); if(matchMedia('(max-width:700px)').matches) det.scrollIntoView({behavior:'smooth',block:'nearest'});});
+  n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show(n.dataset.id)}});
+});
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
+  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed', x===c ? 'true':'false'));
+  if(c.dataset.f) document.body.dataset.flow = c.dataset.f; else delete document.body.dataset.flow;
+}));
+</script>
+</body></html>
