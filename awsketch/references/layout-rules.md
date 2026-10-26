@@ -38,6 +38,7 @@ Leave a gutter of at least 14 units between neighbouring columns; flows run in t
 
 - Every segment is horizontal or vertical. Route a flow along a box row, turn once into a gutter, run along the gutter, and turn into the target row.
 - End an arrow on the edge of the target icon or box, about 2 units short, so the arrowhead is not hidden under the box.
+- Enter or leave a node sideways at the icon's middle height. A flow that has to leave or enter from below starts or ends at the bottom edge of the hit box (`y + h`, about 2 units out), never at the icon, because the label and sublines sit between the icon and that edge.
 - Two flows that share a gutter run 8 to 16 units apart, never on top of each other.
 - A flow that goes both ways uses `start` and `end`; a request and its reply are one edge, not two.
 - Dash a flow for a path that is optional, a fallback, or crosses a trust boundary through published APIs.
