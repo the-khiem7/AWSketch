@@ -125,7 +125,7 @@ def validate(spec, index):
         for line in p.get("lines", []):
             if len(line) * 6.6 > p["w"] - 24:
                 warns.append(f"pool {p['id']!r}: line {line!r} is wider than the pool")
-    for e in spec.get("nodes", []) + spec.get("pools", []):
+    for e in spec.get("nodes", []) + [p for p in spec.get("pools", []) if p.get("clickable", True)]:
         d = e.get("detail")
         if not d:
             warns.append(f"{e['id']!r}: clickable but has no detail")
@@ -193,7 +193,7 @@ def build_svg(spec, index):
         out.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="#7D8998" stroke-width="1.2" stroke-dasharray="2 3"></line>')
     for p in spec.get("pools", []):
         x, y, w, h, color = p["x"], p["y"], p["w"], p["h"], p.get("color", "#2563EB")
-        out.append(f'<g class="node" data-id="{escape(p["id"])}" tabindex="0" role="button">')
+        out.append(f'<g class="node" data-id="{escape(p["id"])}" tabindex="0" role="button">' if p.get("clickable", True) else "<g>")
         out.append(f'<rect class="poolbox" x="{x}" y="{y}" width="{w}" height="{h}" rx="6"></rect>')
         out.append(f'<rect x="{x}" y="{y}" width="5" height="{h}" rx="2" fill="{escape(color)}"></rect>')
         out.append(f'<text class="nl" x="{x + 16}" y="{y + 22}" fill="{escape(color)}">{escape(p["title"])}</text>')
@@ -271,7 +271,7 @@ def sections_html(spec):
 
 def render(spec, index):
     flow_vars, flow_rules = flow_css(spec)
-    detail = {e["id"]: e["detail"] for e in spec.get("pools", []) + spec.get("nodes", []) if e.get("detail")}
+    detail = {e["id"]: e["detail"] for e in spec.get("pools", []) + spec.get("nodes", []) if e.get("detail") and e.get("clickable", True)}
     chips = "\n    ".join(
         f'<button class="chip" id="f-{f["id"]}" data-f="{f["id"]}" aria-pressed="false"><i style="background:var(--{f["id"]})"></i>{i + 1} · {escape(f["label"])}</button>'
         for i, f in enumerate(spec.get("flows", []))
