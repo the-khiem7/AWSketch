@@ -1,6 +1,6 @@
 # awsketch
 
-An Agent Skill that draws interactive single-page AWS deployment diagrams. The agent writes a JSON spec that places every box by coordinates; a Python renderer validates it and produces one HTML page with the official AWS Architecture Icons on a white drawing sheet, nested account, region, VPC, subnet and cluster frames, numbered colour-coded flows that a chip row highlights, and a detail panel that explains each component when it is clicked.
+An Agent Skill that draws interactive single-page AWS deployment diagrams. The agent writes a JSON spec that places every box by coordinates; a Python renderer validates it and produces one HTML page with the official AWS Architecture Icons on a white drawing sheet, nested account, region, VPC, subnet and cluster frames, numbered colour-coded flows that a chip row highlights and a timeline walks arrow by arrow, and a card that explains each component when it is clicked. On a phone the controls move to a bottom drawer.
 
 ## Requirements
 

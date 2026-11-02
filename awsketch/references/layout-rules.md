@@ -55,4 +55,4 @@ Flow colours in order: `#2563EB` blue, `#E07A00` orange, `#7C3AED` purple, `#0E8
 - Group titles are short nouns; put a qualifier in `sub`.
 - A node label names the component; its sublines give a port, a size, or a role in at most about 24 characters each.
 - Free `texts` explain a box in up to four lines of about 26 characters each, centred under it.
-- The detail panel text is one or two sentences: what the component does in this system, not what the AWS service is in general.
+- The component card text is one or two sentences: what the component does in this system, not what the AWS service is in general.

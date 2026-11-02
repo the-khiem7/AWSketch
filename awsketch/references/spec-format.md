@@ -73,7 +73,7 @@ Pools are drawn before nodes, so a node placed inside a pool sits on top of it.
 
 | Field | Required | Default | Meaning |
 |---|---|---|---|
-| `id` | yes | - | Unique among pools and nodes; the detail panel key |
+| `id` | yes | - | Unique among pools and nodes; the component card key |
 | `icon` | yes | - | Icon id from `--list-icons` |
 | `x`, `y`, `w` | yes | - | Hit box position and width |
 | `h` | no | derived | Hit box height; derived as `4 + size + 15 + 13 * len(sub) + 8` |
@@ -91,6 +91,10 @@ Pools are drawn before nodes, so a node placed inside a pool sits on top of it.
 | `dashed` | no | `false` | Dashed line |
 | `start` | no | `false` | Arrowhead at the first point |
 | `end` | no | `true` | Arrowhead at the last point |
+| `from` | no | nearest node to the first point | Node or pool id the arrow leaves; set it when the arrow joins another line or stops at a box edge, so the step caption names the real source |
+| `to` | no | nearest node to the last point | Node or pool id the arrow reaches |
+
+The page walks arrows in the order they appear in `edges`, flow by flow, so list each flow's arrows in the order traffic moves. Without `from` / `to`, each end goes to the node box within 14 units, then a clickable pool; an end that touches only a group boundary is named after that group.
 
 ## labels, badges, trunks, connectors, texts
 
@@ -113,7 +117,7 @@ Pools are drawn before nodes, so a node placed inside a pool sits on top of it.
 
 ## Validation
 
-Errors stop the render and exit 1: unreadable or malformed JSON, unknown icon or group type, duplicate id, unknown flow id, a flow id that is not a CSS identifier, more than 6 flows, a segment that is not horizontal or vertical, a connector without exactly two points, two node hit boxes that overlap, a node past the canvas.
+Errors stop the render and exit 1: unreadable or malformed JSON, unknown icon or group type, duplicate id, unknown flow id, a flow id that is not a CSS identifier, more than 6 flows, a segment that is not horizontal or vertical, a connector without exactly two points, two node hit boxes that overlap, a node past the canvas, an edge `from` or `to` that is not a node or pool id.
 
 Warnings print and the page is still written: a label wider than 7 units per character at the node width, a subline wider than 6.2 units per character, an icon wider than its node, a pool line wider than the pool, an edge end more than 8 units from every node, pool and group edge, a clickable box without a three-part `detail`, an en or em dash in any text.
 
