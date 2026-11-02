@@ -270,7 +270,7 @@ def build_svg(spec, index):
         for fid in flows
     )
     defs = "<defs>" + "".join(symbol_for(i, index) for i in used) + markers + "</defs>"
-    head = f'<svg id="dia" viewBox="0 0 {cw} {ch}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{escape(spec.get("title", "AWS diagram"), quote=True)}">'
+    head = f'<svg id="dia" viewBox="0 0 {cw} {ch}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="{escape(spec.get("title", "AWS diagram"), quote=True)}">'
     return head + defs + "\n".join(out) + "</svg>"
 
 
@@ -308,7 +308,7 @@ def render(spec, index):
     flow_vars, flow_rules = flow_css(spec)
     detail = {e["id"]: e["detail"] for e in spec.get("pools", []) + spec.get("nodes", []) if e.get("detail") and e.get("clickable", True)}
     chips = "\n    ".join(
-        f'<button class="chip" id="f-{f["id"]}" data-f="{f["id"]}" aria-pressed="false"><i style="background:var(--{f["id"]})"></i>{i + 1} · {escape(f["label"])}</button>'
+        f'<button class="chip" id="f-{f["id"]}" data-f="{f["id"]}" aria-pressed="false" aria-label="Flow {i + 1}: {escape(f["label"], quote=True)}"><i style="background:var(--{f["id"]})"></i><span class="n">{i + 1}</span><span class="t">{escape(f["label"])}</span></button>'
         for i, f in enumerate(spec.get("flows", []))
     )
     slots = {

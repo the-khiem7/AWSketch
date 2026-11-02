@@ -9,7 +9,7 @@
 /* Layout: one column; diagram on a fixed white "drawing sheet" (AWS icon colours need it), page chrome follows the theme. */
 :root{
   --bg:#F4F6F8; --fg:#16202B; --muted:#5A6573; --line:#D8DEE5; --card:#FFFFFF; --accent:#E07A00;
-  --sheet:#FFFFFF;
+  --sheet:#FFFFFF; --r-s:8px; --r-l:14px;
   {{flow_vars}}
   --sans:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -20,24 +20,79 @@
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5}
 .wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:16px}
 header h1{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
-header p{margin:4px 0 0;color:var(--muted);max-width:70ch}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font:500 14px var(--sans);border:1px solid var(--line);background:var(--card);color:var(--fg);
-  border-radius:999px;padding:9px 14px;min-height:40px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
-.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
-.chip[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
-.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sheet,#pop,details,#notes{border-radius:var(--r-l)}
+.sheet{position:relative;background:var(--sheet);border:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch}
 .sheet svg{display:block;width:100%;min-width:1100px;height:auto}
 .hint{font-size:13px;color:var(--muted);margin:-8px 0 0}
-#detail{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
-#detail h2{margin:0;font-size:17px}
-#detail .aws{font:500 13px var(--mono);color:var(--muted);margin-top:2px}
-#detail p{margin:8px 0 0;max-width:72ch}
-details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 16px}
+details{background:var(--card);border:1px solid var(--line);padding:0 16px}
 summary{cursor:pointer;font-weight:600;padding:14px 0;min-height:24px}
 details ol,details ul{margin:0 0 14px;padding-left:20px}
 details li{margin:4px 0}
+
+/* control bar: flow chips, then Back / caption / Play / Next, then the scrubber on the bottom edge */
+#bar{position:sticky;top:8px;z-index:20;display:grid;gap:8px;padding:10px 16px 12px;border:1px solid var(--line);border-radius:var(--r-l);
+  background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(6px)}
+#bar.stuck{box-shadow:0 8px 24px rgba(15,21,28,.10)}
+.chiprow{display:flex;gap:8px;align-items:center}
+.chips{display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:thin;padding:2px}
+.chip{flex:0 0 auto;font:500 14px var(--sans);border:1.5px solid var(--line);background:var(--card);color:var(--fg);border-radius:var(--r-s);
+  padding:9px 14px;min-height:40px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip .n::after{content:" \00B7"}
+#f-all .n::after{content:""}
+.chip[aria-pressed="true"]{border-color:var(--c,var(--fg));box-shadow:inset 0 0 0 1.5px var(--c,var(--fg));background:color-mix(in srgb,var(--c,var(--fg)) 10%,var(--card))}
+.steps{display:flex;gap:8px 12px;align-items:center}
+#cap{flex:1 1 320px;margin:0;font-size:14px;border-left:4px solid var(--c,var(--line));padding:2px 0 2px 10px}
+.stepl,.stepr{display:flex;gap:6px}
+.stepr{margin-left:auto}
+.tool{min-height:40px;min-width:40px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:var(--r-s);padding:0 12px;
+  font:500 14px var(--sans);cursor:pointer;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.stepl .tool,.stepr .icon{padding:0;font-size:16px}
+.tool[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.tool:disabled{opacity:.4;cursor:default}
+.chip:focus-visible,.tool:focus-visible,#scrub:focus-visible,#cap:focus-visible,.nform textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#scrub{width:100%;margin:2px 0 -8px;height:14px;accent-color:var(--c,var(--muted))}
+/* edge buttons: rail switch top-left, Note and Night bottom-left */
+#railbtn{position:fixed;left:16px;top:16px;z-index:22}
+#dock{position:fixed;left:16px;bottom:16px;z-index:22;display:flex;flex-direction:column;gap:8px}
+#railbtn,#dock .tool{width:44px;min-height:44px;padding:0;box-shadow:0 4px 14px rgba(15,21,28,.12)}
+@media (min-width:701px){body:not(.rail) .wrap{padding-left:76px}}
+
+/* tooltips on hover and keyboard focus; Escape hides them */
+.tip{position:relative}
+.tip::after{content:attr(data-tip);position:absolute;right:0;top:calc(100% + 8px);z-index:40;pointer-events:none;background:var(--fg);color:var(--bg);
+  font:500 12.5px/1.35 var(--sans);padding:6px 9px;border-radius:var(--r-s);width:max-content;max-width:240px;text-align:left;opacity:0;visibility:hidden;transition:opacity .12s .35s}
+.stepl .tip::after{right:auto;left:0}
+#railbtn.tip::after,#dock .tip::after{right:auto;left:calc(100% + 10px);top:50%;transform:translateY(-50%)}
+.tip:hover::after,.tip:focus-visible::after{opacity:1;visibility:visible}
+body.notip .tip::after{opacity:0;visibility:hidden}
+@media (hover:none){.tip::after{display:none}}
+
+/* service card: a popover next to the icon */
+#pop{position:absolute;z-index:18;width:300px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-top:4px solid var(--accent);
+  box-shadow:0 10px 30px rgba(0,0,0,.18);padding:14px 16px}
+#pop .x{position:absolute;right:6px;top:6px;width:36px;height:36px;border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer;border-radius:6px}
+#pop .x:focus-visible{outline:2px solid var(--accent)}
+#detail h2{margin:0;font-size:17px;padding-right:32px}
+#detail .aws{font:500 13px var(--mono);color:var(--muted);margin-top:2px}
+#detail p{margin:8px 0 0}
+#nbtip{position:absolute;z-index:14;pointer-events:none;background:var(--fg);color:var(--bg);font:500 12.5px var(--sans);padding:5px 9px;border-radius:var(--r-s);white-space:nowrap}
+
+/* notes, kept in this browser */
+.sheet.pin{cursor:crosshair}
+.note,.nform{position:absolute;z-index:16;transform:translate(-50%,-100%);background:#FFF3B0;color:#16202B;border:1px solid #E2C64A;border-radius:var(--r-s) var(--r-s) var(--r-s) 0;box-shadow:0 6px 16px rgba(0,0,0,.15)}
+.note{padding:6px 8px;font-size:13px;max-width:220px}
+.note b{font:700 12px var(--mono);margin-right:4px}
+.note button{border:0;background:none;cursor:pointer;color:#6b5a00;font-size:15px;min-width:28px;min-height:28px}
+.nform{padding:8px;display:grid;gap:6px;width:240px}
+.nform label{font:600 12px var(--sans)}
+.nform textarea{display:block;width:100%;box-sizing:border-box;margin-top:4px;font:14px var(--sans);border:1px solid #C9A100;border-radius:6px;padding:6px;resize:vertical}
+.nform div{display:flex;gap:6px}
+.nform .tool{min-height:34px;background:#fff;color:#16202B;border-color:#C9A100}
+#notes{background:var(--card);border:1px solid var(--line);padding:10px 16px 10px 36px;margin:0}
+#notes:empty{display:none}
+
 /* diagram */
 svg text{font-family:var(--sans)}
 .gl{font-size:13px;font-weight:600}
@@ -48,8 +103,10 @@ svg text{font-family:var(--sans)}
 .poolbox{fill:#FFFFFF;stroke:#E8C9A8;stroke-width:1}
 .bedbox{fill:#F7F2FF;stroke:#8C4FFF;stroke-width:1.6}
 .hit{fill:transparent}
-.node{cursor:pointer;outline:none}
+.tile{fill:none}
+.node{cursor:pointer;outline:none;transition:opacity .2s}
 .node:hover .hit,.node:focus-visible .hit{fill:rgba(224,122,0,.08)}
+.node:focus-visible .hit{stroke:var(--accent);stroke-width:2}
 .node.sel .hit{fill:rgba(224,122,0,.14);stroke:#E07A00;stroke-width:1.2}
 .node.sel .poolbox{stroke:#E07A00;stroke-width:2}
 .trunk{stroke:#7D8998;stroke-width:5;fill:none;stroke-linecap:round}
@@ -59,49 +116,248 @@ body[data-flow] .flow{opacity:.1}
 .flabel{font-size:12px;font-weight:600;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
 .badge circle{stroke:#fff;stroke-width:2}
 .bt{font-size:12px;font-weight:700;fill:#fff}
-@media (prefers-reduced-motion: reduce){.flow{transition:none}}
+
+/* motion: a pressed flow lights its icons and marches with packets; a hovered icon lights its own arrows; the current step marches */
+body[data-flow] .node{opacity:.35}
+body[data-flow] .node.lit{opacity:1}
+.flow.on,.sheet.nb .flow.link,.sheet.walk path.flow.now{stroke-dasharray:10 6;animation:march 1s linear infinite;filter:drop-shadow(0 0 3px currentColor)}
+@keyframes march{to{stroke-dashoffset:-16}}
+body.still .flow{animation-play-state:paused}
+.pkt{filter:drop-shadow(0 0 4px currentColor)}
+.sheet.nb .flow{opacity:.08!important}
+.sheet.nb .node{opacity:.3}
+.sheet.nb .node.me,.sheet.nb .node.near{opacity:1}
+.sheet.nb .flow.link{opacity:1!important;stroke-width:3.2}
+/* steps: later arrows and their labels and badges wait; unreached icons fade */
+.sheet.walk .flow{opacity:0!important}
+.sheet.walk .flow.seen:not(path){opacity:1!important}
+.sheet.walk path.flow.past{opacity:.4!important}
+.sheet.walk path.flow.now{opacity:1!important;stroke-width:3.4}
+.sheet.walk .node{opacity:1}
+.sheet.walk .node.off{opacity:.12}
+
+/* Night: an opt-in dark sheet; every icon sits on a white tile so AWS colours still read on white */
+body.night{background:#05070D}
+body.night #bar{background:rgba(5,7,13,.85);border-color:#22304A}
+body.night .sheet{background:radial-gradient(ellipse at 30% 0%,#13254A 0%,#070B16 60%);border-color:#1C2A44}
+body.night .sheet svg rect:not(.hit):not(.tile){fill:transparent!important;stroke:#3A5A8C!important}
+body.night .sheet svg text{fill:#C9D6EC!important}
+body.night .gs,body.night .ns{fill:#7F93B4!important}
+body.night .tile{fill:#fff}
+body.night .flow{filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 8px currentColor)}
+body.night .flabel{stroke:#070B16}
+body.night .poolbox{fill:transparent}
+
+/* vertical rail (opt-in, wide screens): numbered squares on the left that open to the flow name */
+@media (min-width:701px){
+  body.rail #bar{backdrop-filter:none}
+  body.rail .wrap{max-width:none;padding-left:88px}
+  body.rail .chips{position:fixed;left:14px;top:calc(50% + 10px);transform:translateY(-50%);flex-direction:column;overflow:visible;gap:10px;z-index:21}
+  body.rail .chip{width:44px;height:44px;min-height:44px;padding:0;overflow:hidden;white-space:nowrap;border:2.5px solid var(--c,var(--muted));transition:width .22s ease}
+  body.rail .chip i,body.rail .chip .n::after{display:none}
+  body.rail .chip .n{flex:0 0 39px;text-align:center;font:700 14px var(--mono)}
+  body.rail .chip .t{opacity:0;transition:opacity .15s;padding-right:16px}
+  body.rail .chip:hover,body.rail .chip:focus-visible{width:240px}
+  body.rail .chip:hover .t,body.rail .chip:focus-visible .t{opacity:1}
+  body.rail .chip[aria-pressed="true"]{background:var(--c,var(--muted));color:#fff;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--c,var(--muted))}
+}
+
+/* phone: centred title, controls in a bottom drawer, service card floating above it */
+@media (max-width:700px){
+  .wrap{padding-inline:12px;gap:12px;padding-bottom:calc(var(--dh,200px) + 16px)}
+  header h1{text-align:center}
+  #bar{position:fixed;top:auto;left:0;right:0;bottom:0;z-index:30;display:flex;flex-direction:column;border:0;border-top:1px solid var(--line);
+    border-radius:var(--r-l) var(--r-l) 0 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(15,21,28,.12);
+    background:color-mix(in srgb,var(--card) 94%,transparent)}
+  .steps{order:1;gap:6px}#scrub{order:2;margin:0}.chiprow{order:3}
+  #cap{flex:1 1 0;min-width:0;font-size:13.5px;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #cap.open{display:block;max-height:40vh;overflow:auto}
+  .stepl .tool,.stepr .tool{min-width:44px;min-height:44px;padding:0}
+  .chips{scrollbar-width:none;padding:3px}
+  .chip{width:44px;height:44px;min-height:44px;padding:0;justify-content:center;border:2.5px solid var(--c,var(--muted));flex:0 0 44px}
+  .chip i,.chip .t,.chip .n::after{display:none}
+  .chip .n{font:700 14px var(--mono)}
+  .chip[aria-pressed="true"]{background:var(--c,var(--muted));color:#fff;box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--c,var(--muted))}
+  .chiprow #neon{width:44px;min-height:44px;padding:0}
+  #nt,#railbtn,#dock,#motion .lbl{display:none!important}
+  #pop{position:fixed!important;left:12px!important;right:12px;top:auto!important;bottom:calc(var(--dh,200px) + 8px);width:auto;max-height:45vh;overflow:auto;z-index:31}
+}
+@media (prefers-reduced-motion: reduce){
+  .flow,.node,body.rail .chip,body.rail .chip .t,.tip::after{transition:none}
+  .flow.on,.sheet.nb .flow.link,.sheet.walk path.flow.now{animation:none}
+}
 </style>
-</head><body><div class="wrap">
+</head><body><main class="wrap">
   <header>
     <h1>{{title}}</h1>
-    <p>{{intro}}</p>
   </header>
 
-  <div class="chips" role="group" aria-label="Highlight a flow">
-    <button class="chip" id="f-all" data-f="" aria-pressed="true">All flows</button>
-    {{chips}}
+  <div id="bar">
+    <div class="chiprow">
+      <div class="chips" role="group" aria-label="Highlight a flow">
+        <button class="chip" id="f-all" data-f="" aria-pressed="true" aria-label="All flows"><span class="n">All</span><span class="t">flows</span></button>
+        {{chips}}
+      </div>
+    </div>
+    <div class="steps">
+      <span class="stepl"><button type="button" class="tool tip" id="pv" aria-label="Previous arrow" data-tip="Previous arrow (back to overview from arrow 1)">&#8249;</button></span>
+      <p id="cap" aria-live="polite">{{intro}}</p>
+      <span class="stepr">
+        <button type="button" class="tool icon tip" id="pl" aria-label="Play the arrows" aria-pressed="false" data-tip="Play every arrow in order">&#9654;</button>
+        <button type="button" class="tool icon tip" id="nx" aria-label="Next arrow" data-tip="Next arrow - starts the walk from arrow 1">&#8250;</button>
+        <button type="button" class="tool tip" id="motion" aria-label="Pause motion" aria-pressed="false" data-tip="Pause or resume moving dashes and packets"><span aria-hidden="true">&#10074;&#10074;</span><span class="lbl">Pause motion</span></button>
+      </span>
+    </div>
+    <input id="scrub" type="range" min="0" max="1" value="0" aria-label="Arrow" title="Drag to walk the arrows; far left shows them all">
+    <span id="hop" class="sr" aria-live="polite"></span>
   </div>
 
   <div class="sheet">{{svg}}</div>
   <p class="hint">{{hint}}</p>
 
-  <section id="detail" aria-live="polite">
-    <h2>Tap a component</h2>
-    <p>Each icon and each layer has a short description of its role.</p>
-  </section>
-
   {{sections}}
+
+<button type="button" class="tool tip" id="railbtn" aria-label="Vertical rail" aria-pressed="false" data-tip="Show flows as a vertical rail on the left">&#8645;</button>
+<div id="dock" role="toolbar" aria-label="Notes and theme">
+  <button type="button" class="tool tip" id="nt" aria-label="Add a note" aria-pressed="false" data-tip="Add a note: then click a spot or press Enter on an icon">&#9998;</button>
+  <button type="button" class="tool tip" id="neon" aria-label="Night mode" aria-pressed="false" data-tip="Night mode: dark sheet, glowing arrows">&#9790;</button>
 </div>
+</main>
 
 <script>
 const D = {{detail_map}};
-const det = document.getElementById('detail');
-function show(id){
-  const d = D[id]; if(!d) return;
-  document.querySelectorAll('.node.sel').forEach(n=>n.classList.remove('sel'));
-  document.querySelectorAll(`.node[data-id="${id}"]`).forEach(n=>n.classList.add('sel'));
-  det.innerHTML = `<h2></h2><div class="aws"></div><p></p>`;
-  det.querySelector('h2').textContent = d[0];
-  det.querySelector('.aws').textContent = d[1];
-  det.querySelector('p').textContent = d[2];
+{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,phone=matchMedia('(max-width:700px)');
+const NS='http://www.w3.org/2000/svg',bar=$('#bar'),sheet=$('.sheet'),svg=sheet.querySelector('svg'),cap=$('#cap'),intro=cap.textContent;
+const pv=$('#pv'),pl=$('#pl'),nx=$('#nx'),mo=$('#motion'),rg=$('#scrub'),hopEl=$('#hop'),nt=$('#nt'),nn=$('#neon'),rl=$('#railbtn'),dock=$('#dock');
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const nodesOf=id=>$$(`.node[data-id="${CSS.escape(id)}"]`);
+const nm=(id,g)=>id&&D[id]?D[id][0]:g?`the ${g} boundary`:'outside the diagram';
+const FLOWS=$$('details ol li').map(li=>li.innerHTML),FIDS=$$('.chip').map(c=>c.dataset.f).filter(Boolean),FNAME={};
+const EDGES=$$('path.flow').map(p=>({p,f:[...p.classList].find(c=>c.startsWith('f-')).slice(2),a:p.dataset.from,z:p.dataset.to,ag:p.dataset.fromGroup,zg:p.dataset.toGroup}));
+$$('.flow').forEach(el=>{const f=[...el.classList].find(c=>c.startsWith('f-'));if(f)el.style.color=`var(--${f.slice(2)})`});
+$$('.chip').forEach(c=>{const i=c.querySelector('i');if(i)c.style.setProperty('--c',i.style.background);if(c.dataset.f)FNAME[c.dataset.f]=c.querySelector('.t').textContent});
+new IntersectionObserver(([e])=>bar.classList.toggle('stuck',e.intersectionRatio<1),{threshold:[1],rootMargin:'-9px 0px 0px 0px'}).observe(bar);
+new ResizeObserver(()=>document.documentElement.style.setProperty('--dh',bar.offsetHeight+'px')).observe(bar);
+
+// packets along arrows
+function traffic(list){svg.querySelectorAll('.pkt').forEach(x=>x.remove());if(RM)return;
+  list.forEach((e,i)=>{const L=e.p.getTotalLength(),dur=Math.max(.8,L/240),k=list.length>1?2:3;
+    for(let j=0;j<k;j++){const c=document.createElementNS(NS,'circle');c.setAttribute('r',5);c.setAttribute('class','pkt');c.setAttribute('fill',`var(--${e.f})`);c.style.color=`var(--${e.f})`;
+      const a=document.createElementNS(NS,'animateMotion');a.setAttribute('dur',dur+'s');a.setAttribute('repeatCount','indefinite');a.setAttribute('begin',(svg.getCurrentTime()+i*.2+j*dur/k)+'s');a.setAttribute('path',e.p.getAttribute('d'));c.append(a);svg.append(c)}})}
+
+// flow selection and spotlight
+let flow='',walking=false,pin=false,hops=[],h=0,timer=null;
+function spot(){$$('.flow.on').forEach(e=>e.classList.remove('on'));$$('.node.lit').forEach(n=>n.classList.remove('lit'));
+  EDGES.filter(e=>e.f===flow).forEach(e=>{e.p.classList.add('on');[e.a,e.z].forEach(x=>x&&nodesOf(x).forEach(n=>n.classList.add('lit')))})}
+function caption(){cap.classList.remove('open');if(phone.matches)cap.setAttribute('aria-expanded','false');
+  if(flow){cap.style.setProperty('--c',`var(--${flow})`);cap.innerHTML=FLOWS[FIDS.indexOf(flow)]||''}else{cap.style.setProperty('--c','var(--line)');cap.textContent=intro}}
+$$('.chip').forEach(c=>c.addEventListener('click',()=>{
+  $$('.chip').forEach(x=>x.setAttribute('aria-pressed',x===c?'true':'false'));
+  flow=c.dataset.f;if(flow)document.body.dataset.flow=flow;else delete document.body.dataset.flow;
+  spot();caption();overview();
+  if(phone.matches)c.scrollIntoView({inline:'center',block:'nearest',behavior:RM?'auto':'smooth'})}));
+
+// neighbourhood of a hovered or focused icon
+const tip=document.createElement('div');tip.id='nbtip';tip.hidden=true;tip.setAttribute('aria-hidden','true');sheet.append(tip);
+function nbOff(){sheet.classList.remove('nb');$$('.me,.near,.link').forEach(x=>x.classList.remove('me','near','link'));tip.hidden=true}
+function nbOn(n){if(walking||pin)return;nbOff();const id=n.dataset.id,mine=EDGES.filter(e=>e.a===id||e.z===id);if(!mine.length)return;
+  sheet.classList.add('nb');n.classList.add('me');mine.forEach(e=>{e.p.classList.add('link');[e.a,e.z].forEach(x=>x&&nodesOf(x).forEach(m=>m.classList.add('near')))});
+  const r=n.getBoundingClientRect(),s=sheet.getBoundingClientRect();
+  tip.textContent=`${mine.filter(e=>e.z===id).length} in · ${mine.filter(e=>e.a===id).length} out`;
+  tip.style.left=(r.left-s.left+sheet.scrollLeft)+'px';tip.style.top=(r.bottom-s.top+4)+'px';tip.hidden=false}
+
+// timeline: step 0 is the overview, steps 1..N walk the arrows of the pressed flow (or all of them)
+function stop(){clearInterval(timer);timer=null;pl.innerHTML='&#9654;';pl.setAttribute('aria-pressed','false')}
+function overview(){stop();walking=false;sheet.classList.remove('walk');$$('.past,.now,.seen,.off').forEach(x=>x.classList.remove('past','now','seen','off'));
+  hops=flow?EDGES.filter(e=>e.f===flow):EDGES.slice();rg.max=hops.length;rg.value=0;rg.style.setProperty('--c',flow?`var(--${flow})`:'var(--muted)');
+  rg.setAttribute('aria-valuetext','Overview, all arrows shown');pv.disabled=true;nx.disabled=!hops.length;traffic(EDGES.filter(e=>e.f===flow))}
+function paint(){walking=true;sheet.classList.add('walk');nbOff();const seen=new Set(),reached=new Set();
+  EDGES.forEach(e=>{const i=hops.indexOf(e);e.p.classList.toggle('past',i>=0&&i<h);e.p.classList.toggle('now',i===h);if(i>=0&&i<=h){seen.add(e.f);[e.a,e.z].forEach(x=>x&&reached.add(x))}});
+  $$('.flow:not(path)').forEach(t=>t.classList.toggle('seen',[...t.classList].some(c=>c.startsWith('f-')&&seen.has(c.slice(2)))));
+  $$('.node').forEach(n=>n.classList.toggle('off',!reached.has(n.dataset.id)));
+  const e=hops[h],text=`Arrow ${h+1} of ${hops.length}: ${nm(e.a,e.ag)} → ${nm(e.z,e.zg)}`+(flow?'':` (${FNAME[e.f]||e.f})`);
+  hopEl.textContent=text;rg.value=h+1;rg.setAttribute('aria-valuetext',text);rg.style.setProperty('--c',`var(--${e.f})`);
+  pv.disabled=false;nx.disabled=h>=hops.length-1;traffic([e]);setTimeout(follow,30)}
+function follow(){if(!phone.matches||!walking||!hops[h])return;const r=hops[h].p.getBoundingClientRect(),s=sheet.getBoundingClientRect(),b=bar.getBoundingClientRect();
+  sheet.scrollBy({left:(r.left+r.width/2)-(s.left+s.width/2),behavior:RM?'auto':'smooth'});
+  const top=12,bot=b.top-12;if(r.top<top||r.bottom>bot)scrollBy({top:r.top-top-Math.max(0,(bot-top-r.height)/2),behavior:RM?'auto':'smooth'})}
+nx.onclick=()=>{stop();h=walking?h+1:0;paint()};
+pv.onclick=()=>{stop();if(h<=0){overview();return}h--;paint()};
+rg.oninput=()=>{stop();const v=+rg.value;if(v===0){overview();return}h=v-1;paint()};
+pl.onclick=()=>{if(timer){stop();return}if(!walking||h>=hops.length-1)h=-1;pl.innerHTML='&#10074;&#10074;';pl.setAttribute('aria-pressed','true');
+  const tick=()=>{h++;paint();if(h>=hops.length-1)stop()};tick();if(h<hops.length-1)timer=setInterval(tick,RM?1600:1100)};
+
+// one switch for dashes and packets (WCAG 2.2.2)
+mo.hidden=RM;
+mo.onclick=()=>{const on=!document.body.classList.contains('still');document.body.classList.toggle('still',on);mo.setAttribute('aria-pressed',on);on?svg.pauseAnimations():svg.unpauseAnimations()};
+
+// service card
+const pop=document.createElement('div');pop.id='pop';pop.hidden=true;pop.setAttribute('role','dialog');pop.setAttribute('aria-labelledby','pop-h');
+pop.innerHTML='<button type="button" class="x" aria-label="Close detail">×</button><section id="detail"><h2 id="pop-h"></h2><div class="aws"></div><p></p></section>';sheet.append(pop);
+let last=null;
+function closePop(){pop.hidden=true;$$('.node.sel').forEach(n=>n.classList.remove('sel'));if(last)last.focus()}
+function openPop(n){const d=D[n.dataset.id];if(!d)return;last=n;$$('.node.sel').forEach(x=>x.classList.remove('sel'));nodesOf(n.dataset.id).forEach(x=>x.classList.add('sel'));
+  pop.querySelector('h2').textContent=d[0];pop.querySelector('.aws').textContent=d[1];pop.querySelector('p').textContent=d[2];pop.hidden=false;
+  const r=n.getBoundingClientRect(),s=sheet.getBoundingClientRect();let x=r.right-s.left+sheet.scrollLeft+8,y=r.top-s.top;
+  if(x+300>sheet.scrollWidth)x=r.left-s.left+sheet.scrollLeft-308;y=Math.min(y,sheet.scrollHeight-pop.offsetHeight-8);
+  pop.style.left=Math.max(8,x)+'px';pop.style.top=Math.max(8,y)+'px';pop.querySelector('.x').focus({preventScroll:true})}
+pop.querySelector('.x').onclick=closePop;
+pop.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();pop.querySelector('.x').focus()}});
+document.addEventListener('click',e=>{if(!pop.hidden&&!pop.contains(e.target)&&!e.target.closest('.node'))closePop()});
+$$('.node').forEach(n=>{n.addEventListener('click',()=>openPop(n));n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPop(n)}});
+  n.addEventListener('pointerenter',()=>nbOn(n));n.addEventListener('pointerleave',nbOff);n.addEventListener('focus',()=>nbOn(n));n.addEventListener('blur',nbOff)});
+
+// caption opens on tap on a phone
+cap.addEventListener('click',()=>{if(!phone.matches)return;const o=cap.classList.toggle('open');cap.setAttribute('aria-expanded',o)});
+cap.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&phone.matches){e.preventDefault();cap.click()}});
+function layout(){const p=phone.matches;if(p){cap.tabIndex=0;cap.setAttribute('role','button');cap.setAttribute('aria-expanded','false');$('.chiprow').append(nn)}
+  else{cap.removeAttribute('tabindex');cap.removeAttribute('role');cap.removeAttribute('aria-expanded');cap.classList.remove('open');dock.append(nn)}}
+phone.addEventListener('change',layout);layout();
+
+// notes, kept in this browser only
+const list=document.createElement('ol');list.id='notes';list.setAttribute('aria-label','Your notes');sheet.after(list);
+const key='awsk-notes-'+location.pathname;let NOTES=[];try{NOTES=JSON.parse(store.get(key)||'[]')}catch(e){}
+const at=(x,y)=>[x*svg.clientWidth+'px',y*svg.clientHeight+'px'];
+function renderNotes(){sheet.querySelectorAll('.note').forEach(n=>n.remove());list.replaceChildren();
+  NOTES.forEach((n,i)=>{const d=document.createElement('div');d.className='note';[d.style.left,d.style.top]=at(n.x,n.y);const b=document.createElement('b');b.textContent=i+1;d.append(b,n.t);
+    const x=document.createElement('button');x.type='button';x.setAttribute('aria-label',`Delete note ${i+1}`);x.textContent='×';
+    x.onclick=e=>{e.stopPropagation();NOTES.splice(i,1);store.set(key,JSON.stringify(NOTES));renderNotes()};d.append(x);sheet.append(d);
+    const li=document.createElement('li');li.textContent=n.t;list.append(li)})}
+function setPin(on){pin=on;nt.setAttribute('aria-pressed',on);sheet.classList.toggle('pin',on);if(on)nbOff()}
+function noteForm(x,y){sheet.querySelector('.nform')?.remove();const f=document.createElement('form');f.className='nform';[f.style.left,f.style.top]=at(x,y);
+  f.innerHTML='<label>Note<textarea rows="3" maxlength="280"></textarea></label><div><button type="submit" class="tool">Save</button><button type="button" class="tool">Cancel</button></div>';
+  const ta=f.querySelector('textarea'),done=()=>{f.remove();nt.focus()};
+  f.onsubmit=e=>{e.preventDefault();const t=ta.value.trim();if(t){NOTES.push({x,y,t});store.set(key,JSON.stringify(NOTES));renderNotes()}done()};
+  f.querySelector('[type=button]').onclick=done;
+  ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();f.requestSubmit()}if(e.key==='Escape'){e.stopPropagation();done()}};
+  f.addEventListener('click',e=>e.stopPropagation());sheet.append(f);ta.focus()}
+nt.onclick=()=>setPin(!pin);
+sheet.addEventListener('click',e=>{if(!pin||e.target.closest('.note,.nform,#pop'))return;e.preventDefault();e.stopPropagation();const s=svg.getBoundingClientRect();
+  setPin(false);noteForm((e.clientX-s.left)/s.width,(e.clientY-s.top)/s.height)},true);
+sheet.addEventListener('keydown',e=>{const n=e.target.closest&&e.target.closest('.node');if(!pin||!n||(e.key!=='Enter'&&e.key!==' '))return;e.preventDefault();e.stopPropagation();
+  const r=n.getBoundingClientRect(),s=svg.getBoundingClientRect();setPin(false);noteForm((r.left+r.width/2-s.left)/s.width,(r.top-s.top)/s.height)},true);
+addEventListener('resize',renderNotes);renderNotes();
+
+// Night: tiles are added once, and have no fill outside Night
+let tiled=false;
+function setNight(on){if(on&&!tiled){tiled=true;svg.querySelectorAll('.node use').forEach(u=>{const b=u.getBBox();if(b.width<20||b.width>80)return;const r=document.createElementNS(NS,'rect');
+    r.setAttribute('class','tile');r.setAttribute('x',b.x-3);r.setAttribute('y',b.y-3);r.setAttribute('width',b.width+6);r.setAttribute('height',b.height+6);r.setAttribute('rx',6);u.before(r)})}
+  document.body.classList.toggle('night',on);if(on)document.documentElement.dataset.theme='dark';else delete document.documentElement.dataset.theme;nn.setAttribute('aria-pressed',on);store.set('awsk-night',on?'1':'')}
+nn.onclick=()=>setNight(!document.body.classList.contains('night'));setNight(store.get('awsk-night')==='1');
+
+// vertical rail switch
+function setRail(on){document.body.classList.toggle('rail',on);rl.setAttribute('aria-pressed',on);store.set('awsk-rail',on?'1':'')}
+rl.onclick=()=>setRail(!document.body.classList.contains('rail'));setRail(store.get('awsk-rail')==='1');
+
+// Escape closes the innermost layer only, and hides tooltips (WCAG 1.4.13)
+let popWasOpen=false;document.addEventListener('keydown',()=>{popWasOpen=!pop.hidden},true);
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;document.body.classList.add('notip');
+  if(popWasOpen)closePop();else if(pin){setPin(false);nt.focus()}else if(walking)overview()});
+document.addEventListener('pointermove',()=>document.body.classList.remove('notip'));
+document.addEventListener('focusin',()=>document.body.classList.remove('notip'));
+caption();overview();
 }
-document.querySelectorAll('.node').forEach(n=>{
-  n.addEventListener('click',()=>{show(n.dataset.id); if(matchMedia('(max-width:700px)').matches) det.scrollIntoView({behavior:'smooth',block:'nearest'});});
-  n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show(n.dataset.id)}});
-});
-document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
-  document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed', x===c ? 'true':'false'));
-  if(c.dataset.f) document.body.dataset.flow = c.dataset.f; else delete document.body.dataset.flow;
-}));
 </script>
 </body></html>
