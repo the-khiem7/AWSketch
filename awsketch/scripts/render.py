@@ -60,6 +60,35 @@ def edge_dist(px, py, x, y, w, h):
     return min(px - x, x + w - px, py - y, y + h - py)
 
 
+# An arrow end within this distance of a node box (or a clickable pool) belongs to it.
+END_REACH = 14
+
+
+def edge_ends(spec, edge):
+    """Return (from, to, from_group, to_group) for an edge.
+
+    Explicit `from` / `to` win; otherwise each end goes to the nearest node within END_REACH, then the nearest clickable pool, so an arrow that stops at a task inside a layer box names the task, not the box. An end that touches only a group boundary gets that group's label for the caption."""
+    nodes = [(n["id"], (n["x"], n["y"], n["w"], node_height(n))) for n in spec.get("nodes", [])]
+    pools = [(p["id"], (p["x"], p["y"], p["w"], p["h"])) for p in spec.get("pools", []) if p.get("clickable", True)]
+    groups = [(g["label"], (g["x"], g["y"], g["w"], g["h"])) for g in spec.get("groups", []) if g.get("label")]
+
+    def nearest(px, py):
+        for cands in (nodes, pools):
+            hits = [(rect_dist(px, py, *b), b[2] * b[3], i) for i, b in cands if rect_dist(px, py, *b) <= END_REACH]
+            if hits:
+                return min(hits)[2]
+        return ""
+
+    def group_at(px, py):
+        hits = [(edge_dist(px, py, *b), b[2] * b[3], label) for label, b in groups if edge_dist(px, py, *b) <= END_REACH]
+        return min(hits)[2] if hits else ""
+
+    (ax, ay), (zx, zy) = edge["points"][0], edge["points"][-1]
+    a = edge.get("from") or nearest(ax, ay)
+    z = edge.get("to") or nearest(zx, zy)
+    return a, z, "" if a else group_at(ax, ay), "" if z else group_at(zx, zy)
+
+
 def validate(spec, index):
     errors, warns = [], []
     canvas = spec["canvas"]
@@ -102,6 +131,10 @@ def validate(spec, index):
             for a, b in zip(pts, pts[1:]):
                 if a[0] != b[0] and a[1] != b[1]:
                     errors.append(f"{kind[:-1]} {i}: segment {a}->{b} is not axis-aligned")
+            if kind == "edges":
+                for end in ("from", "to"):
+                    if end in e and e[end] not in ids:
+                        errors.append(f"edge {i}: {end} {e[end]!r} is not a node or pool id")
     boxes = []
     for n in spec.get("nodes", []):
         box = (n["x"], n["y"], n["w"], node_height(n))
@@ -223,7 +256,9 @@ def build_svg(spec, index):
         if e.get("end", True):
             marks += f' marker-end="url(#m-{fid})"'
         dash = ' stroke-dasharray="7 5"' if e.get("dashed") else ""
-        out.append(f'<path class="flow f-{fid}" d="{path_d(e["points"])}"{marks}{dash}></path>')
+        a, z, ag, zg = (escape(v, quote=True) for v in edge_ends(spec, e))
+        ends = f' data-from="{a}" data-to="{z}"' + (f' data-from-group="{ag}"' if ag else "") + (f' data-to-group="{zg}"' if zg else "")
+        out.append(f'<path class="flow f-{fid}"{ends} d="{path_d(e["points"])}"{marks}{dash}></path>')
     for t in spec.get("labels", []):
         fid = t["flow"]
         out.append(f'<text class="flow f-{fid} flabel c-{fid}" x="{t["x"]}" y="{t["y"]}" text-anchor="{t.get("anchor", "start")}">{escape(t["text"])}</text>')
