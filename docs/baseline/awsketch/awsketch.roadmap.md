@@ -1,10 +1,10 @@
 ---
-baseline_schema: "2.0"
+baseline_schema: "3.0"
 pack: "awsketch"
 document: "roadmap"
 status: "active"
-updated: "2026-10-26"
-code_ref: "8b3f5c7"
+updated: "2026-11-02"
+code_ref: "ab601a6"
 ---
 
 # awsketch - Roadmap
@@ -21,10 +21,11 @@ code_ref: "8b3f5c7"
 | AK-P6 | Browser verification | AK-P5 | complete |
 | AK-P7 | Skill instructions and references | AK-P5, AK-P6 | complete |
 | AK-P8 | Install and smoke test | AK-P7 | complete |
+| AK-P9 | UI Shell enhancement | AK-P4, AK-P5 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P8) are complete. No next action is planned; the open item is that the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P9) are complete. No next action is planned; the open item is that the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -92,6 +93,15 @@ All phases (AK-P1 to AK-P8) are complete. No next action is planned; the open it
 - Evidence: junction `.claude/skills/awsketch` created with `New-Item -ItemType Junction` (no elevation), LinkType Junction, target `awsketch/`, and `SKILL.md` reads through it; the three-tier spec (users, ALB, ECS, RDS, S3, CloudWatch; three flows), written by following `SKILL.md`, passes `--check` with 0 errors and 0 warnings when run through the junction path; the first 1280px screenshot showed one flow crossing two node labels, fixed by rerouting it to the hit box edges and by a new layout rule (AK-D12, vertical flows use the box edge); the second screenshot shows no collisions.
 - Evidence: after `/reload-skills` in this repo the skill list grew from 107 to 108 and `awsketch` appears in it with its description (2026-10-26).
 - Risk: the junction is machine-local and must not be committed.
+
+## AK-P9: Phase 9 - UI Shell enhancement
+
+- Deliver: the shell layout approved in AK-D13: desktop overview-first timeline with flow chips, Back / Play / Next around the flow caption, scrubber on the bar edge, spotlight and neighbourhood animation, packets with one Pause switch, tooltips, Note / Night / vertical-rail switches on the left edge; phone bottom drawer. `render.py` emits `data-from` / `data-to` per flow path (AK-D14).
+- Acceptance: validator still passes; the sample spec renders with every flow path carrying `data-from` / `data-to`; no page errors at 1280 and 390; desktop and phone layouts match AK-D13; axe reports no serious violation; every control reachable by keyboard with visible focus; reduced motion stops dashes and packets.
+- Gate: AK-Q3 answered before the step order is called correct; closed by AK-D15 (optional spec `from` / `to`).
+- Status: complete.
+- Evidence: `render.py --check` on the 48-component sample gives 0 errors and 0 warnings; 31 of 31 flow paths carry `data-from` / `data-to`, 3 ends named by the ECS cluster boundary; an edge `to` naming an unknown id fails with exit 1; in Chrome at 1280 (light and dark) and at 390 with touch emulation there are no page errors; axe-core 4.10.2 reports no violations on load, with the card open, and at 390; Pay flow arrow 2 reads "Payment webhook queue to Payment confirmer"; clicking the pressed chip returns the scrubber to 0; a note is placed and kept. `SKILL.md`, `README.md`, `spec-format.md` and `layout-rules.md` describe the new shell.
+- Risk: specs without `from` / `to` still name the node an arrow touches (AK-D15); on a phone the diagram stays a 1100px sheet panned sideways; no screen reader was run, only axe.
 
 ## Risks
 

@@ -1,10 +1,10 @@
 ---
-baseline_schema: "2.0"
+baseline_schema: "3.0"
 pack: "awsketch"
 document: "hallucination"
 status: "active"
-updated: "2026-10-26"
-code_ref: "8b3f5c7"
+updated: "2026-11-02"
+code_ref: "ab601a6"
 ---
 
 # awsketch - Decisions and Open Questions
@@ -17,11 +17,14 @@ code_ref: "8b3f5c7"
 | AK-D2 | How the diagram is produced | decided | AK-D3 |
 | AK-D3 | Layout by explicit coordinates | decided | AK-D2 |
 | AK-D5 | Font delivery | decided | - |
-| AK-D6 | Drawing sheet colour in dark mode | decided | - |
+| AK-D6 | Drawing sheet colour in dark mode | decided | AK-D13 |
 | AK-D7 | Public repo with redistributed AWS icons | decided | AK-Q1 |
 | AK-D8 | Repo-scoped junction install | decided | AK-Q2, AK-D1 |
 | AK-D10 | Icon files nested by kind and category | decided | - |
 | AK-D12 | Vertical flows start and end at the hit box edge, not the icon | lesson | - |
+| AK-D13 | Approved page shell layout | decided | AK-D6, AK-D14, AK-D15 |
+| AK-D14 | Arrow ends come from the spec, not page geometry | decided | AK-D13, AK-D15 |
+| AK-D15 | Optional `from` / `to` on spec edges | decided | AK-Q3, AK-D14 |
 
 ## Closed decisions
 
@@ -59,6 +62,7 @@ code_ref: "8b3f5c7"
 - Why: AWS icon tiles and group colours are designed for a white background.
 - Breaks if ignored: dark-filled sheets make group strokes and resource icons illegible.
 - Rejected: theming the SVG - AWS icon colours are fixed.
+- Exception: the opt-in Night switch (AK-D13) darkens the sheet and puts every icon on a white tile, so icon colours still sit on white; system dark mode alone never darkens the sheet.
 
 ### AK-D7: The repo is public and ships the AWS icon SVGs
 
@@ -95,6 +99,31 @@ Closes AK-Q2.
 - Lesson: in the three-tier smoke test the agent ended a flow at the S3 icon bottom and started one at the ECS icon bottom, which looked right in the spec because the coordinates were the icon edge, and the screenshot showed the line through both labels; the validator cannot see it because the line does not touch another node's hit box.
 - Breaks if ignored: flows cross labels in every diagram that routes below a row, and only a screenshot catches it.
 - Rejected: a validator check for a segment crossing a node's own label area - more code for a case a written rule plus the screenshot step already covers.
+
+### AK-D13: Approved page shell layout
+
+- Decision: the shell keeps the original horizontal flow chips in a sticky bar and adds, on desktop: rounded-rectangle shape on every container (chips and buttons 8px, bar, sheet and card 14px, no mono UI font); a timeline that is always on, where step 0 is the overview with every arrow shown, Play or Next starts at arrow 1, Back from arrow 1, Escape or any chip click (including the pressed one) returns to step 0; Back icon left of the flow caption, Play and Next icons right of it, scrubber on the bar's bottom edge in the flow colour; the hop text is screen-reader only; the diagram intro moves into the caption slot under All flows; a pressed flow lights its icons, marches its dashes and sends packets; hovering or focusing an icon lights its own arrows and ends with an "N in, N out" tip; one Pause switch stops dashes and packets; the service card is a popover next to the icon with Tab kept inside and Escape closing it; Note (inline form, kept in this browser), Night (dark blueprint sheet, icons on white tiles) and the vertical-rail switch are icon-only buttons on the left edge; tooltips on every control except flow chips, hidden by Escape and on touch screens.
+- Decision (phone, max 700px): centred title; a bottom drawer holds Back / caption (2 lines, tap to open) / Play / Next / Pause, then the scrubber, then flows as numbered rounded squares scrolling sideways with Night pinned at the right; the service card floats above the drawer; Note and the rail switch are hidden; each step scrolls the current arrow into view.
+- Why: overview first means nothing animates on load and no mode switch is needed; the drawer puts every phone control in thumb reach while the top of the screen stays diagram. Approved by the owner on 2026-11-02.
+- Breaks if ignored: a step-through mode switch returns as an extra button; Pause missing fails WCAG 2.2.2 for the moving dashes and packets; a full-width bottom sheet on phone covers the drawer.
+- Rejected: docked inspector or bottom drawer for the service card on desktop - the popover next to the icon keeps the eye on the diagram; vertical rail as the default selector - names hidden until hover; a separate Step through mode with a Done button - replaced by step 0; zoom, 3D and autoplay views - out of scope for this phase; tooltips on flow chips - removed by the owner.
+- Constraint: the white tiles behind icons in Night must have no fill outside Night, or icons turn black after Night is switched off.
+
+### AK-D14: Arrow ends come from the spec through the renderer's distance helpers
+
+- Decision: `render.py` writes `data-from` / `data-to` on every `path.flow`, found by matching each edge's first and last point to the nearest node within 14px (`rect_dist`), then a clickable pool, else the nearest group boundary name (`edge_dist`) for the caption.
+- Why: the shell's neighbourhood, spotlight and step features need edge endpoints, and the spec has none.
+- Breaks if ignored: an arrow ending on a layer box is counted as the box instead of the task inside, so lit neighbours and hop captions are wrong.
+- Rejected: inferring endpoints in the page from rendered path geometry - wrong on layer boxes and repeated on every page load.
+
+### AK-D15: Spec edges take optional `from` / `to`; arrow order in `edges` is the walk order
+
+Closes AK-Q3.
+
+- Decision: an edge may name `from` and `to` (node or pool ids, validated); each missing end falls back to the nearest node, then pool (AK-D14). The timeline walks arrows in `edges` order, so the agent lists each flow's arrows in the order traffic moves; no `order` field.
+- Why: geometry names the node an arrow touches, which is not always the logical source (an arrow that joins another line, or stops at a box edge).
+- Breaks if ignored: step captions name the wrong source, and the agent has no way to correct them short of moving the drawing.
+- Rejected: geometry only - wrong captions with no fix; a required `from` / `to` - breaks every existing spec; an `order` field - the list order already expresses it.
 
 ## Open questions
 

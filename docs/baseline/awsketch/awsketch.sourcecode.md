@@ -1,10 +1,10 @@
 ---
-baseline_schema: "2.0"
+baseline_schema: "3.0"
 pack: "awsketch"
 document: "sourcecode"
 status: "active"
-updated: "2026-10-26"
-code_ref: "8b3f5c7"
+updated: "2026-11-02"
+code_ref: "ab601a6"
 ---
 
 # awsketch - Source Code
@@ -56,7 +56,7 @@ graph LR
   "groups": [{"type": "region", "x": 358, "y": 48, "w": 1094, "h": 762, "label": "AWS Region", "sub": "one region"}],
   "pools": [{"id": "l-exp", "x": 642, "y": 138, "w": 312, "h": 114, "color": "#2563EB", "title": "Control plane", "note": "", "lines": ["Web app + API"], "detail": ["Control plane", "EKS pods", "text"]}],
   "nodes": [{"id": "alb", "icon": "alb", "x": 476, "y": 224, "w": 130, "size": 44, "label": "Application LB", "sub": ["HTTPS 443"], "detail": ["Ingress", "Application Load Balancer", "text"]}],
-  "edges": [{"flow": "web", "points": [[565, 250], [600, 250], [600, 196], [640, 196]], "dashed": false, "start": false, "end": true}],
+  "edges": [{"flow": "web", "points": [[565, 250], [600, 250], [600, 196], [640, 196]], "dashed": false, "start": false, "end": true, "from": "alb", "to": "l-exp"}],
   "labels": [{"flow": "web", "x": 575, "y": 244, "text": "HTTPS", "anchor": "start"}],
   "badges": [{"flow": "web", "x": 205, "y": 142}],
   "trunks": [{"points": [[316, 432], [384, 432]]}],
@@ -90,8 +90,25 @@ Flow palette: `#2563EB`, `#E07A00`, `#7C3AED`, `#0E8F7E`, `#64748B`. Pool bar co
 - Pool: title at `y + 22`, lines from `y + 44` every 18px, `note` as `.ns` at `x + 98` on the title row.
 - Each flow generates a CSS variable, `.f-/.mk-/.c-/.b-` classes, one `<marker>` with `orient="auto-start-reverse"`, one chip and one `body[data-flow]` rule; badge numbers follow `flows` order.
 - Waypoints render as `M x y` then `H` or `V` per segment.
-- `assets/shell.html` is filled by plain string replacement of `{{title}}`, `{{intro}}`, `{{flow_vars}}` (one `--<flow>:<colour>;` per flow), `{{flow_rules}}` (per flow: `path.f-`, `.mk-`, `.c-`, `.b-` and the `body[data-flow]` rule), `{{chips}}`, `{{svg}}` (the whole `<svg id="dia">` element), `{{hint}}`, `{{sections}}` and `{{detail_map}}` (the `D` object literal); never `str.format`, because the shell script holds `${...}` and braces.
+- Every `path.flow` carries `data-from` / `data-to` from `edge_ends()`: explicit `from` / `to` first, else the nearest node within `END_REACH` (14) of each end by `rect_dist`, then a clickable pool; an end touching only a group boundary gets `data-from-group` / `data-to-group` with the group label (by `edge_dist`). The shell uses these for the neighbourhood highlight, the spotlight and the step captions (AK-D14).
+- Chips render as `<i>` colour dot, `.n` number, `.t` label, with `aria-label="Flow N: label"`; the SVG root is `role="group"` because it holds focusable nodes.
+- `assets/shell.html` is filled by plain string replacement of `{{title}}`, `{{intro}}`, `{{flow_vars}}` (one `--<flow>:<colour>;` per flow), `{{flow_rules}}` (per flow: `path.f-`, `.mk-`, `.c-`, `.b-` and the `body[data-flow]` rule), `{{chips}}`, `{{svg}}` (the whole `<svg id="dia">` element), `{{hint}}`, `{{sections}}` and `{{detail_map}}` (the `D` object literal); `{{intro}}` fills the caption slot, not the header; never `str.format`, because the shell script holds `${...}` and braces.
 - Only icons referenced by groups or nodes are inlined into `<defs>`, each icon file (a standalone `<svg>`, located through its `path` in `index.json`) converted to a `<symbol>`.
+
+## Page shell script
+
+One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`:
+
+| Part | Behaviour |
+|---|---|
+| Chips | Set `body[data-flow]`, spotlight (`.on` arrows, `.lit` icons), caption, then `overview()` |
+| Timeline | `overview()` is step 0; `paint()` draws step `h` of `hops` (pressed flow's arrows, or all); `#pv` / `#pl` / `#nx` / `#scrub` drive `h`; Escape returns to step 0 |
+| Motion | `traffic()` adds `animateMotion` packets; `#motion` pauses them and the dash animation; none under reduced motion |
+| Neighbourhood | `nbOn()` on hover or focus lights the node's arrows and ends, tip `N in, N out` |
+| Card | `openPop()` positions `#pop` next to the icon (CSS pins it above the drawer on a phone); Tab stays inside; Escape closes |
+| Notes | `localStorage` key `awsk-notes-<path>`; inline form; Enter on a focused icon places one |
+| Night / rail | `localStorage` `awsk-night`, `awsk-rail`; Night adds `.tile` rects once |
+| Phone | `layout()` on the `(max-width:700px)` change moves Night into the chip row and makes the caption a tap-to-open button; `follow()` scrolls the current arrow into view; `--dh` holds the drawer height |
 
 ## Validator
 
@@ -99,6 +116,7 @@ Flow palette: `#2563EB`, `#E07A00`, `#7C3AED`, `#0E8F7E`, `#64748B`. Pool bar co
 |---|---|
 | Unknown icon, duplicate id, unknown flow id, more than 6 flows, invalid JSON | error |
 | Edge segment not axis-aligned | error |
+| Edge `from` / `to` that is not a node or pool id | error |
 | Two node hit boxes overlap, or a node extends past the canvas | error |
 | Label or subline wider than node `w` (7px per char at 13px, 6.2px at 11.5px) | warn |
 | Edge endpoint more than 8px from any node, pool or group edge | warn |
