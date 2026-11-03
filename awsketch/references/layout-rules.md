@@ -11,7 +11,7 @@ Columns run left to right from the outside world to the innermost services. Use 
 | External | users, partner or corporate systems, telco, inside a `corp` group when they share a network | 16 / 222 |
 | Connectivity | Direct Connect, VPN, Transit Gateway, internet gateway, between the external column and the VPC | 234 to 450 |
 | Public subnet | WAF, load balancers, NAT gateway, edge instances | 466 / 150 |
-| Compute | cluster (`eks`) with its layer pools, or compute nodes | 630 / 336 |
+| Compute | cluster (`ecs` or `eks`) with its layer pools, or compute nodes | 630 / 336 |
 | Private data subnet | databases, caches | 980 / 188 |
 | Regional services | `services` group outside the VPC: S3, ECR, KMS, secrets, logging, AI services | 1196 / 244 |
 

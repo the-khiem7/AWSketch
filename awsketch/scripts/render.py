@@ -33,6 +33,7 @@ GROUP_STYLES = {
     "public-subnet": ("#F2F6E8", "#7AA116", None, "#232F3E", "group-public-subnet", 32),
     "private-subnet": ("#E6F6F7", "#00A4A6", None, "#232F3E", "group-private-subnet", 32),
     "eks": ("#FFF7F0", "#ED7100", "3 3", "#232F3E", "amazon-elastic-kubernetes-service", 32),
+    "ecs": ("#FFF7F0", "#ED7100", None, "#232F3E", "amazon-elastic-container-service", 32),
     "corp": ("none", "#7D8998", None, "#232F3E", "group-corporate-data-center", 32),
     "services": ("#F7F8FA", "#C7CDD6", None, "#232F3E", None, 8),
     "highlight": ("#F7F2FF", "#8C4FFF", None, "#232F3E", None, 8),

@@ -48,6 +48,7 @@ A spec is one JSON object. Coordinates are SVG user units on the canvas; `x`, `y
 | `public-subnet` | green fill and outline | `group-public-subnet` |
 | `private-subnet` | teal fill and outline | `group-private-subnet` |
 | `eks` | orange tint, orange dashed outline | `amazon-elastic-kubernetes-service` |
+| `ecs` | orange tint, solid orange outline | `amazon-elastic-container-service` |
 | `corp` | grey outline | `group-corporate-data-center` |
 | `services` | light grey fill, no icon | none |
 | `highlight` | light purple box with a purple outline, no title | none |
