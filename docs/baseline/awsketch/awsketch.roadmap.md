@@ -3,8 +3,8 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "roadmap"
 status: "active"
-updated: "2026-11-02"
-code_ref: "ab601a6"
+updated: "2026-11-03"
+code_ref: "uncommitted"
 ---
 
 # awsketch - Roadmap
@@ -22,10 +22,12 @@ code_ref: "ab601a6"
 | AK-P7 | Skill instructions and references | AK-P5, AK-P6 | complete |
 | AK-P8 | Install and smoke test | AK-P7 | complete |
 | AK-P9 | UI Shell enhancement | AK-P4, AK-P5 | complete |
+| AK-P10 | Records mode | AK-P9 | complete |
+| AK-P11 | Validator and group type follow-ups | AK-P10 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P9) are complete. No next action is planned; the open item is that the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P11) are complete. No next action is planned; the open item is that the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -102,6 +104,22 @@ All phases (AK-P1 to AK-P9) are complete. No next action is planned; the open it
 - Status: complete.
 - Evidence: `render.py --check` on the 48-component sample gives 0 errors and 0 warnings; 31 of 31 flow paths carry `data-from` / `data-to`, 3 ends named by the ECS cluster boundary; an edge `to` naming an unknown id fails with exit 1; in Chrome at 1280 (light and dark) and at 390 with touch emulation there are no page errors; axe-core 4.10.2 reports no violations on load, with the card open, and at 390; Pay flow arrow 2 reads "Payment webhook queue to Payment confirmer"; clicking the pressed chip returns the scrubber to 0; a note is placed and kept. `SKILL.md`, `README.md`, `spec-format.md` and `layout-rules.md` describe the new shell.
 - Risk: specs without `from` / `to` still name the node an arrow touches (AK-D15); on a phone the diagram stays a 1100px sheet panned sideways; no screen reader was run, only axe.
+
+## AK-P10: Phase 10 - Records mode
+
+- Deliver: `references/records.md` and `scripts/records.py` (records kept beside a spec drawn from other documents, AK-D16, with lint, AK-D18); `render.py` warning for missing flow captions and the caption rule in `spec-format.md` (AK-D17); `SKILL.md` procedure step 8 and a Records mode section; `README.md` rows and usage.
+- Acceptance: the first records-mode diagram (a 26-node platform diagram) converts from its baseline pack to a record set with `lint` and `check` at 0 findings; a broken copy is caught by `lint` and refused by `stamp`; `init` writes both files and never overwrites; the two sample specs give no caption warning.
+- Status: complete.
+- Evidence: on the converted record set (71 routes, 32 source files, 2 watched folders) `lint` gives 0 findings and `check` exits 0 after `stamp`; on a copy with a renamed node, a wrong anchor and a duplicate identifier `lint` gives 5 findings and `stamp` refuses; `init` on a copy of `examples/platform-on-aws.json` wrote both files, a second `init` refused, `next-id` gave `PLT-D1`; `render.py --check` on both sample specs shows no caption warning; the moved page walked all 24 arrows of 6 flows with every chip caption and no page error in Edge.
+- Risk: drift findings say a source changed, not whether the diagram must change; a source edit that does not touch a routed section or add an entry is not reported; the Source map and routes are maintained by hand.
+
+## AK-P11: Phase 11 - Validator and group type follow-ups
+
+- Deliver: `ecs` group type (AK-D20); group title overflow warning (AK-D21); ASCII-only dash check in `render.py` (AK-D22); `spec-format.md`, `layout-rules.md` and `sourcecode` updated.
+- Acceptance: a spec with a narrowed group and an en dash in its title gets both warnings; the two sample specs gain no new warning; the first records-mode diagram renders with its cluster as `ecs` and 0 warnings; `render.py` holds no non-ASCII character.
+- Status: complete.
+- Evidence: the negative spec gave `group 'Private app': title and subtitle are wider than w=120` and the dash warning; `examples/platform-on-aws.json` kept its 2 earlier label warnings and `diagrams/ecommerce-on-aws.json` stayed at 0; the records-mode diagram first warned on its cluster title, then rendered with 0 warnings after the cluster became `ecs` with a shorter title, and the screenshot at 1280 showed the solid orange frame with the ECS icon and the title inside it; a scan of `render.py` found 0 non-ASCII characters.
+- Risk: the width estimate is per character, so a title of wide glyphs can still overflow without a warning.
 
 ## Risks
 

@@ -3,8 +3,8 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "hallucination"
 status: "active"
-updated: "2026-11-02"
-code_ref: "ab601a6"
+updated: "2026-11-03"
+code_ref: "uncommitted"
 ---
 
 # awsketch - Decisions and Open Questions
@@ -25,6 +25,13 @@ code_ref: "ab601a6"
 | AK-D13 | Approved page shell layout | decided | AK-D6, AK-D14, AK-D15 |
 | AK-D14 | Arrow ends come from the spec, not page geometry | decided | AK-D13, AK-D15 |
 | AK-D15 | Optional `from` / `to` on spec edges | decided | AK-Q3, AK-D14 |
+| AK-D16 | Records mode: sources and decisions files beside the spec, instead of a baseline pack | decided | AK-D17, AK-D18 |
+| AK-D17 | Render warning for missing flow captions | decided | AK-D15 |
+| AK-D18 | Records lint checks spec and routes against each other and gates stamp | decided | AK-D16 |
+| AK-D19 | Byte order mark hid a source file's frontmatter from records | lesson | AK-D16 |
+| AK-D20 | `ecs` group type | decided | AK-Q4, AK-D13 |
+| AK-D21 | Warning for a group title and subtitle wider than the group | decided | AK-Q5, AK-D17 |
+| AK-D22 | `render.py` source is ASCII-only | decided | AK-Q6 |
 
 ## Closed decisions
 
@@ -124,6 +131,61 @@ Closes AK-Q3.
 - Why: geometry names the node an arrow touches, which is not always the logical source (an arrow that joins another line, or stops at a box edge).
 - Breaks if ignored: step captions name the wrong source, and the agent has no way to correct them short of moving the drawing.
 - Rejected: geometry only - wrong captions with no fix; a required `from` / `to` - breaks every existing spec; an `order` field - the list order already expresses it.
+
+### AK-D16: A diagram that must stay true to other documents keeps two record files beside its spec, not a baseline pack
+
+- Decision: records mode keeps `<slug>.json`, `<slug>.html`, `<slug>.sources.md` and `<slug>.decisions.md` in `docs/diagrams/<slug>/`; sources carries repositories, a source map, routes from diagram elements to source sections with a fingerprint each, source files with `updated` and the highest entry identifier, watched folders with a file count, and a Verified table; decisions carries one Next line, decisions and open questions under one prefix; status is what `records.py check` computes. Format and workflow in `references/records.md`.
+- Why: the first such diagram (a platform diagram of 26 nodes drawn from six packs in two repositories) was kept as a baseline pack with a router document; its phases and introduction repeated what the spec and `check` already say, every write required the pack contract, and `packtool.sh` never checked the router, which was the part that mattered. Section fingerprints rather than file hashes or `code_ref`: a whole-file hash flags every unrelated edit, and a pack's `code_ref` lagged a commit that changed the very value the diagram drew.
+- Breaks if ignored: a later visit trusts a diagram whose source changed, or re-reads every source pack to find out.
+- Rejected: a baseline pack with a router document (overhead above, router unchecked); routes inside the spec (each stamp churns the spec, and route fields must never reach a published page); a new baselinedocs-family skill (keeps the pack contract the mode exists to avoid); records for every diagram (most are drawn once, so the mode is opt-in).
+
+### AK-D17: `render.py` warns when flows have no caption item
+
+- Decision: warn when a spec has flows but no `ordered` section, or when the first ordered section has fewer items than flows; `spec-format.md` states the rule.
+- Why: the shell captions a pressed chip with the item at the same index of the page's ordered lists, a rule that lived only in `assets/shell.html`; the first records-mode spec rendered with 0 warnings and empty captions.
+- Breaks if ignored: a spec that follows the documentation ships chips with no caption, silently.
+- Rejected: an error (blocks specs that want no captions); a `caption` field on each flow (changes the spec format and the shell for a rule a warning covers).
+
+### AK-D18: `records.py lint` checks the spec and the routes against each other and gates `stamp`
+
+- Decision: lint fails on a node or clickable pool with no route, a route naming an id or `section:` title absent from the spec, an unresolved source or anchor, a routed source missing from Source files, a duplicate or misfiled identifier, a `## Next` that is not one line, an en or em dash; `check` runs lint first and `stamp` refuses while it fails; `stamp` also writes the `render.py --check` result into `## Verified`.
+- Why: renaming a node in the spec left its routes orphaned and nothing reported it; a stamp over an unresolved route would record a fingerprint of nothing.
+- Breaks if ignored: drift on a renamed element is never reported, and a stamp hides broken routes.
+- Rejected: lint as a separate optional step (it is skipped exactly when it matters, before a stamp).
+
+### AK-D19: A byte order mark hid a source file's frontmatter from records, so records reads `utf-8-sig`
+
+- Lesson: after a source file was rewritten with Windows PowerShell 5.1 `Set-Content -Encoding utf8`, which prepends a UTF-8 byte order mark, `records.py check` reported its `updated` as `-` and would have stamped `-`; the first line read as `﻿---`, not `---`.
+- Why it looked fine: the file rendered and diffed normally, and the edit itself was a one-line date change.
+- Fix: `records.py` reads every source as `utf-8-sig`, which drops a leading mark and reads plain UTF-8 unchanged; the mark was also stripped from the file.
+- Breaks if ignored: every frontmatter-based signal (Updated, the stamped date) silently goes blank for that file, and a real `updated` change is never reported.
+
+### AK-D20: The renderer has an `ecs` group type
+
+Closes AK-Q4.
+
+- Decision: group type `ecs` draws an orange tint (`#FFF7F0`) with a solid orange outline (`#ED7100`) and the `amazon-elastic-container-service` icon; `eks` keeps the dashed outline.
+- Why: the first ECS-based diagram drew its cluster with the `eks` type and an icon override, so the frame kept the EKS dashed outline and read as another service; owner approved on 2026-11-03.
+- Breaks if ignored: an ECS cluster frame reads as EKS.
+- Rejected: keep `eks` plus `icon` and document the override (the dashed EKS styling stays).
+
+### AK-D21: The validator warns when a group title and subtitle are wider than the group
+
+Closes AK-Q5.
+
+- Decision: warn when the label offset + 7 units per title character + 8 + 6.5 units per subtitle character exceeds `w - 6`.
+- Why: three group titles overflowed on the first records-mode diagram (a subnet title with its CIDR range in a 150-unit subnet, an account frame subtitle) and rendered with 0 warnings; only the screenshot caught them. On that diagram the warning also flagged the cluster frame, whose subtitle the earlier screenshot showed touching the right edge.
+- Breaks if ignored: clipped group titles ship whenever the screenshot step is skipped or skimmed.
+- Rejected: leave it to the screenshot step (missed three times on one diagram).
+
+### AK-D22: `render.py` writes the dash check with escapes, so the source is ASCII-only
+
+Closes AK-Q6.
+
+- Decision: `BAD_DASH` in `render.py` and `records.py` uses the escapes for U+2013 and U+2014 instead of the literal characters.
+- Why: every shipped file uses the ASCII hyphen only (introduction constraints); the detector held the two characters literally.
+- Breaks if ignored: a dash scan of the shipped files flags the renderer itself, and the constraint has an unmarked exception.
+- Rejected: exempt the detector from the rule (an exception nobody can see in the file).
 
 ## Open questions
 

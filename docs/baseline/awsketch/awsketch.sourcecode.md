@@ -3,8 +3,8 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "sourcecode"
 status: "active"
-updated: "2026-11-02"
-code_ref: "ab601a6"
+updated: "2026-11-03"
+code_ref: "uncommitted"
 ---
 
 # awsketch - Source Code
@@ -22,11 +22,13 @@ AWSketch/
     references/spec-format.md
     references/layout-rules.md
     references/icon-catalog.md        generated
+    references/records.md             records mode format and workflow
     assets/shell.html
     assets/icons/<kind>/<category>/<id>.svg   group icons: assets/icons/group/<id>.svg
     assets/icons/index.json                   id -> {name, kind, category, path, viewBox, size}
     scripts/sync_aws_icons.py
     scripts/render.py
+    scripts/records.py                records mode: init, lint, check, routes, show, next-id, stamp
 ```
 
 ## Execution flow
@@ -77,6 +79,7 @@ graph LR
 | `public-subnet` | `#F2F6E8` / `#7AA116` | group-public-subnet |
 | `private-subnet` | `#E6F6F7` / `#00A4A6` | group-private-subnet |
 | `eks` | `#FFF7F0` / `#ED7100` dash 3 3 | amazon-elastic-kubernetes-service (no group icon exists) |
+| `ecs` | `#FFF7F0` / `#ED7100` solid | amazon-elastic-container-service (no group icon exists); AK-D20 |
 | `corp` | none / `#7D8998` | group-corporate-data-center |
 | `services` | `#F7F8FA` / `#C7CDD6` | none |
 | `highlight` | `#F7F2FF` / `#8C4FFF` 1.6, rx 8 | none |
@@ -122,3 +125,9 @@ One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`
 | Edge endpoint more than 8px from any node, pool or group edge | warn |
 | Clickable node without `detail` | warn |
 | Non-ASCII dash in text | warn |
+| Flows without an ordered section, or fewer first-section items than flows (AK-D17) | warn |
+| Group title plus subtitle wider than the group: label offset + 7 per title char + 8 + 6.5 per subtitle char, against `w - 6` (AK-D21) | warn |
+
+## Records checker
+
+`records.py` finds the record set from the one `.json` in a folder: `<slug>.sources.md` and `<slug>.decisions.md` beside it. Tables are read by `## <title>` heading; a cell splits on unescaped `|`. Fingerprint: first 12 hex of SHA-256 over a section from its heading to the next heading of the same or higher level, trailing spaces stripped and blank-line runs collapsed, or over every line a `code:` regex matches. Watermark: highest `<PREFIX>-<KIND><N>` per kind among a file's headings. Watched folders count `*.md` files whose last stem part is a baseline document name. Files are read as `utf-8-sig`, so a byte order mark does not hide frontmatter. `lint` runs before `check` and `stamp`; `stamp` runs `render.py --check` and writes its result into `## Verified` (AK-D18).

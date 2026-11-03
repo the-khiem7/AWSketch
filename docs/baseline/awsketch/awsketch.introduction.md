@@ -3,8 +3,8 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "introduction"
 status: "active"
-updated: "2026-11-02"
-code_ref: "ab601a6"
+updated: "2026-11-03"
+code_ref: "uncommitted"
 ---
 
 # awsketch - Introduction
@@ -13,7 +13,7 @@ code_ref: "ab601a6"
 
 Build `awsketch`, an Agent Skill that produces interactive single-page AWS deployment diagrams from any architecture description, without the agent hand-writing SVG each time.
 
-In scope: the skill folder (`SKILL.md`, references, assets, scripts), an icon library, a spec-to-HTML renderer with a validator, local install, a smoke test.
+In scope: the skill folder (`SKILL.md`, references, assets, scripts), an icon library, a spec-to-HTML renderer with a validator, local install, a smoke test, and records mode for diagrams that must stay true to other documents.
 
 Out of scope: auto-layout, non-AWS cloud icon sets, committing anything without explicit approval.
 
@@ -24,6 +24,7 @@ Out of scope: auto-layout, non-AWS cloud icon sets, committing anything without 
 | Repository | `AWSketch`, branch `main` |
 | Skill code | built: renderer, validator, page shell, icon library, importer, instructions, references |
 | Install | repo-scoped directory junction, machine-local |
+| Records mode | built: `references/records.md`, `scripts/records.py`; first record set is a 26-node platform diagram drawn from six baseline packs (AK-D16) |
 
 ## Page anatomy
 
