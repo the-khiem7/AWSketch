@@ -173,6 +173,13 @@ def validate(spec, index):
             for px, py in pt:
                 if near and min((rect_dist if k == "rect" else edge_dist)(px, py, *r) for k, *r in near) > 8:
                     warns.append(f"edge {i} {label} ({px},{py}) is more than 8px from any node, pool or group edge")
+    # The shell captions a pressed chip with the item at the same index of the first ordered section.
+    flow_count = len(spec.get("flows", []))
+    ordered = [s for s in spec.get("sections", []) if s.get("ordered")]
+    if flow_count and not ordered:
+        warns.append(f"{flow_count} flow(s) but no ordered section; every chip caption will be empty")
+    elif flow_count and len(ordered[0].get("items", [])) < flow_count:
+        warns.append(f"first ordered section has {len(ordered[0].get('items', []))} item(s) for {flow_count} flow(s); later chips get no caption")
     texts = [spec.get("title", ""), spec.get("intro", ""), spec.get("hint", "")]
     texts += [t for e in spec.get("nodes", []) + spec.get("pools", []) for t in e.get("detail", [])]
     texts += [n.get("label", "") for n in spec.get("nodes", [])] + [t["text"] for t in spec.get("labels", []) + spec.get("texts", [])]

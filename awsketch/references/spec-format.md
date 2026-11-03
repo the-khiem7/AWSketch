@@ -115,6 +115,8 @@ The page walks arrows in the order they appear in `edges`, flow by flow, so list
 | `ordered` | `false` | Numbered list instead of bullets |
 | `items` | - | List of `{lead, text}`; `lead` is bold and optional |
 
+The page captions a pressed chip with the item at the same index of the ordered lists, so the first `ordered` section holds one item per flow, in `flows` order. Without it every chip caption is empty; with too few items the later chips have none. Keep other sections unordered.
+
 ## Validation
 
 Errors stop the render and exit 1: unreadable or malformed JSON, unknown icon or group type, duplicate id, unknown flow id, a flow id that is not a CSS identifier, more than 6 flows, a segment that is not horizontal or vertical, a connector without exactly two points, two node hit boxes that overlap, a node past the canvas, an edge `from` or `to` that is not a node or pool id.
