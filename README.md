@@ -15,10 +15,12 @@ An Agent Skill that draws interactive single-page AWS deployment diagrams. The a
 | `awsketch/references/spec-format.md` | Every spec field, defaults and validation rules |
 | `awsketch/references/layout-rules.md` | Column grid, nesting, box sizes, flow routing, palette |
 | `awsketch/references/icon-catalog.md` | Generated list of icon ids |
+| `awsketch/references/records.md` | Records mode: sources and decisions files kept beside a spec drawn from other documents |
 | `awsketch/assets/shell.html` | Fixed page shell the renderer fills |
 | `awsketch/assets/icons/` | Official AWS icons, `<kind>/<category>/<id>.svg`, indexed by `index.json` |
 | `awsketch/scripts/render.py` | Spec to HTML, with `--check` and `--list-icons` |
 | `awsketch/scripts/sync_aws_icons.py` | Adds icons from an AWS Architecture Icons package |
+| `awsketch/scripts/records.py` | Records mode: `init`, `lint`, `check`, `routes`, `show`, `next-id`, `stamp` |
 
 ## Install
 
@@ -42,6 +44,19 @@ uv run awsketch/scripts/render.py --list-icons
 ```
 
 Errors stop the render with exit code 1; warnings are printed and the page is still written.
+
+### Records mode
+
+For a diagram drawn from other documents that must stay true to them, keep the spec in `docs/diagrams/<slug>/` with a sources file and a decisions file beside it, and let `records.py` tell you what changed in the sources since the last stamp:
+
+```sh
+uv run awsketch/scripts/records.py init docs/diagrams/<slug>/<slug>.json --prefix ABC
+uv run awsketch/scripts/records.py check docs/diagrams/<slug>
+uv run awsketch/scripts/records.py show docs/diagrams/<slug> <node-id>
+uv run awsketch/scripts/records.py stamp docs/diagrams/<slug>
+```
+
+`references/records.md` holds the file format and the workflow.
 
 ## Updating the icons
 

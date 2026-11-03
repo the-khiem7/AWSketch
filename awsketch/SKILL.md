@@ -18,6 +18,11 @@ Write a JSON spec that places every box by explicit coordinates, then run the re
 5. Render: `uv run <skill-dir>/scripts/render.py diagrams/<slug>.json -o diagrams/<slug>.html`. Fix every error; fix a warning unless it is a known false positive of the width estimate and the screenshot shows the text fits.
 6. Look. Take a full-page screenshot at 1280px wide and check for boxes that collide, labels crossing icons or lines, arrowheads hidden under a box, and flows that cross a box instead of running in a gutter. Press a chip, press Next to walk its arrows, and click a node to confirm the highlight, the step order and the component card; if a step names the wrong source, set `from` / `to` on that edge. Iterate on the spec, never on the HTML.
 7. Publish only when asked: the HTML is a self-contained page (fonts from Google Fonts) and can be published as an Artifact from its repo path.
+8. Records, only in records mode: `uv run <skill-dir>/scripts/records.py lint <dir>`, write the screenshot and walk results under `## Verified`, then `stamp` and `check`, which must exit 0.
+
+## Records mode
+
+Use it when the diagram is drawn from other documents (baseline packs, design notes, Terraform) and must stay true to them: the spec then lives in `docs/diagrams/<slug>/` beside `<slug>.sources.md` (where each drawn fact comes from, with a fingerprint per source section) and `<slug>.decisions.md` (why it is drawn this way, what is open, the next step). Read `references/records.md` before creating or editing either file, every time. On a return visit run `records.py check <dir>` before touching the spec, and reconcile every finding before `stamp`. Skip records mode for a diagram drawn once from a conversation.
 
 ## Pitfalls
 
