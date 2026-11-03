@@ -23,7 +23,7 @@ MAX_FLOWS = 6
 SPEC_DEFAULTS = {"canvas": {"w": 1480, "h": 830}, "hint": "Tap any box or icon for what it does. On a phone, swipe the diagram sideways."}
 FLOW_ID = re.compile(r"^[a-z][a-z0-9-]*$")
 ICON_ID = re.compile(r"^[a-z0-9-]+$")
-BAD_DASH = re.compile("[–—]")
+BAD_DASH = re.compile("[\u2013\u2014]")
 
 # type -> (fill, stroke, dash, label colour, icon id or None, label x offset)
 GROUP_STYLES = {
