@@ -118,6 +118,11 @@ def validate(spec, index):
         icon = g.get("icon", GROUP_STYLES[g["type"]][4])
         if icon and icon not in index:
             errors.append(f"group {g.get('label')!r}: unknown icon {icon!r}")
+        if g.get("label"):
+            # Title at 13px semibold (7 units per char), subtitle at 12px (6.5) after an 8-unit gap, from the label offset.
+            title_w = GROUP_STYLES[g["type"]][5] + 7 * len(g["label"]) + (8 + 6.5 * len(g["sub"]) if g.get("sub") else 0)
+            if title_w > g.get("w", 0) - 6:
+                warns.append(f"group {g['label']!r}: title and subtitle are wider than w={g.get('w')}")
     for kind in ("edges", "labels", "badges"):
         for e in spec.get(kind, []):
             if e.get("flow") not in flows:

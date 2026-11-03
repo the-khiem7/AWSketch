@@ -122,7 +122,7 @@ The page captions a pressed chip with the item at the same index of the ordered 
 
 Errors stop the render and exit 1: unreadable or malformed JSON, unknown icon or group type, duplicate id, unknown flow id, a flow id that is not a CSS identifier, more than 6 flows, a segment that is not horizontal or vertical, a connector without exactly two points, two node hit boxes that overlap, a node past the canvas, an edge `from` or `to` that is not a node or pool id.
 
-Warnings print and the page is still written: a label wider than 7 units per character at the node width, a subline wider than 6.2 units per character, an icon wider than its node, a pool line wider than the pool, an edge end more than 8 units from every node, pool and group edge, a clickable box without a three-part `detail`, an en or em dash in any text.
+Warnings print and the page is still written: flows without an ordered section or with fewer ordered items than flows, a group title and subtitle wider than the group (7 units per title character, 6.5 per subtitle character, plus the icon offset), a label wider than 7 units per character at the node width, a subline wider than 6.2 units per character, an icon wider than its node, a pool line wider than the pool, an edge end more than 8 units from every node, pool and group edge, a clickable box without a three-part `detail`, an en or em dash in any text.
 
 ## Minimal example
 
