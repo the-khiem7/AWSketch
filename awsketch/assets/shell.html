@@ -182,10 +182,6 @@ body.night .poolbox{fill:transparent}
   #nt,#railbtn,#dock,#motion .lbl{display:none!important}
   #pop{position:fixed!important;left:12px!important;right:12px;top:auto!important;bottom:calc(var(--dh,200px) + 8px);width:auto;max-height:45vh;overflow:auto;z-index:31}
 }
-@media (prefers-reduced-motion: reduce){
-  .flow,.node,body.rail .chip,body.rail .chip .t,.tip::after{transition:none}
-  .flow.on,.sheet.nb .flow.link,.sheet.walk path.flow.now{animation:none}
-}
 </style>
 </head><body><main class="wrap">
   <header>
@@ -228,7 +224,7 @@ body.night .poolbox{fill:transparent}
 const D = {{detail_map}};
 {
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,phone=matchMedia('(max-width:700px)');
+const phone=matchMedia('(max-width:700px)');
 const NS='http://www.w3.org/2000/svg',bar=$('#bar'),sheet=$('.sheet'),svg=sheet.querySelector('svg'),cap=$('#cap'),intro=cap.textContent;
 const pv=$('#pv'),pl=$('#pl'),nx=$('#nx'),mo=$('#motion'),rg=$('#scrub'),hopEl=$('#hop'),nt=$('#nt'),nn=$('#neon'),rl=$('#railbtn'),dock=$('#dock');
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -242,7 +238,7 @@ new IntersectionObserver(([e])=>bar.classList.toggle('stuck',e.intersectionRatio
 new ResizeObserver(()=>document.documentElement.style.setProperty('--dh',bar.offsetHeight+'px')).observe(bar);
 
 // packets along arrows
-function traffic(list){svg.querySelectorAll('.pkt').forEach(x=>x.remove());if(RM)return;
+function traffic(list){svg.querySelectorAll('.pkt').forEach(x=>x.remove());
   list.forEach((e,i)=>{const L=e.p.getTotalLength(),dur=Math.max(.8,L/240),k=list.length>1?2:3;
     for(let j=0;j<k;j++){const c=document.createElementNS(NS,'circle');c.setAttribute('r',5);c.setAttribute('class','pkt');c.setAttribute('fill',`var(--${e.f})`);c.style.color=`var(--${e.f})`;
       const a=document.createElementNS(NS,'animateMotion');a.setAttribute('dur',dur+'s');a.setAttribute('repeatCount','indefinite');a.setAttribute('begin',(svg.getCurrentTime()+i*.2+j*dur/k)+'s');a.setAttribute('path',e.p.getAttribute('d'));c.append(a);svg.append(c)}})}
@@ -257,7 +253,7 @@ $$('.chip').forEach(c=>c.addEventListener('click',()=>{
   $$('.chip').forEach(x=>x.setAttribute('aria-pressed',x===c?'true':'false'));
   flow=c.dataset.f;if(flow)document.body.dataset.flow=flow;else delete document.body.dataset.flow;
   spot();caption();overview();
-  if(phone.matches)c.scrollIntoView({inline:'center',block:'nearest',behavior:RM?'auto':'smooth'})}));
+  if(phone.matches)c.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'})}));
 
 // neighbourhood of a hovered or focused icon
 const tip=document.createElement('div');tip.id='nbtip';tip.hidden=true;tip.setAttribute('aria-hidden','true');sheet.append(tip);
@@ -281,16 +277,15 @@ function paint(){walking=true;sheet.classList.add('walk');nbOff();const seen=new
   hopEl.textContent=text;rg.value=h+1;rg.setAttribute('aria-valuetext',text);rg.style.setProperty('--c',`var(--${e.f})`);
   pv.disabled=false;nx.disabled=h>=hops.length-1;traffic([e]);setTimeout(follow,30)}
 function follow(){if(!phone.matches||!walking||!hops[h])return;const r=hops[h].p.getBoundingClientRect(),s=sheet.getBoundingClientRect(),b=bar.getBoundingClientRect();
-  sheet.scrollBy({left:(r.left+r.width/2)-(s.left+s.width/2),behavior:RM?'auto':'smooth'});
-  const top=12,bot=b.top-12;if(r.top<top||r.bottom>bot)scrollBy({top:r.top-top-Math.max(0,(bot-top-r.height)/2),behavior:RM?'auto':'smooth'})}
+  sheet.scrollBy({left:(r.left+r.width/2)-(s.left+s.width/2),behavior:'smooth'});
+  const top=12,bot=b.top-12;if(r.top<top||r.bottom>bot)scrollBy({top:r.top-top-Math.max(0,(bot-top-r.height)/2),behavior:'smooth'})}
 nx.onclick=()=>{stop();h=walking?h+1:0;paint()};
 pv.onclick=()=>{stop();if(h<=0){overview();return}h--;paint()};
 rg.oninput=()=>{stop();const v=+rg.value;if(v===0){overview();return}h=v-1;paint()};
 pl.onclick=()=>{if(timer){stop();return}if(!walking||h>=hops.length-1)h=-1;pl.innerHTML='&#10074;&#10074;';pl.setAttribute('aria-pressed','true');
-  const tick=()=>{h++;paint();if(h>=hops.length-1)stop()};tick();if(h<hops.length-1)timer=setInterval(tick,RM?1600:1100)};
+  const tick=()=>{h++;paint();if(h>=hops.length-1)stop()};tick();if(h<hops.length-1)timer=setInterval(tick,1100)};
 
-// one switch for dashes and packets (WCAG 2.2.2)
-mo.hidden=RM;
+// one switch for dashes and packets (WCAG 2.2.2); motion always starts on, the switch is the only way to stop it
 mo.onclick=()=>{const on=!document.body.classList.contains('still');document.body.classList.toggle('still',on);mo.setAttribute('aria-pressed',on);on?svg.pauseAnimations():svg.unpauseAnimations()};
 
 // service card

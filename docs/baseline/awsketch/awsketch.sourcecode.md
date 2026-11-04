@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "sourcecode"
 status: "active"
-updated: "2026-11-03"
+updated: "2026-11-04"
 code_ref: "uncommitted"
 ---
 
@@ -106,7 +106,7 @@ One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`
 |---|---|
 | Chips | Set `body[data-flow]`, spotlight (`.on` arrows, `.lit` icons), caption, then `overview()` |
 | Timeline | `overview()` is step 0; `paint()` draws step `h` of `hops` (pressed flow's arrows, or all); `#pv` / `#pl` / `#nx` / `#scrub` drive `h`; Escape returns to step 0 |
-| Motion | `traffic()` adds `animateMotion` packets; `#motion` pauses them and the dash animation; none under reduced motion |
+| Motion | `traffic()` adds `animateMotion` packets; `#motion` pauses them and the dash animation; always on, the OS reduced-motion setting is not read (AK-D23) |
 | Neighbourhood | `nbOn()` on hover or focus lights the node's arrows and ends, tip `N in, N out` |
 | Card | `openPop()` positions `#pop` next to the icon (CSS pins it above the drawer on a phone); Tab stays inside; Escape closes |
 | Notes | `localStorage` key `awsk-notes-<path>`; inline form; Enter on a focused icon places one |

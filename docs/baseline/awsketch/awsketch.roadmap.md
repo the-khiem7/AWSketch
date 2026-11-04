@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "roadmap"
 status: "active"
-updated: "2026-11-03"
+updated: "2026-11-04"
 code_ref: "uncommitted"
 ---
 
@@ -24,10 +24,11 @@ code_ref: "uncommitted"
 | AK-P9 | UI Shell enhancement | AK-P4, AK-P5 | complete |
 | AK-P10 | Records mode | AK-P9 | complete |
 | AK-P11 | Validator and group type follow-ups | AK-P10 | complete |
+| AK-P12 | Motion ignores reduced-motion | AK-P9 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P11) are complete. No next action is planned; the open item is that the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P12) are complete. No next action is planned; the open item is that the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -99,7 +100,7 @@ All phases (AK-P1 to AK-P11) are complete. No next action is planned; the open i
 ## AK-P9: Phase 9 - UI Shell enhancement
 
 - Deliver: the shell layout approved in AK-D13: desktop overview-first timeline with flow chips, Back / Play / Next around the flow caption, scrubber on the bar edge, spotlight and neighbourhood animation, packets with one Pause switch, tooltips, Note / Night / vertical-rail switches on the left edge; phone bottom drawer. `render.py` emits `data-from` / `data-to` per flow path (AK-D14).
-- Acceptance: validator still passes; the sample spec renders with every flow path carrying `data-from` / `data-to`; no page errors at 1280 and 390; desktop and phone layouts match AK-D13; axe reports no serious violation; every control reachable by keyboard with visible focus; reduced motion stops dashes and packets.
+- Acceptance: validator still passes; the sample spec renders with every flow path carrying `data-from` / `data-to`; no page errors at 1280 and 390; desktop and phone layouts match AK-D13; axe reports no serious violation; every control reachable by keyboard with visible focus; reduced motion stops dashes and packets (last clause reversed by AK-D23, see AK-P12).
 - Gate: AK-Q3 answered before the step order is called correct; closed by AK-D15 (optional spec `from` / `to`).
 - Status: complete.
 - Evidence: `render.py --check` on the 48-component sample gives 0 errors and 0 warnings; 31 of 31 flow paths carry `data-from` / `data-to`, 3 ends named by the ECS cluster boundary; an edge `to` naming an unknown id fails with exit 1; in Chrome at 1280 (light and dark) and at 390 with touch emulation there are no page errors; axe-core 4.10.2 reports no violations on load, with the card open, and at 390; Pay flow arrow 2 reads "Payment webhook queue to Payment confirmer"; clicking the pressed chip returns the scrubber to 0; a note is placed and kept. `SKILL.md`, `README.md`, `spec-format.md` and `layout-rules.md` describe the new shell.
@@ -120,6 +121,14 @@ All phases (AK-P1 to AK-P11) are complete. No next action is planned; the open i
 - Status: complete.
 - Evidence: the negative spec gave `group 'Private app': title and subtitle are wider than w=120` and the dash warning; `examples/platform-on-aws.json` kept its 2 earlier label warnings and `diagrams/ecommerce-on-aws.json` stayed at 0; the records-mode diagram first warned on its cluster title, then rendered with 0 warnings after the cluster became `ecs` with a shorter title, and the screenshot at 1280 showed the solid orange frame with the ECS icon and the title inside it; a scan of `render.py` found 0 non-ASCII characters.
 - Risk: the width estimate is per character, so a title of wide glyphs can still overflow without a warning.
+
+## AK-P12: Phase 12 - Motion ignores reduced-motion
+
+- Deliver: `assets/shell.html` without the `prefers-reduced-motion` media block and the `RM` flag (AK-D23); `awsketch.sourcecode.md` motion row updated.
+- Acceptance: with `prefers-reduced-motion: reduce` emulated, a pressed flow still carries the `march` animation and packets, and `#motion` is visible; no `RM` or `reduced-motion` text left in the shell or in a rendered page.
+- Status: complete.
+- Evidence: two sample specs and two Atlantic diagrams re-rendered with 0 occurrences of `reduced-motion` or `RM`; in Chrome under Playwright with `reducedMotion: reduce`, pressing chip 4 of a 4-flow diagram gave `.flow.on` animation `march`, 6 packets, `#motion` display `flex` and not hidden, 0 console errors.
+- Risk: not run on a Windows machine with "Animation effects" off, only emulated; keyboard and axe checks of AK-P9 were not repeated.
 
 ## Risks
 

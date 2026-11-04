@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "hallucination"
 status: "active"
-updated: "2026-11-03"
+updated: "2026-11-04"
 code_ref: "uncommitted"
 ---
 
@@ -32,6 +32,7 @@ code_ref: "uncommitted"
 | AK-D20 | `ecs` group type | decided | AK-Q4, AK-D13 |
 | AK-D21 | Warning for a group title and subtitle wider than the group | decided | AK-Q5, AK-D17 |
 | AK-D22 | `render.py` source is ASCII-only | decided | AK-Q6 |
+| AK-D23 | Page motion always runs, the OS reduced-motion setting is ignored | decided | AK-D13 |
 
 ## Closed decisions
 
@@ -186,6 +187,14 @@ Closes AK-Q6.
 - Why: every shipped file uses the ASCII hyphen only (introduction constraints); the detector held the two characters literally.
 - Breaks if ignored: a dash scan of the shipped files flags the renderer itself, and the constraint has an unmarked exception.
 - Rejected: exempt the detector from the rule (an exception nobody can see in the file).
+
+### AK-D23: Page motion always runs; `prefers-reduced-motion` is not read
+
+- Decision: `assets/shell.html` has no `prefers-reduced-motion` media block and no `RM` flag; dashes, packets, smooth scrolling and the 1100 ms walk step always run, and the `#motion` Pause switch is always visible; no spec field or flag turns this off (owner, 2026-11-04).
+- Why: with Windows 11 "Animation effects" off, Chrome reports `reduce`, so the page showed no moving dashes or packets and hid the Pause switch; Playwright's Chrome ignores the OS setting and showed them, so the same page looked different. The owner wants the diagram to move on every machine.
+- Breaks if ignored: a viewer with the OS setting off sees a static diagram with no Pause switch and cannot tell why it differs from the author's screenshot.
+- Cost: a viewer who turns animation off for comfort or health still gets moving dashes and packets; the Pause switch (WCAG 2.2.2) is the only control and does not remember its state between loads.
+- Rejected: a spec field `motion: always` or a render flag (owner: always on, no switch); keep the media query and tell users to emulate `no-preference` in DevTools (temporary, per DevTools session); patch generated HTML by hand (lost on re-render).
 
 ## Open questions
 
