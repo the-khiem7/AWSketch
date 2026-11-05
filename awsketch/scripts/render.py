@@ -90,6 +90,112 @@ def edge_ends(spec, edge):
     return a, z, "" if a else group_at(ax, ay), "" if z else group_at(zx, zy)
 
 
+# Gap between an arrow end and the icon or box edge it touches, so the arrowhead stays visible.
+END_GAP = 2
+
+
+# Preferred distance between neighbouring arrow ends on one side of a node.
+PORT_GAP = 20
+
+
+def port_band(n, side):
+    """Return (centre, usable length) of the side of a node that arrow ends spread along."""
+    size, x, y, w = n.get("size", 44), n["x"], n["y"], n["w"]
+    if side in ("left", "right"):
+        return y + 4 + size / 2, size
+    return x + w / 2, size if side == "top" else w - 16
+
+
+def nudge_off_titles(spec, nodes, paths):
+    """Slide an end segment that runs through a group title sideways, just clear of the title, while it still lands on the icon.
+
+    A node in the first row of a group sits right under the group title, so a centred arrow into its top crosses the title; a short sideways move keeps both readable, where moving the nodes would unbalance the group."""
+    titles = [group_title_box(g) for g in spec.get("groups", []) if g.get("label")]
+    for ei, e in enumerate(spec.get("edges", [])):
+        a, z, _, _ = edge_ends(spec, e)
+        pts = paths[ei]
+        if len(pts) < 3:
+            continue
+        for idx, nb, nid in ((0, 1, a), (-1, -2, z)):
+            n = nodes.get(nid)
+            if not n:
+                continue
+            (px, py), (qx, qy) = pts[idx], pts[nb]
+            axis = 0 if px == qx else 1
+            seg = (min(px, qx) - 1, min(py, qy) - 1, abs(qx - px) + 2, abs(qy - py) + 2)
+            for t in titles:
+                if not overlaps(seg, t):
+                    continue
+                size = n.get("size", 44)
+                centre = n["x"] + n["w"] / 2 if axis == 0 else n["y"] + 4 + size / 2
+                lo, hi = centre - size / 2 + 4, centre + size / 2 - 4
+                for new in (t[axis] + t[2 + axis] + 4, t[axis] - 4):
+                    if lo <= new <= hi:
+                        pts[idx][axis] = pts[nb][axis] = new
+                        break
+                break
+
+
+def route(spec):
+    """Return (points per edge, warnings) with every arrow end placed on its node.
+
+    Ends on one side of a node are its ports; ends that start at the same coordinate share a port (a fan from one trunk). The ports of a side are spread PORT_GAP apart, centred on the icon (left, right, top) or on the box (bottom), keeping the order the spec gives them; the corner next to a moved end moves with it, so segments stay axis-aligned. A straight two-point edge moves as a whole, so the node at its other end must sit level with the port. Then each end is pulled onto the drawn part of the node: the icon's side or top, or the box bottom under the label and sublines, END_GAP short so the arrowhead shows."""
+    nodes = {n["id"]: n for n in spec.get("nodes", [])}
+    paths = [[list(p) for p in e["points"]] for e in spec.get("edges", [])]
+    groups, warns = {}, []
+    for ei, e in enumerate(spec.get("edges", [])):
+        a, z, _, _ = edge_ends(spec, e)
+        pts = paths[ei]
+        for idx, nb, nid in ((0, 1, a), (-1, -2, z)):
+            if nid not in nodes:
+                continue
+            (px, py), (qx, qy) = pts[idx], pts[nb]
+            if py == qy:
+                side, coord = ("left" if qx < px else "right"), py
+            else:
+                side, coord = ("top" if qy < py else "bottom"), px
+            groups.setdefault((nid, side), []).append((coord, ei, idx))
+    locked = set()
+    for (nid, side), ends in sorted(groups.items(), key=lambda kv: -len({c for c, _, _ in kv[1]})):
+        coords = sorted({c for c, _, _ in ends})
+        centre, length = port_band(nodes[nid], side)
+        gap = PORT_GAP if len(coords) < 2 else min(PORT_GAP, (length - 4) / (len(coords) - 1))
+        slot = {c: centre + (i - (len(coords) - 1) / 2) * gap for i, c in enumerate(coords)}
+        axis = 1 if side in ("left", "right") else 0
+        for c, ei, idx in ends:
+            pts, new = paths[ei], slot[c]
+            if len(pts) == 2:
+                if ei in locked:
+                    if abs(pts[0][axis] - new) > 1:
+                        warns.append(f"edge {ei}: straight arrow cannot sit centred on both {nid!r} and its other end; move one node level with the other")
+                    continue
+                pts[0][axis] = pts[1][axis] = new
+                locked.add(ei)
+            else:
+                nb = 1 if idx == 0 else -2
+                pts[idx][axis] = pts[nb][axis] = new
+    nudge_off_titles(spec, nodes, paths)
+    for ei, e in enumerate(spec.get("edges", [])):
+        a, z, _, _ = edge_ends(spec, e)
+        pts = paths[ei]
+        for idx, nb, nid in ((0, 1, a), (-1, -2, z)):
+            n = nodes.get(nid)
+            if not n:
+                continue
+            (px, py), (qx, qy) = pts[idx], pts[nb]
+            size, x, y, w = n.get("size", 44), n["x"], n["y"], n["w"]
+            cx, top = x + w / 2, y + 4
+            if py == qy:
+                pts[idx][0] = cx - size / 2 - END_GAP if qx < px else cx + size / 2 + END_GAP
+                if not top <= py <= top + size:
+                    warns.append(f"edge {ei}: end at y={py} misses the icon of {nid!r}")
+            elif qy < py:
+                pts[idx][1] = top - END_GAP
+            else:
+                pts[idx][1] = y + node_height(n) + END_GAP
+    return paths, warns
+
+
 def validate(spec, index):
     errors, warns = [], []
     canvas = spec["canvas"]
@@ -192,6 +298,8 @@ def validate(spec, index):
     texts += [s for sec in spec.get("sections", []) for it in sec.get("items", []) for s in (it.get("lead", ""), it.get("text", ""))]
     if any(BAD_DASH.search(t) for t in texts):
         warns.append("text contains an en or em dash; use the ASCII hyphen")
+    if not errors:
+        warns += layout_warnings(spec)
     return errors, warns
 
 
@@ -261,23 +369,24 @@ def build_svg(spec, index):
         out.append("</g>")
     for t in spec.get("texts", []):
         out.append(f'<text class="{escape(t.get("class", "ns2"))}" x="{t["x"]}" y="{t["y"]}" text-anchor="{t.get("anchor", "start")}">{escape(t["text"])}</text>')
-    for e in spec.get("edges", []):
+    paths, _ = route(spec)
+    for i, e in enumerate(spec.get("edges", [])):
         fid = e["flow"]
         marks = ""
         if e.get("start"):
             marks += f' marker-start="url(#m-{fid})"'
         if e.get("end", True):
             marks += f' marker-end="url(#m-{fid})"'
-        dash = ' stroke-dasharray="7 5"' if e.get("dashed") else ""
+        dash = f' stroke-dasharray="{dash_fit(paths[i], e.get("end", True))}"' if e.get("dashed") else ""
         a, z, ag, zg = (escape(v, quote=True) for v in edge_ends(spec, e))
         ends = f' data-from="{a}" data-to="{z}"' + (f' data-from-group="{ag}"' if ag else "") + (f' data-to-group="{zg}"' if zg else "")
-        out.append(f'<path class="flow f-{fid}"{ends} d="{path_d(e["points"])}"{marks}{dash}></path>')
+        out.append(f'<path class="flow f-{fid}" data-e="{i}"{ends} d="{path_d(paths[i])}"{marks}{dash}></path>')
     for t in spec.get("labels", []):
         fid = t["flow"]
-        out.append(f'<text class="flow f-{fid} flabel c-{fid}" x="{t["x"]}" y="{t["y"]}" text-anchor="{t.get("anchor", "start")}">{escape(t["text"])}</text>')
+        out.append(f'<g class="flow f-{fid} fl" data-e="{owner(paths, spec, t)}"><rect class="flbox"></rect><text class="flabel c-{fid}" x="{t["x"]}" y="{t["y"]}" text-anchor="{t.get("anchor", "start")}">{escape(t["text"])}</text></g>')
     for b in spec.get("badges", []):
         fid = b["flow"]
-        out.append(f'<g class="flow f-{fid} badge"><circle cx="{b["x"]}" cy="{b["y"]}" r="10" class="b-{fid}"></circle><text x="{b["x"]}" y="{b["y"] + 4}" text-anchor="middle" class="bt">{flows[fid][0]}</text></g>')
+        out.append(f'<g class="flow f-{fid} badge" data-e="{owner(paths, spec, b)}"><circle cx="{b["x"]}" cy="{b["y"]}" r="10" class="b-{fid}"></circle><text x="{b["x"]}" y="{b["y"] + 4}" text-anchor="middle" class="bt">{flows[fid][0]}</text></g>')
     markers = "".join(
         f'<marker id="m-{fid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk-{fid}"></path></marker>'
         for fid in flows
@@ -294,14 +403,126 @@ def path_d(points):
     return d
 
 
+DASH = (7, 5)
+# How far the back of the arrowhead sits behind the line end: marker refX 8 of 10, markerWidth 6, stroke 2.2.
+HEAD_BACK = 8 * 0.6 * 2.2
+
+
+def dash_fit(points, head):
+    """Dash pattern stretched so the line starts with a dash at the node and a dash runs into the back of the arrowhead.
+
+    A fixed pattern starts or ends in a gap on most lengths, which leaves the line detached from its icon or the head floating; the pattern is scaled by at most half a period to fit a whole number of periods instead."""
+    period = sum(DASH)
+    span = path_len(points) - (HEAD_BACK + DASH[0] / 2 if head else DASH[0])
+    k = span / max(1, round(span / period)) / period
+    return f"{num(round(DASH[0] * k, 2))} {num(round(DASH[1] * k, 2))}"
+
+
+def path_len(points):
+    return sum(abs(bx - ax) + abs(by - ay) for (ax, ay), (bx, by) in zip(points, points[1:]))
+
+
+def seg_dist(px, py, a, b):
+    (ax, ay), (bx, by) = a, b
+    return rect_dist(px, py, min(ax, bx), min(ay, by), abs(bx - ax), abs(by - ay))
+
+
+def label_box(t):
+    """Approximate box of a flow label: 12px semibold at about 6.6 units per character."""
+    w = 6.6 * len(t["text"])
+    x = t["x"] - {"start": 0, "middle": w / 2, "end": w}[t.get("anchor", "start")]
+    return x, t["y"] - 10, w, 13
+
+
+def owner(paths, spec, item):
+    """Index of the arrow of the same flow nearest to a label or badge, so hovering a node keeps its arrows' labels."""
+    if "text" in item:
+        bx, by, bw, bh = label_box(item)
+        px, py = bx + bw / 2, by + bh / 2
+    else:
+        px, py = item["x"], item["y"]
+    best = [(min(seg_dist(px, py, a, b) for a, b in zip(p, p[1:])), i) for i, (e, p) in enumerate(zip(spec.get("edges", []), paths)) if e["flow"] == item["flow"]]
+    return min(best)[1] if best else ""
+
+
+def overlaps(a, b):
+    return a[0] < b[0] + b[2] and b[0] < a[0] + a[2] and a[1] < b[1] + b[3] and b[1] < a[1] + a[3]
+
+
+def node_text_boxes(n):
+    """Boxes of a node's icon, label and sublines, as drawn."""
+    size, x, y, w = n.get("size", 44), n["x"], n["y"], n["w"]
+    cx, ly = x + w / 2, y + 4 + size + 15
+    boxes = [(cx - size / 2, y + 4, size, size), (cx - 3.5 * len(n["label"]), ly - 11, 7 * len(n["label"]), 14)]
+    boxes += [(cx - 3.1 * len(s), ly + 13 * (i + 1) - 10, 6.2 * len(s), 13) for i, s in enumerate(n.get("sub", []))]
+    return boxes
+
+
+def group_title_box(g):
+    dx = GROUP_STYLES[g["type"]][5]
+    # Measured in the browser: the 13px title runs about 6.4 units a character, the 12px subtitle about 5.6.
+    w = dx + 6.4 * len(g.get("label", "")) + (8 + 5.6 * len(g["sub"]) if g.get("sub") else 0)
+    return g["x"], g["y"], w, 24
+
+
+def layout_warnings(spec):
+    """Warnings for a drawing a person would redraw: crowded or stacked arrows, labels over text or borders, lines through titles."""
+    paths, warns = route(spec)
+    edges = spec.get("edges", [])
+    segs = [(i, a, b) for i, p in enumerate(paths) for a, b in zip(p, p[1:])]
+    for k, (i, a, b) in enumerate(segs):
+        for j, c, d in segs[k + 1:]:
+            if i == j:
+                continue
+            if a[1] == b[1] and c[1] == d[1] and 0 < abs(a[1] - c[1]) < 8:
+                lo, hi = max(min(a[0], b[0]), min(c[0], d[0])), min(max(a[0], b[0]), max(c[0], d[0]))
+            elif a[0] == b[0] and c[0] == d[0] and 0 < abs(a[0] - c[0]) < 8:
+                lo, hi = max(min(a[1], b[1]), min(c[1], d[1])), min(max(a[1], b[1]), max(c[1], d[1]))
+            else:
+                continue
+            if hi - lo > 4:
+                warns.append(f"edges {i} and {j} run side by side less than 8 apart; give each its own lane")
+    for g in [g for g in spec.get("groups", []) if g.get("label")]:
+        tb = group_title_box(g)
+        for i, a, b in segs:
+            if overlaps(tb, (min(a[0], b[0]) - 1, min(a[1], b[1]) - 1, abs(b[0] - a[0]) + 2, abs(b[1] - a[1]) + 2)):
+                warns.append(f"edge {i} crosses the title of group {g['label']!r}")
+    for t in spec.get("labels", []):
+        lb = label_box(t)
+        for n in spec.get("nodes", []):
+            if any(overlaps(lb, b) for b in node_text_boxes(n)):
+                warns.append(f"label {t['text']!r} covers the icon or text of {n['id']!r}")
+        for g in spec.get("groups", []):
+            x, y, w, h = g["x"], g["y"], g["w"], g["h"]
+            lines = [(x, y, w, 0.1), (x, y + h, w, 0.1), (x, y, 0.1, h), (x + w, y, 0.1, h)]
+            if any(overlaps((lb[0] - 3, lb[1] - 3, lb[2] + 6, lb[3] + 6), l) for l in lines):
+                warns.append(f"label {t['text']!r} sits on the border of group {g.get('label') or g['type']!r}; leave room between the arrow and the border")
+            elif g.get("label") and overlaps(lb, group_title_box(g)):
+                warns.append(f"label {t['text']!r} covers the title of group {g['label']!r}")
+    # A node fed by three or more arrows from one side reads best centred on the nodes at their far ends.
+    nodes = {n["id"]: n for n in spec.get("nodes", [])}
+    for nid, n in nodes.items():
+        for end, far in (("to", "from"), ("from", "to")):
+            others = [nodes[f[far]] for f in (dict(zip(("from", "to"), edge_ends(spec, e)[:2])) for e in edges) if f[end] == nid and f[far] in nodes]
+            others = [o for o in others if (o["x"] + o["w"] / 2 < n["x"]) == (others[0]["x"] + others[0]["w"] / 2 < n["x"])]
+            ys = sorted({o["y"] + 4 + o.get("size", 44) / 2 for o in others})
+            if len(ys) >= 3:
+                mid = (ys[0] + ys[-1]) / 2
+                cy = n["y"] + 4 + n.get("size", 44) / 2
+                if abs(cy - mid) > 80:
+                    warns.append(f"node {nid!r} joins {len(ys)} nodes but sits {abs(cy - mid):.0f} off their middle; centre it, or centre it with its partner hub")
+    return warns
+
+
 def flow_css(spec):
     flows = spec.get("flows", [])
     flow_vars = " ".join(f"--{f['id']}:{f['color']};" for f in flows)
     rules = []
     for f in flows:
         i = f["id"]
-        rules.append(f"path.f-{i}{{stroke:var(--{i})}} .mk-{i}{{fill:var(--{i})}} .c-{i}{{fill:var(--{i})}} .b-{i}{{fill:var(--{i})}}")
+        rules.append(f"path.f-{i}{{stroke:var(--{i})}} .mk-{i}{{fill:var(--{i})}} .c-{i}{{fill:var(--{i})}} .b-{i}{{fill:var(--{i})}} .f-{i} .flbox{{stroke:var(--{i})}}")
     rules.append(",".join(f'body[data-flow="{f["id"]}"] .f-{f["id"]}' for f in flows) + "{opacity:1;stroke-width:3.2}")
+    rules.append(",".join(f'body[data-flow="{f["id"]}"] .f-{f["id"]} .flbox' for f in flows) + "{opacity:1}")
     return flow_vars, "\n".join(rules)
 
 

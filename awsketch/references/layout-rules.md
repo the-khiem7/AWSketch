@@ -33,17 +33,28 @@ Leave a gutter of at least 14 units between neighbouring columns; flows run in t
 - Pools inside a cluster: `x` 12 units inside the cluster, width the cluster width minus 24, 10 units between pools. Height: 44 plus 18 per line, plus about 12.
 - Nodes inside a pool sit 28 units below the pool's top and 5 units in from its left edge, side by side, 6 units apart.
 - Two nodes that sit in a vertical line in one column keep the same centre x.
+- Leave about 60 units between rows (a row step of 160 for two-line nodes), so badges, labels and turns fit between them.
+- Centre a node within its group: equal room left and right.
+- A hub that joins three or more nodes in another column sits at their vertical middle; two hubs in a chain (for example a VPC origin above a load balancer) sit as a pair around that middle. The renderer warns when a hub sits more than 80 units off.
+- Place a node in the first row of a group close beside the group title, not far from it: an arrow into its top that would cross the title is slid sideways by the renderer.
 
 ## Flows
 
 - Every segment is horizontal or vertical. Route a flow along a box row, turn once into a gutter, run along the gutter, and turn into the target row.
-- End an arrow on the edge of the target icon or box, about 2 units short, so the arrowhead is not hidden under the box.
-- Enter or leave a node sideways at the icon's middle height. A flow that has to leave or enter from below starts or ends at the bottom edge of the hit box (`y + h`, about 2 units out), never at the icon, because the label and sublines sit between the icon and that edge.
-- Two flows that share a gutter run 8 to 16 units apart, never on top of each other.
+- Take the shortest path: leave a node from the side that faces the target, including its top edge, instead of looping around below it.
+- The renderer places every arrow end on its node; the spec only has to put each end on the right side, in the right order:
+  - Ends on one side of a node are its ports, spread 20 units apart and centred on the icon (left, right, top) or the box (bottom), in the order the spec gives them. Ends at the same coordinate share one port, so a fan from one trunk stays one line.
+  - A sideways end touches the icon's side, a downward end the icon's top, an upward end the box bottom under the label and sublines, each 2 units short so the arrowhead shows.
+  - The corner next to a moved end moves with it. A straight two-point arrow moves as a whole, so place the node at its other end level with the port; the renderer warns when it cannot centre both ends.
+  - An end segment that would cross a group title slides sideways until it clears the title by 4 units, as long as it still lands on the icon.
+- On a path with three turns, put the middle segment near the start, so the last segment into the target is the long one and the arrowhead reads clearly.
+- Two arrows that leave one side and turn in opposite directions (one up, one down) may turn at the same x; only arrows that turn the same way need their own lanes.
+- Two flows that share a gutter run 14 to 16 units apart, never on top of each other; the renderer warns below 8.
 - A flow that goes both ways uses `start` and `end`; a request and its reply are one edge, not two.
 - Dash a flow for a path that is optional, a fallback, or crosses a trust boundary through published APIs.
 - Put one badge on each flow, on its first segment, 10 units clear of any box.
-- Put a label next to the segment it names, 6 units above a horizontal line or 6 units right of a vertical one.
+- Put a label next to the segment it names, 6 units above a horizontal line or 6 units right of a vertical one. A horizontal label may sit centred across a vertical line, whose stroke the label's white halo covers; prefer that to widening a gutter for the label.
+- Keep a label clear of node text and group borders; leave a group's edge 14 units beyond a lane that carries a label. Do not shift whole columns to make room for one label.
 - Use a `connector` for a box that fronts another in the same column, such as WAF above a load balancer, and a `trunk` for a physical link between the outside and AWS.
 
 ## Palette

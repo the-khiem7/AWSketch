@@ -95,6 +95,8 @@ Pools are drawn before nodes, so a node placed inside a pool sits on top of it.
 | `from` | no | nearest node to the first point | Node or pool id the arrow leaves; set it when the arrow joins another line or stops at a box edge, so the step caption names the real source |
 | `to` | no | nearest node to the last point | Node or pool id the arrow reaches |
 
+The renderer moves each end onto its node: ends on one side of a node are spread 20 units apart and centred, and each end then touches the icon side, the icon top or the box bottom (layout rules, Flows). The spec gives the side, by the direction of the end segment, and the order. A dashed line's pattern is stretched slightly so it starts on a dash and a dash runs into the arrowhead.
+
 The page walks arrows in the order they appear in `edges`, flow by flow, so list each flow's arrows in the order traffic moves. Without `from` / `to`, each end goes to the node box within 14 units, then a clickable pool; an end that touches only a group boundary is named after that group.
 
 ## labels, badges, trunks, connectors, texts
@@ -122,7 +124,9 @@ The page captions a pressed chip with the item at the same index of the ordered 
 
 Errors stop the render and exit 1: unreadable or malformed JSON, unknown icon or group type, duplicate id, unknown flow id, a flow id that is not a CSS identifier, more than 6 flows, a segment that is not horizontal or vertical, a connector without exactly two points, two node hit boxes that overlap, a node past the canvas, an edge `from` or `to` that is not a node or pool id.
 
-Warnings print and the page is still written: flows without an ordered section or with fewer ordered items than flows, a group title and subtitle wider than the group (7 units per title character, 6.5 per subtitle character, plus the icon offset), a label wider than 7 units per character at the node width, a subline wider than 6.2 units per character, an icon wider than its node, a pool line wider than the pool, an edge end more than 8 units from every node, pool and group edge, a clickable box without a three-part `detail`, an en or em dash in any text.
+Warnings print and the page is still written: flows without an ordered section or with fewer ordered items than flows, a group title and subtitle wider than the group (7 units per title character, 6.5 per subtitle character, plus the icon offset; the layout checks use the measured 6.4 and 5.6), a label wider than 7 units per character at the node width, a subline wider than 6.2 units per character, an icon wider than its node, a pool line wider than the pool, an edge end more than 8 units from every node, pool and group edge, a clickable box without a three-part `detail`, an en or em dash in any text; and layout warnings: a straight arrow that cannot sit centred at both ends, an end that misses the icon, two arrows side by side less than 8 apart, an arrow through a group title, a label over a node's icon or text, a label on a group border or over a group title, a hub that joins three or more nodes but sits more than 80 units off their middle.
+
+Each flow label and badge belongs to the nearest arrow of its flow; hovering a node keeps the labels and badges of its arrows, and a highlighted arrow shows its label in a box.
 
 ## Minimal example
 
