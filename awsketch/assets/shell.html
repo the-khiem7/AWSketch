@@ -77,7 +77,6 @@ body.notip .tip::after{opacity:0;visibility:hidden}
 #detail h2{margin:0;font-size:17px;padding-right:32px}
 #detail .aws{font:500 13px var(--mono);color:var(--muted);margin-top:2px}
 #detail p{margin:8px 0 0}
-#nbtip{position:absolute;z-index:14;pointer-events:none;background:var(--fg);color:var(--bg);font:500 12.5px var(--sans);padding:5px 9px;border-radius:var(--r-s);white-space:nowrap}
 
 /* notes, kept in this browser */
 .sheet.pin{cursor:crosshair}
@@ -120,14 +119,19 @@ body[data-flow] .flow{opacity:.1}
 /* motion: a pressed flow lights its icons and marches with packets; a hovered icon lights its own arrows; the current step marches */
 body[data-flow] .node{opacity:.35}
 body[data-flow] .node.lit{opacity:1}
-.flow.on,.sheet.nb .flow.link,.sheet.walk path.flow.now{stroke-dasharray:10 6;animation:march 1s linear infinite;filter:drop-shadow(0 0 3px currentColor)}
-@keyframes march{to{stroke-dashoffset:-16}}
+path.flow.on,.sheet.nb path.flow.link,.sheet.walk path.flow.now{stroke-dasharray:10 6;animation:march 1s linear infinite;filter:drop-shadow(0 0 3px currentColor)}
+/* start from 0, not from the static dash offset, so each loop moves exactly one pattern and never jumps */
+@keyframes march{from{stroke-dashoffset:0}to{stroke-dashoffset:-16}}
+/* a highlighted arrow's label sits still in a box instead of glowing */
+.flbox{fill:#fff;stroke:currentColor;stroke-width:1.2;opacity:0;transition:opacity .2s}
+.sheet.nb .fl.link .flbox,.sheet.walk .fl.seen .flbox{opacity:1}
 body.still .flow{animation-play-state:paused}
 .pkt{filter:drop-shadow(0 0 4px currentColor)}
 .sheet.nb .flow{opacity:.08!important}
 .sheet.nb .node{opacity:.3}
 .sheet.nb .node.me,.sheet.nb .node.near{opacity:1}
 .sheet.nb .flow.link{opacity:1!important;stroke-width:3.2}
+.sheet.nb .badge.link circle{stroke-width:2}
 /* steps: later arrows and their labels and badges wait; unreached icons fade */
 .sheet.walk .flow{opacity:0!important}
 .sheet.walk .flow.seen:not(path){opacity:1!important}
@@ -256,13 +260,13 @@ $$('.chip').forEach(c=>c.addEventListener('click',()=>{
   if(phone.matches)c.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'})}));
 
 // neighbourhood of a hovered or focused icon
-const tip=document.createElement('div');tip.id='nbtip';tip.hidden=true;tip.setAttribute('aria-hidden','true');sheet.append(tip);
-function nbOff(){sheet.classList.remove('nb');$$('.me,.near,.link').forEach(x=>x.classList.remove('me','near','link'));tip.hidden=true}
+// size each label box from the rendered text, so the box fits whatever font loaded
+function fitLabels(){svg.querySelectorAll('.fl').forEach(g=>{const b=g.querySelector('text').getBBox(),r=g.querySelector('.flbox');
+  r.setAttribute('x',b.x-4);r.setAttribute('y',b.y-2);r.setAttribute('width',b.width+8);r.setAttribute('height',b.height+4);r.setAttribute('rx',4)})}
+fitLabels();if(document.fonts)document.fonts.ready.then(fitLabels);
+function nbOff(){sheet.classList.remove('nb');$$('.me,.near,.link').forEach(x=>x.classList.remove('me','near','link'))}
 function nbOn(n){if(walking||pin)return;nbOff();const id=n.dataset.id,mine=EDGES.filter(e=>e.a===id||e.z===id);if(!mine.length)return;
-  sheet.classList.add('nb');n.classList.add('me');mine.forEach(e=>{e.p.classList.add('link');[e.a,e.z].forEach(x=>x&&nodesOf(x).forEach(m=>m.classList.add('near')))});
-  const r=n.getBoundingClientRect(),s=sheet.getBoundingClientRect();
-  tip.textContent=`${mine.filter(e=>e.z===id).length} in · ${mine.filter(e=>e.a===id).length} out`;
-  tip.style.left=(r.left-s.left+sheet.scrollLeft)+'px';tip.style.top=(r.bottom-s.top+4)+'px';tip.hidden=false}
+  sheet.classList.add('nb');n.classList.add('me');mine.forEach(e=>{e.p.classList.add('link');svg.querySelectorAll(`.fl[data-e="${e.p.dataset.e}"],.badge[data-e="${e.p.dataset.e}"]`).forEach(t=>t.classList.add('link'));[e.a,e.z].forEach(x=>x&&nodesOf(x).forEach(m=>m.classList.add('near')))})}
 
 // timeline: step 0 is the overview, steps 1..N walk the arrows of the pressed flow (or all of them)
 function stop(){clearInterval(timer);timer=null;pl.innerHTML='&#9654;';pl.setAttribute('aria-pressed','false')}
