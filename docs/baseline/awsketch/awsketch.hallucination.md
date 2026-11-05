@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "hallucination"
 status: "active"
-updated: "2026-11-04"
+updated: "2026-11-05"
 code_ref: "uncommitted"
 ---
 
@@ -21,8 +21,8 @@ code_ref: "uncommitted"
 | AK-D7 | Public repo with redistributed AWS icons | decided | AK-Q1 |
 | AK-D8 | Repo-scoped junction install | decided | AK-Q2, AK-D1 |
 | AK-D10 | Icon files nested by kind and category | decided | - |
-| AK-D12 | Vertical flows start and end at the hit box edge, not the icon | lesson | - |
-| AK-D13 | Approved page shell layout | decided | AK-D6, AK-D14, AK-D15 |
+| AK-D12 | Vertical flows start and end at the hit box edge, not the icon | lesson; top end superseded by AK-D24 | AK-D24 |
+| AK-D13 | Approved page shell layout | decided; hover tip removed by AK-D27 | AK-D6, AK-D14, AK-D15, AK-D27 |
 | AK-D14 | Arrow ends come from the spec, not page geometry | decided | AK-D13, AK-D15 |
 | AK-D15 | Optional `from` / `to` on spec edges | decided | AK-Q3, AK-D14 |
 | AK-D16 | Records mode: sources and decisions files beside the spec, instead of a baseline pack | decided | AK-D17, AK-D18 |
@@ -33,6 +33,11 @@ code_ref: "uncommitted"
 | AK-D21 | Warning for a group title and subtitle wider than the group | decided | AK-Q5, AK-D17 |
 | AK-D22 | `render.py` source is ASCII-only | decided | AK-Q6 |
 | AK-D23 | Page motion always runs, the OS reduced-motion setting is ignored | decided | AK-D13 |
+| AK-D24 | Renderer places arrow ends on nodes as centred, spread ports | decided | AK-D3, AK-D12, AK-D28 |
+| AK-D25 | Dashed pattern stretched to fit the line | lesson | AK-D24 |
+| AK-D26 | March animation starts from offset 0 | lesson | AK-D25 |
+| AK-D27 | Hover keeps linked labels in a still box; no in/out tip | decided | AK-D13 |
+| AK-D28 | Layout warnings for crowded, stacked or covered drawing | decided | AK-D21, AK-D24 |
 
 ## Closed decisions
 
@@ -195,6 +200,40 @@ Closes AK-Q6.
 - Breaks if ignored: a viewer with the OS setting off sees a static diagram with no Pause switch and cannot tell why it differs from the author's screenshot.
 - Cost: a viewer who turns animation off for comfort or health still gets moving dashes and packets; the Pause switch (WCAG 2.2.2) is the only control and does not remember its state between loads.
 - Rejected: a spec field `motion: always` or a render flag (owner: always on, no switch); keep the media query and tell users to emulate `no-preference` in DevTools (temporary, per DevTools session); patch generated HTML by hand (lost on re-render).
+
+### AK-D24: The renderer places every arrow end on its node as centred, spread ports
+
+- Decision: `route()` in `render.py` groups edge ends by node and side (side from the end segment's direction), merges ends at one coordinate into one port, spreads ports `PORT_GAP` 20 apart centred on the icon (left, right, top) or box (bottom) in spec order, moves the neighbouring corner along, slides an end segment that crosses a group title sideways while it still lands on the icon (`nudge_off_titles()`), then pulls each end onto the icon side, the icon top or the box bottom, `END_GAP` 2 short. A two-point straight edge moves as a whole; a conflict at its other end is a warning. Owner approved on 2026-11-05.
+- Why: the hit box is wider than the icon, so an arrow at the box side left a gap once the hover outline was gone; hand-placed ends on the 35-node Atlantic diagram were 10 apart, off-centre on the NAT node, and crossed the ECS cluster title.
+- Breaks if ignored: every spec must hand-compute icon edges and port spacing, and the drawing shows gaps and lopsided arrow groups.
+- Rejected: validator warnings only, with the agent placing ends (owner wanted the centring automatic); jogging a straight edge whose two ends disagree (adds a step in a long line; the warning asks for the node to move instead); moving the nodes of a group to clear a title (unbalances the group, owner chose the sideways nudge).
+- Supersedes the top-end half of AK-D12: a downward end now stops at the icon top; an upward end still uses the box bottom.
+
+### AK-D25: A dashed line's pattern is stretched to fit a whole number of periods
+
+- Lesson: a fixed `7 5` pattern ended in a gap on most lengths, so the arrowhead floated. The first fix set `stroke-dashoffset` so the line ended on a dash, but the last 10.5 units of the line sit under the arrowhead (marker `refX` 8 of 10 at width 6, stroke 2.2), so the visible gap moved to just behind the head; the second fix aimed a dash at the head's back but left the start in a gap, which read as the line starting at the box edge.
+- Fix: `dash_fit()` scales dash and gap by at most half a period so the line starts on a dash and a dash is centred on the back of the arrowhead (`HEAD_BACK`); no offset.
+- Breaks if ignored: dashed arrows look detached at one end.
+
+### AK-D26: The march keyframes start from offset 0
+
+- Lesson: once dashed lines carried a static `stroke-dashoffset`, the `march` animation (`to -16`) started from that value, travelled a distance that was not one period, and jumped at every loop, which read as lag.
+- Fix: `@keyframes march{from{stroke-dashoffset:0}to{stroke-dashoffset:-16}}`, and the animation applies to `path.flow` only.
+- Breaks if ignored: any per-path offset makes the moving dashes stutter.
+
+### AK-D27: Hovering a node keeps its arrows' labels and badges, in a still box; the in/out tip is gone
+
+- Decision: `render.py` gives each `path.flow`, label group `g.fl` and badge a `data-e` index; a label or badge belongs to the nearest arrow of its flow (`owner()`). `nbOn()` adds `.link` to them, and a linked, pressed or walked label shows a white box with a flow-coloured outline (`.flbox`, sized from the text's `getBBox()` after fonts load) instead of the dash animation. The "N in, N out" tip of AK-D13 is removed. Owner request on 2026-11-05.
+- Why: the neighbourhood rule dimmed every `.flow` element, labels included, so hovering a node hid the very annotations of its arrows; labels inherited the marching dash and glow, which made text hard to read.
+- Breaks if ignored: hover shows unlabeled arrows, and a highlighted label flickers.
+- Rejected: keep the tip (owner removed it); estimate the box width in Python (wrong when the fallback font loads).
+
+### AK-D28: The validator warns on drawings a person would redraw
+
+- Decision: `layout_warnings()` warns on two arrows side by side under 8 apart, an arrow through a group title, a label over a node's icon or text, a label within 3 of a group border or over a group title, a hub joining 3 or more nodes in one column more than 80 off their middle, a straight edge that cannot be centred at both ends, and an end missing the icon. Group title width in these checks uses 6.4 per title and 5.6 per subtitle character, measured in Chrome (the AK-D21 overflow warning keeps 7 and 6.5).
+- Why: on the Atlantic diagram each of these was found by the owner in a screenshot after a 0-warning render.
+- Breaks if ignored: the same defects ship whenever the screenshot step is skimmed.
+- Rejected: errors instead of warnings (each has legitimate exceptions, such as a label laid across a vertical line); shifting whole columns to clear a label (tried, widened empty space; the owner allowed a label across a vertical line instead).
 
 ## Open questions
 

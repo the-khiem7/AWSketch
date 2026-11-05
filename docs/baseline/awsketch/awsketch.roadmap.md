@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "roadmap"
 status: "active"
-updated: "2026-11-04"
+updated: "2026-11-05"
 code_ref: "uncommitted"
 ---
 
@@ -25,10 +25,11 @@ code_ref: "uncommitted"
 | AK-P10 | Records mode | AK-P9 | complete |
 | AK-P11 | Validator and group type follow-ups | AK-P10 | complete |
 | AK-P12 | Motion ignores reduced-motion | AK-P9 | complete |
+| AK-P13 | Arrow ports, label hover and layout warnings | AK-P11, AK-P12 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P12) are complete. No next action is planned; the open item is that the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P13) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -129,6 +130,14 @@ All phases (AK-P1 to AK-P12) are complete. No next action is planned; the open i
 - Status: complete.
 - Evidence: two sample specs and two Atlantic diagrams re-rendered with 0 occurrences of `reduced-motion` or `RM`; in Chrome under Playwright with `reducedMotion: reduce`, pressing chip 4 of a 4-flow diagram gave `.flow.on` animation `march`, 6 packets, `#motion` display `flex` and not hidden, 0 console errors.
 - Risk: not run on a Windows machine with "Animation effects" off, only emulated; keyboard and axe checks of AK-P9 were not repeated.
+
+## AK-P13: Phase 13 - Arrow ports, label hover and layout warnings
+
+- Deliver: `route()`, `nudge_off_titles()`, `dash_fit()`, `owner()` and `layout_warnings()` in `render.py` (AK-D24 ports, AK-D25 dash fit, AK-D27 label ownership, AK-D28 warnings); `assets/shell.html` with `.flbox` label boxes, `fitLabels()`, linked labels in `nbOn()`, no `#nbtip`, and `march` from 0 (AK-D26); `layout-rules.md` and `spec-format.md` updated.
+- Acceptance: the 35-node Atlantic diagram renders with 0 warnings and passes the owner's review; every dashed line has a dash at both ends; hovering a node keeps its arrows' labels; `render.py` stays ASCII-only.
+- Status: complete.
+- Evidence: the Atlantic combined diagram (35 nodes, 34 edges) renders with 0 warnings after four review rounds approved by the owner on 2026-11-05; in Chrome all 7 dashed lines put the back of the arrowhead 2.9 to 4.9 into a dash of about 7; hovering AWS IoT Core left exactly its 3 labels and badges 2 and 3 visible, with no `#nbtip` element; the "ECS cluster" title ends at x 1049.9 and the nudged arrow enters at 1054.4; `render.py` holds 0 non-ASCII bytes. The sample specs gained warnings: `awsketch/examples/platform-on-aws.json` 6 (2 earlier label warnings plus 4 new), `diagrams/ecommerce-on-aws.json` 2.
+- Risk: label and title widths are estimates per character; `fitLabels()` runs only in a browser, so a screenshot tool without fonts sizes boxes from the fallback font; hub alignment checks one column only.
 
 ## Risks
 

@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "sourcecode"
 status: "active"
-updated: "2026-11-04"
+updated: "2026-11-05"
 code_ref: "uncommitted"
 ---
 
@@ -92,7 +92,9 @@ Flow palette: `#2563EB`, `#E07A00`, `#7C3AED`, `#0E8F7E`, `#64748B`. Pool bar co
 - Icon at `(x + w/2 - size/2, y + 4)`; `.nl` at `icon_y + size + 15`; `.ns` sublines every 13px.
 - Pool: title at `y + 22`, lines from `y + 44` every 18px, `note` as `.ns` at `x + 98` on the title row.
 - Each flow generates a CSS variable, `.f-/.mk-/.c-/.b-` classes, one `<marker>` with `orient="auto-start-reverse"`, one chip and one `body[data-flow]` rule; badge numbers follow `flows` order.
-- Waypoints render as `M x y` then `H` or `V` per segment.
+- Waypoints render as `M x y` then `H` or `V` per segment, after `route()` moves the ends: ports per node side, `PORT_GAP` 20 apart, centred on the icon (left, right, top) or box (bottom), corner moved along; `nudge_off_titles()` slides an end segment off a group title; ends then touch the icon side, icon top or box bottom, `END_GAP` 2 short (AK-D24).
+- A dashed edge gets `stroke-dasharray` from `dash_fit()`: `7 5` scaled so the line starts on a dash and a dash sits on the arrowhead back, `HEAD_BACK` = 8 x 0.6 x 2.2 (AK-D25).
+- Paths, label groups `g.fl` (an empty `rect.flbox` plus the `.flabel` text) and badges carry `data-e`, the edge index; a label or badge takes the nearest edge of its flow (`owner()`, AK-D27).
 - Every `path.flow` carries `data-from` / `data-to` from `edge_ends()`: explicit `from` / `to` first, else the nearest node within `END_REACH` (14) of each end by `rect_dist`, then a clickable pool; an end touching only a group boundary gets `data-from-group` / `data-to-group` with the group label (by `edge_dist`). The shell uses these for the neighbourhood highlight, the spotlight and the step captions (AK-D14).
 - Chips render as `<i>` colour dot, `.n` number, `.t` label, with `aria-label="Flow N: label"`; the SVG root is `role="group"` because it holds focusable nodes.
 - `assets/shell.html` is filled by plain string replacement of `{{title}}`, `{{intro}}`, `{{flow_vars}}` (one `--<flow>:<colour>;` per flow), `{{flow_rules}}` (per flow: `path.f-`, `.mk-`, `.c-`, `.b-` and the `body[data-flow]` rule), `{{chips}}`, `{{svg}}` (the whole `<svg id="dia">` element), `{{hint}}`, `{{sections}}` and `{{detail_map}}` (the `D` object literal); `{{intro}}` fills the caption slot, not the header; never `str.format`, because the shell script holds `${...}` and braces.
@@ -106,8 +108,9 @@ One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`
 |---|---|
 | Chips | Set `body[data-flow]`, spotlight (`.on` arrows, `.lit` icons), caption, then `overview()` |
 | Timeline | `overview()` is step 0; `paint()` draws step `h` of `hops` (pressed flow's arrows, or all); `#pv` / `#pl` / `#nx` / `#scrub` drive `h`; Escape returns to step 0 |
-| Motion | `traffic()` adds `animateMotion` packets; `#motion` pauses them and the dash animation; always on, the OS reduced-motion setting is not read (AK-D23) |
-| Neighbourhood | `nbOn()` on hover or focus lights the node's arrows and ends, tip `N in, N out` |
+| Motion | `traffic()` adds `animateMotion` packets; `#motion` pauses them and the dash animation; always on, the OS reduced-motion setting is not read (AK-D23); `march` runs from offset 0 on `path.flow` only (AK-D26) |
+| Neighbourhood | `nbOn()` on hover or focus lights the node's arrows and ends and the labels and badges with the same `data-e`; no tip (AK-D27) |
+| Label boxes | `fitLabels()` sizes each `.flbox` from its text's `getBBox()` on load and after `document.fonts.ready`; the box shows for a linked, pressed or walked label |
 | Card | `openPop()` positions `#pop` next to the icon (CSS pins it above the drawer on a phone); Tab stays inside; Escape closes |
 | Notes | `localStorage` key `awsk-notes-<path>`; inline form; Enter on a focused icon places one |
 | Night / rail | `localStorage` `awsk-night`, `awsk-rail`; Night adds `.tile` rects once |
@@ -127,6 +130,7 @@ One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`
 | Non-ASCII dash in text | warn |
 | Flows without an ordered section, or fewer first-section items than flows (AK-D17) | warn |
 | Group title plus subtitle wider than the group: label offset + 7 per title char + 8 + 6.5 per subtitle char, against `w - 6` (AK-D21) | warn |
+| `layout_warnings()`: arrows side by side under 8 apart, arrow through a group title, label over node icon or text, label on a group border or title, hub over 80 off the middle of 3 or more nodes, straight edge not centrable at both ends, end missing the icon (AK-D28) | warn |
 
 ## Records checker
 
