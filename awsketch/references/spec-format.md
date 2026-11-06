@@ -14,7 +14,7 @@ A spec is one JSON object. Coordinates are SVG user units on the canvas; `x`, `y
 | `groups` | list | empty | Account, region, VPC, subnet, cluster and other frames |
 | `pools` | list | empty | Layer boxes with a coloured bar and text lines |
 | `nodes` | list | empty | Icon boxes |
-| `edges` | list | empty | Flow arrows |
+| `edges` | list | empty | Flow arrows, and plain arrows that belong to no flow |
 | `labels` | list | empty | Flow-coloured text on the sheet |
 | `badges` | list | empty | Numbered flow circles |
 | `trunks` | list | empty | Thick grey link, for a physical connection |
@@ -87,7 +87,7 @@ Pools are drawn before nodes, so a node placed inside a pool sits on top of it.
 
 | Field | Required | Default | Meaning |
 |---|---|---|---|
-| `flow` | yes | - | Flow id |
+| `flow` | no | - | Flow id. Leave it out for a plain arrow: grey, always shown, outside the chips, the step walk and the hover highlight, and routed like any other arrow |
 | `points` | yes | - | Two or more `[x, y]`; each segment horizontal or vertical |
 | `dashed` | no | `false` | Dashed line |
 | `start` | no | `false` | Arrowhead at the first point |
@@ -97,7 +97,7 @@ Pools are drawn before nodes, so a node placed inside a pool sits on top of it.
 
 The renderer moves each end onto its node: ends on one side of a node are spread 20 units apart and centred, and each end then touches the icon side, the icon top or the box bottom (layout rules, Flows). The spec gives the side, by the direction of the end segment, and the order. A dashed line's pattern is stretched slightly so it starts on a dash and a dash runs into the arrowhead.
 
-The page walks arrows in the order they appear in `edges`, flow by flow, so list each flow's arrows in the order traffic moves. Without `from` / `to`, each end goes to the node box within 14 units, then a clickable pool; an end that touches only a group boundary is named after that group.
+The page walks arrows in the order they appear in `edges`, flow by flow, so list each flow's arrows in the order traffic moves; plain arrows are not walked and carry no label or badge, because a label and a badge name a flow. Without `from` / `to`, each end goes to the node box within 14 units, then a clickable pool; an end that touches only a group boundary is named after that group.
 
 ## labels, badges, trunks, connectors, texts
 

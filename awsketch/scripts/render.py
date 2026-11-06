@@ -256,6 +256,8 @@ def validate(spec, index):
                 warns.append(f"group {g['label']!r}: title and subtitle are wider than w={g.get('w')}")
     for kind in ("edges", "labels", "badges"):
         for e in spec.get(kind, []):
+            if kind == "edges" and not e.get("flow"):
+                continue
             if e.get("flow") not in flows:
                 errors.append(f"{kind[:-1]}: unknown flow {e.get('flow')!r}")
     for kind in ("edges", "trunks", "connectors"):
@@ -395,14 +397,21 @@ def build_svg(spec, index):
     for t in spec.get("texts", []):
         out.append(f'<text class="{escape(t.get("class", "ns2"))}" x="{t["x"]}" y="{t["y"]}" text-anchor="{t.get("anchor", "start")}">{escape(t["text"])}</text>')
     paths, _ = route(spec)
+    plain = False
     for i, e in enumerate(spec.get("edges", [])):
-        fid = e["flow"]
+        fid = e.get("flow")
+        mid = f"m-{fid}" if fid else "m-plain"
         marks = ""
         if e.get("start"):
-            marks += f' marker-start="url(#m-{fid})"'
+            marks += f' marker-start="url(#{mid})"'
         if e.get("end", True):
-            marks += f' marker-end="url(#m-{fid})"'
+            marks += f' marker-end="url(#{mid})"'
         dash = f' stroke-dasharray="{dash_fit(paths[i], e.get("end", True))}"' if e.get("dashed") else ""
+        if not fid:
+            # A plain arrow belongs to no flow: grey, always shown, outside the chips and the step walk.
+            plain = True
+            out.append(f'<path class="plain" fill="none" stroke="{PLAIN_COLOR}" stroke-width="1.6" d="{path_d(paths[i])}"{marks}{dash}></path>')
+            continue
         a, z, ag, zg = (escape(v, quote=True) for v in edge_ends(spec, e))
         ends = f' data-from="{a}" data-to="{z}"' + (f' data-from-group="{ag}"' if ag else "") + (f' data-to-group="{zg}"' if zg else "")
         out.append(f'<path class="flow f-{fid}" data-e="{i}"{ends} d="{path_d(paths[i])}"{marks}{dash}></path>')
@@ -416,7 +425,9 @@ def build_svg(spec, index):
         f'<marker id="m-{fid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk-{fid}"></path></marker>'
         for fid in flows
     )
-    defs = "<defs>" + "".join(symbol_for(i, index) for i in used) + markers + "</defs>"
+    if plain:
+        markers += f'<marker id="m-plain" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="{PLAIN_COLOR}"></path></marker>'
+    defs ="<defs>" + "".join(symbol_for(i, index) for i in used) + markers + "</defs>"
     head = f'<svg id="dia" viewBox="0 0 {cw} {ch}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="{escape(spec.get("title", "AWS diagram"), quote=True)}">'
     return head + defs + "\n".join(out) + "</svg>"
 
@@ -466,7 +477,7 @@ def owner(paths, spec, item):
         px, py = bx + bw / 2, by + bh / 2
     else:
         px, py = item["x"], item["y"]
-    best = [(min(seg_dist(px, py, a, b) for a, b in zip(p, p[1:])), i) for i, (e, p) in enumerate(zip(spec.get("edges", []), paths)) if e["flow"] == item["flow"]]
+    best = [(min(seg_dist(px, py, a, b) for a, b in zip(p, p[1:])), i) for i, (e, p) in enumerate(zip(spec.get("edges", []), paths)) if e.get("flow") == item["flow"]]
     return min(best)[1] if best else ""
 
 
