@@ -59,7 +59,7 @@ Leave a gutter of at least 14 units between neighbouring columns; flows run in t
 
 ## Palette
 
-Flow colours in order: `#2563EB` blue, `#E07A00` orange, `#7C3AED` purple, `#0E8F7E` teal, `#64748B` slate, `#DB2777` pink. Pool bar colours: `#2563EB`, `#059669`, `#7C3AED`, `#D97706`. Give each flow the colour of the pool it mostly serves when that helps the reader link them.
+Flow colours in order: `#2563EB` blue, `#E07A00` orange, `#7C3AED` purple, `#0E8F7E` teal, `#64748B` slate, `#DB2777` pink, then `#0891B2` cyan, `#65A30D` green, `#B45309` brown, `#BE123C` crimson. The renderer sets no limit on flows; past ten, pick colours that stay apart on a white sheet. Pool bar colours: `#2563EB`, `#059669`, `#7C3AED`, `#D97706`. Give each flow the colour of the pool it mostly serves when that helps the reader link them.
 
 ## Text
 

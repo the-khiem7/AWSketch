@@ -19,7 +19,6 @@ SKILL = Path(__file__).resolve().parent.parent
 ICONS = SKILL / "assets" / "icons"
 SHELL = SKILL / "assets" / "shell.html"
 
-MAX_FLOWS = 6
 SPEC_DEFAULTS = {"canvas": {"w": 1480, "h": 830}, "hint": "Tap any box or icon for what it does. On a phone, swipe the diagram sideways."}
 FLOW_ID = re.compile(r"^[a-z][a-z0-9-]*$")
 ICON_ID = re.compile(r"^[a-z0-9-]+$")
@@ -200,8 +199,6 @@ def validate(spec, index):
     errors, warns = [], []
     canvas = spec["canvas"]
     flows = {}
-    if len(spec.get("flows", [])) > MAX_FLOWS:
-        errors.append(f"more than {MAX_FLOWS} flows ({len(spec['flows'])})")
     for f in spec.get("flows", []):
         if not FLOW_ID.match(f.get("id", "")):
             errors.append(f"flow id {f.get('id')!r} must match [a-z][a-z0-9-]*")

@@ -10,7 +10,7 @@ A spec is one JSON object. Coordinates are SVG user units on the canvas; `x`, `y
 | `intro` | string | empty | One paragraph under the heading |
 | `canvas` | `{w, h}` | `{1480, 830}` | Size of the drawing |
 | `hint` | string | tap hint | Line under the drawing |
-| `flows` | list | empty | At most 6; order gives the badge and chip numbers |
+| `flows` | list | empty | As many as the picture needs; order gives the badge and chip numbers |
 | `groups` | list | empty | Account, region, VPC, subnet, cluster and other frames |
 | `pools` | list | empty | Layer boxes with a coloured bar and text lines |
 | `nodes` | list | empty | Icon boxes |
@@ -122,7 +122,7 @@ The page captions a pressed chip with the item at the same index of the ordered 
 
 ## Validation
 
-Errors stop the render and exit 1: unreadable or malformed JSON, unknown icon or group type, duplicate id, unknown flow id, a flow id that is not a CSS identifier, more than 6 flows, a segment that is not horizontal or vertical, a connector without exactly two points, two node hit boxes that overlap, a node past the canvas, an edge `from` or `to` that is not a node or pool id.
+Errors stop the render and exit 1: unreadable or malformed JSON, unknown icon or group type, duplicate id, unknown flow id, a flow id that is not a CSS identifier, a segment that is not horizontal or vertical, a connector without exactly two points, two node hit boxes that overlap, a node past the canvas, an edge `from` or `to` that is not a node or pool id.
 
 Warnings print and the page is still written: flows without an ordered section or with fewer ordered items than flows, a group title and subtitle wider than the group (7 units per title character, 6.5 per subtitle character, plus the icon offset; the layout checks use the measured 6.4 and 5.6), a label wider than 7 units per character at the node width, a subline wider than 6.2 units per character, an icon wider than its node, a pool line wider than the pool, an edge end more than 8 units from every node, pool and group edge, a clickable box without a three-part `detail`, an en or em dash in any text; and layout warnings: a straight arrow that cannot sit centred at both ends, an end that misses the icon, two arrows side by side less than 8 apart, an arrow through a group title, a label over a node's icon or text, a label on a group border or over a group title, a hub that joins three or more nodes but sits more than 80 units off their middle.
 
