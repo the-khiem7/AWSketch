@@ -18,7 +18,7 @@ A spec is one JSON object. Coordinates are SVG user units on the canvas; `x`, `y
 | `labels` | list | empty | Flow-coloured text on the sheet |
 | `badges` | list | empty | Numbered flow circles |
 | `trunks` | list | empty | Thick grey link, for a physical connection |
-| `connectors` | list | empty | Thin dotted grey line between two boxes, no flow |
+| `connectors` | list | empty | Thin dotted grey line between two boxes, no flow; an end that touches a node moves onto the node's icon edge |
 | `texts` | list | empty | Free grey text |
 | `sections` | list | empty | Collapsible text blocks under the drawing |
 

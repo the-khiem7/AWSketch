@@ -93,6 +93,34 @@ def edge_ends(spec, edge):
 END_GAP = 2
 
 
+# Colour of a plain arrow (an edge with no flow) and of the dotted connector.
+PLAIN_COLOR = "#7D8998"
+
+
+def snap_connector(spec, c):
+    """Return the two points of a connector with each end pulled onto the drawn part of the node it touches.
+
+    A connector is written between hit boxes, which are wider than the icons, so a straight copy leaves a gap at each end. An end within END_REACH of a node moves along the line to the icon side (a horizontal line, when it meets the icon's height) or to the icon top or the box bottom (a vertical line, when it meets the icon or box width); any other end stays where the spec put it."""
+    pts = [list(p) for p in c["points"]]
+    for idx, nb in ((0, 1), (1, 0)):
+        (px, py), (qx, qy) = pts[idx], pts[nb]
+        hits = [(rect_dist(px, py, n["x"], n["y"], n["w"], node_height(n)), n) for n in spec.get("nodes", [])]
+        hits = [h for h in hits if h[0] <= END_REACH]
+        if not hits:
+            continue
+        n = min(hits, key=lambda h: h[0])[1]
+        size, cx, top = n.get("size", 44), n["x"] + n["w"] / 2, n["y"] + 4
+        if py == qy:
+            if top <= py <= top + size:
+                pts[idx][0] = cx - size / 2 if qx < px else cx + size / 2
+        elif qy < py:
+            if abs(px - cx) <= size / 2:
+                pts[idx][1] = top
+        elif abs(px - cx) <= n["w"] / 2:
+            pts[idx][1] = n["y"] + node_height(n)
+    return pts
+
+
 # Preferred distance between neighbouring arrow ends on one side of a node.
 PORT_GAP = 20
 
@@ -340,8 +368,8 @@ def build_svg(spec, index):
     for t in spec.get("trunks", []):
         out.append(f'<path class="trunk" d="{path_d(t["points"])}"></path>')
     for c in spec.get("connectors", []):
-        (x1, y1), (x2, y2) = c["points"]
-        out.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="#7D8998" stroke-width="1.2" stroke-dasharray="2 3"></line>')
+        (x1, y1), (x2, y2) = snap_connector(spec, c)
+        out.append(f'<line x1="{num(x1)}" y1="{num(y1)}" x2="{num(x2)}" y2="{num(y2)}" stroke="#7D8998" stroke-width="1.2" stroke-dasharray="2 3"></line>')
     for p in spec.get("pools", []):
         x, y, w, h, color = p["x"], p["y"], p["w"], p["h"], p.get("color", "#2563EB")
         out.append(f'<g class="node" data-id="{escape(p["id"])}" tabindex="0" role="button">' if p.get("clickable", True) else "<g>")
