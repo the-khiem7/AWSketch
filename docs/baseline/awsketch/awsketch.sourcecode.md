@@ -84,7 +84,7 @@ graph LR
 | `services` | `#F7F8FA` / `#C7CDD6` | none |
 | `highlight` | `#F7F2FF` / `#8C4FFF` 1.6, rx 8 | none |
 
-Flow palette: `#2563EB`, `#E07A00`, `#7C3AED`, `#0E8F7E`, `#64748B`. Pool bar colours seen: `#2563EB`, `#059669`, `#7C3AED`, `#D97706`.
+Flow palette: `#2563EB`, `#E07A00`, `#7C3AED`, `#0E8F7E`, `#64748B`, `#DB2777`, then `#0891B2`, `#65A30D`, `#B45309`, `#BE123C`; no limit on the number of flows (AK-D29). Plain arrow and connector colour: `PLAIN_COLOR` `#7D8998`. Pool bar colours seen: `#2563EB`, `#059669`, `#7C3AED`, `#D97706`.
 
 ## Renderer rules
 
@@ -96,6 +96,7 @@ Flow palette: `#2563EB`, `#E07A00`, `#7C3AED`, `#0E8F7E`, `#64748B`. Pool bar co
 - A dashed edge gets `stroke-dasharray` from `dash_fit()`: `7 5` scaled so the line starts on a dash and a dash sits on the arrowhead back, `HEAD_BACK` = 8 x 0.6 x 2.2 (AK-D25).
 - Paths, label groups `g.fl` (an empty `rect.flbox` plus the `.flabel` text) and badges carry `data-e`, the edge index; a label or badge takes the nearest edge of its flow (`owner()`, AK-D27).
 - Every `path.flow` carries `data-from` / `data-to` from `edge_ends()`: explicit `from` / `to` first, else the nearest node within `END_REACH` (14) of each end by `rect_dist`, then a clickable pool; an end touching only a group boundary gets `data-from-group` / `data-to-group` with the group label (by `edge_dist`). The shell uses these for the neighbourhood highlight, the spotlight and the step captions (AK-D14).
+- An edge with no `flow` is a plain arrow: `<path class="plain">` with inline grey stroke 1.6 and `marker-*` `m-plain`, routed by `route()` like any edge, carrying no `data-from` / `data-to`, so the shell's `path.flow` list, chips and walk never see it (AK-D30). Each connector goes through `snap_connector()`, which moves an end within `END_REACH` of a node onto the icon side, icon top or box bottom (AK-D31).
 - Chips render as `<i>` colour dot, `.n` number, `.t` label, with `aria-label="Flow N: label"`; the SVG root is `role="group"` because it holds focusable nodes.
 - `assets/shell.html` is filled by plain string replacement of `{{title}}`, `{{intro}}`, `{{flow_vars}}` (one `--<flow>:<colour>;` per flow), `{{flow_rules}}` (per flow: `path.f-`, `.mk-`, `.c-`, `.b-` and the `body[data-flow]` rule), `{{chips}}`, `{{svg}}` (the whole `<svg id="dia">` element), `{{hint}}`, `{{sections}}` and `{{detail_map}}` (the `D` object literal); `{{intro}}` fills the caption slot, not the header; never `str.format`, because the shell script holds `${...}` and braces.
 - Only icons referenced by groups or nodes are inlined into `<defs>`, each icon file (a standalone `<svg>`, located through its `path` in `index.json`) converted to a `<symbol>`.
@@ -120,7 +121,7 @@ One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`
 
 | Check | Level |
 |---|---|
-| Unknown icon, duplicate id, unknown flow id, more than 6 flows, invalid JSON | error |
+| Unknown icon, duplicate id, unknown flow id (an edge may name none, a label or badge may not), invalid JSON | error |
 | Edge segment not axis-aligned | error |
 | Edge `from` / `to` that is not a node or pool id | error |
 | Two node hit boxes overlap, or a node extends past the canvas | error |

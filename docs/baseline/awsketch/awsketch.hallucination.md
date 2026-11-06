@@ -38,6 +38,9 @@ code_ref: "uncommitted"
 | AK-D26 | March animation starts from offset 0 | lesson | AK-D25 |
 | AK-D27 | Hover keeps linked labels in a still box; no in/out tip | decided | AK-D13 |
 | AK-D28 | Layout warnings for crowded, stacked or covered drawing | decided | AK-D21, AK-D24 |
+| AK-D29 | No limit on the number of flows | decided | AK-D13, AK-D30 |
+| AK-D30 | An edge may belong to no flow | decided | AK-D13, AK-D14, AK-D29 |
+| AK-D31 | Connector ends are pulled onto the icon edge | decided | AK-D24 |
 
 ## Closed decisions
 
@@ -234,6 +237,27 @@ Closes AK-Q6.
 - Why: on the Atlantic diagram each of these was found by the owner in a screenshot after a 0-warning render.
 - Breaks if ignored: the same defects ship whenever the screenshot step is skimmed.
 - Rejected: errors instead of warnings (each has legitimate exceptions, such as a label laid across a vertical line); shifting whole columns to clear a label (tried, widened empty space; the owner allowed a label across a vertical line instead).
+
+### AK-D29: The renderer sets no limit on the number of flows
+
+- Decision: `MAX_FLOWS` and its `more than 6 flows` error are removed from `render.py`; `spec-format.md`, `SKILL.md` and the sourcecode validator table no longer state a limit; the palette in `layout-rules.md` grows from six to ten colours. Owner, 2026-11-05.
+- Why: the cap was a constant and a sentence with no decision behind it; the combined Atlantic diagram outgrew its six flows when the Event Mesh account was deepened. The chip row already scrolls sideways (`.chips{overflow-x:auto}`) and the phone drawer already scrolls its numbered squares.
+- Breaks if ignored: unrelated paths are folded into one chip to stay under the cap, and their captions and walk order become wrong.
+- Rejected: a higher cap (still arbitrary); a warning above six (the owner wants no limit).
+
+### AK-D30: An edge may belong to no flow
+
+- Decision: an edge with no `flow` renders as a plain arrow: stroke `#7D8998` 1.6 wide, its own `m-plain` marker, `start`, `end` and `dashed` as for any edge, routed by `route()` (ports, title nudge, layout warnings). It has no `data-from` / `data-to`, so it is outside the chips, the step walk and the hover highlight, and it is never dimmed. A label or badge still names a flow, and a named `flow` must exist (unknown flow stays an error). Owner, 2026-11-05.
+- Why: the rule that every arrow names a flow came from the page being a flow walker (AK-D13) and was never recorded as a decision; a link that carries no traffic of its own, such as a gateway to the address it fronts, had only the arrowless dotted connector.
+- Breaks if ignored: such links are drawn as invented flows (wrong colour, chip and caption) or as lines with no direction.
+- Rejected: a neutral pseudo-flow with its own chip (a chip for lines that are not a flow); arrowheads on `connectors` (two points only, no routing); shell changes to walk plain arrows (they carry no traffic to narrate).
+
+### AK-D31: Connector ends are pulled onto the icon edge
+
+- Decision: `snap_connector()` moves each connector end within `END_REACH` of a node onto the icon side (a horizontal line meeting the icon's height) or onto the icon top or box bottom (a vertical line meeting the icon or box width), with no gap because the line has no arrowhead; an end touching no node stays where the spec put it.
+- Why: a connector is written between two hit boxes, which are wider than the icons, so each end left 40 to 110 units of gap on the Atlantic diagram; arrows already had this fix (AK-D24).
+- Breaks if ignored: every spec must compute icon edges by hand, and dotted lines read as stopping short of their boxes.
+- Rejected: leave the gap and document it (read as a broken line); the agent computes the icon edges (the cost AK-D24 removed for arrows).
 
 ## Open questions
 

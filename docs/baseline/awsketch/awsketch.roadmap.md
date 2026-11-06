@@ -26,10 +26,11 @@ code_ref: "uncommitted"
 | AK-P11 | Validator and group type follow-ups | AK-P10 | complete |
 | AK-P12 | Motion ignores reduced-motion | AK-P9 | complete |
 | AK-P13 | Arrow ports, label hover and layout warnings | AK-P11, AK-P12 | complete |
+| AK-P14 | No flow limit, plain arrows, snapped connectors | AK-P13 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P13) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P14) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -138,6 +139,14 @@ All phases (AK-P1 to AK-P13) are complete. Optional follow-up: the two sample sp
 - Status: complete.
 - Evidence: the Atlantic combined diagram (35 nodes, 34 edges) renders with 0 warnings after four review rounds approved by the owner on 2026-11-05; in Chrome all 7 dashed lines put the back of the arrowhead 2.9 to 4.9 into a dash of about 7; hovering AWS IoT Core left exactly its 3 labels and badges 2 and 3 visible, with no `#nbtip` element; the "ECS cluster" title ends at x 1049.9 and the nudged arrow enters at 1054.4; `render.py` holds 0 non-ASCII bytes. The sample specs gained warnings: `awsketch/examples/platform-on-aws.json` 6 (2 earlier label warnings plus 4 new), `diagrams/ecommerce-on-aws.json` 2.
 - Risk: label and title widths are estimates per character; `fitLabels()` runs only in a browser, so a screenshot tool without fonts sizes boxes from the fallback font; hub alignment checks one column only.
+
+## AK-P14: Phase 14 - No flow limit, plain arrows, snapped connectors
+
+- Deliver: `MAX_FLOWS` removed, `flow` optional on edges with `m-plain` markers, and `snap_connector()` in `render.py` (AK-D29 no flow limit, AK-D30 plain arrows, AK-D31 snapped connector ends); `spec-format.md`, `layout-rules.md`, `SKILL.md`, the sourcecode validator table and the introduction page anatomy updated.
+- Acceptance: a spec with 8 flows renders with 8 numbered chips and 0 errors; an edge with no `flow` renders as a grey plain arrow and is absent from the chips; a connector written between two hit boxes ends on the icon edges; the two sample specs keep 6 and 0 warnings; `render.py` stays ASCII-only.
+- Status: complete.
+- Evidence: a test spec with 8 flows gave 9 chip buttons (All plus 8) and exit 0; its two edges with no `flow` gave two `class="plain"` paths with `m-plain` markers, one dashed with both ends; its connector from a 130-wide box at x 40 to one at x 340 gave x1 127 and x2 383, the icon edges, and a vertical connector ended on an icon top at y 334; `awsketch/examples/platform-on-aws.json` stayed at 6 warnings and `diagrams/ecommerce-on-aws.json` at 0; the six Atlantic record sets render with 0 errors and the combined one with 0 warnings and connector ends at 547, 651, 695, 823, 871 and 1908; a scan of `render.py` found 0 non-ASCII bytes; in Chrome under Playwright the 8-flow page showed 8 flow chips, and its 2 plain arrows kept opacity 1 on load, with chip 8 pressed, on the first walk step and while hovering a node.
+- Risk: a plain arrow is not highlighted on hover and is not walked, by design; past ten flows the chip row only scrolls sideways; the phone drawer was not checked with more than six chips.
 
 ## Risks
 
