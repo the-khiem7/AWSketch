@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "hallucination"
 status: "active"
-updated: "2026-11-05"
+updated: "2026-11-09"
 code_ref: "uncommitted"
 ---
 
@@ -41,6 +41,7 @@ code_ref: "uncommitted"
 | AK-D29 | No limit on the number of flows | decided | AK-D13, AK-D30 |
 | AK-D30 | An edge may belong to no flow | decided | AK-D13, AK-D14, AK-D29 |
 | AK-D31 | Connector ends are pulled onto the icon edge | decided | AK-D24 |
+| AK-D32 | Each diagram lives in its own folder | decided | AK-D16 |
 
 ## Closed decisions
 
@@ -258,6 +259,13 @@ Closes AK-Q6.
 - Why: a connector is written between two hit boxes, which are wider than the icons, so each end left 40 to 110 units of gap on the Atlantic diagram; arrows already had this fix (AK-D24).
 - Breaks if ignored: every spec must compute icon edges by hand, and dotted lines read as stopping short of their boxes.
 - Rejected: leave the gap and document it (read as a broken line); the agent computes the icon edges (the cost AK-D24 removed for arrows).
+
+### AK-D32: Each diagram lives in its own folder, `diagrams/<slug>/`
+
+- Decision: the agent writes `diagrams/<slug>/<slug>.json` and renders `diagrams/<slug>/<slug>.html` beside it, one folder per diagram, never loose files in `diagrams/`; `SKILL.md` steps 4 and 5 and `README.md` say so. Records mode keeps `docs/diagrams/<slug>/` (AK-D16), so both modes now use one folder per slug. Owner, 2026-11-09.
+- Why: the owner wants a folder per diagram for better management [user]; a folder holds the spec, the page and anything the owner adds for that diagram, and a diagram moved into records mode gains the two record files without moving its spec [agent].
+- Breaks if ignored: three or more diagrams in `diagrams/` leave six or more loose files whose pairs are told apart only by name.
+- Rejected: flat `diagrams/<slug>.json` and `.html` (the rule before this entry; files of several diagrams mix) [user]; a folder only in records mode (leaves the common case flat) [agent].
 
 ## Open questions
 

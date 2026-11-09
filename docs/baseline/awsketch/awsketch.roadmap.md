@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "roadmap"
 status: "active"
-updated: "2026-11-05"
+updated: "2026-11-09"
 code_ref: "uncommitted"
 ---
 
@@ -27,10 +27,11 @@ code_ref: "uncommitted"
 | AK-P12 | Motion ignores reduced-motion | AK-P9 | complete |
 | AK-P13 | Arrow ports, label hover and layout warnings | AK-P11, AK-P12 | complete |
 | AK-P14 | No flow limit, plain arrows, snapped connectors | AK-P13 | complete |
+| AK-P15 | One folder per diagram | AK-P7 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P14) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P15) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -147,6 +148,14 @@ All phases (AK-P1 to AK-P14) are complete. Optional follow-up: the two sample sp
 - Status: complete.
 - Evidence: a test spec with 8 flows gave 9 chip buttons (All plus 8) and exit 0; its two edges with no `flow` gave two `class="plain"` paths with `m-plain` markers, one dashed with both ends; its connector from a 130-wide box at x 40 to one at x 340 gave x1 127 and x2 383, the icon edges, and a vertical connector ended on an icon top at y 334; `awsketch/examples/platform-on-aws.json` stayed at 6 warnings and `diagrams/ecommerce-on-aws.json` at 0; the six Atlantic record sets render with 0 errors and the combined one with 0 warnings and connector ends at 547, 651, 695, 823, 871 and 1908; a scan of `render.py` found 0 non-ASCII bytes; in Chrome under Playwright the 8-flow page showed 8 flow chips, and its 2 plain arrows kept opacity 1 on load, with chip 8 pressed, on the first walk step and while hovering a node.
 - Risk: a plain arrow is not highlighted on hover and is not walked, by design; past ten flows the chip row only scrolls sideways; the phone drawer was not checked with more than six chips.
+
+## AK-P15: Phase 15 - One folder per diagram
+
+- Deliver: `SKILL.md` steps 4 and 5 and the `README.md` Use section write and render `diagrams/<slug>/<slug>.json` and `.html` (AK-D32).
+- Acceptance: no `diagrams/<slug>.json` or `diagrams/<slug>.html` path is left in `SKILL.md` or `README.md`; the repo's own sample sits in `diagrams/ecommerce-on-aws/`.
+- Status: complete.
+- Evidence: a search of `SKILL.md` and `README.md` for `diagrams/<slug>.` finds nothing; three diagrams of another repository and the sample `ecommerce-on-aws` were rendered into `diagrams/<slug>/` with the unchanged `render.py`, the sample with 0 warnings.
+- Risk: `/diagrams/` is excluded in `.git/info/exclude`, so the moved sample is local to this machine and the move is not part of any commit.
 
 ## Risks
 
