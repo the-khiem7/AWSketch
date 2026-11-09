@@ -35,11 +35,11 @@ On macOS or Linux use `ln -s <path-to-this-repo>/awsketch .claude/skills/awsketc
 
 ## Use
 
-Ask for an AWS architecture or deployment diagram. The agent writes `diagrams/<slug>.json` in your repository and renders it:
+Ask for an AWS architecture or deployment diagram. The agent writes `diagrams/<slug>/<slug>.json` in your repository, one folder per diagram, and renders it:
 
 ```sh
-uv run awsketch/scripts/render.py diagrams/<slug>.json -o diagrams/<slug>.html
-uv run awsketch/scripts/render.py diagrams/<slug>.json --check
+uv run awsketch/scripts/render.py diagrams/<slug>/<slug>.json -o diagrams/<slug>/<slug>.html
+uv run awsketch/scripts/render.py diagrams/<slug>/<slug>.json --check
 uv run awsketch/scripts/render.py --list-icons
 ```
 
