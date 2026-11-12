@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "sourcecode"
 status: "active"
-updated: "2026-11-05"
+updated: "2026-11-10"
 code_ref: "uncommitted"
 ---
 
@@ -94,7 +94,7 @@ Flow palette: `#2563EB`, `#E07A00`, `#7C3AED`, `#0E8F7E`, `#64748B`, `#DB2777`, 
 - Each flow generates a CSS variable, `.f-/.mk-/.c-/.b-` classes, one `<marker>` with `orient="auto-start-reverse"`, one chip and one `body[data-flow]` rule; badge numbers follow `flows` order.
 - Waypoints render as `M x y` then `H` or `V` per segment, after `route()` moves the ends: ports per node side, `PORT_GAP` 20 apart, centred on the icon (left, right, top) or box (bottom), corner moved along; `nudge_off_titles()` slides an end segment off a group title; ends then touch the icon side, icon top or box bottom, `END_GAP` 2 short (AK-D24).
 - A dashed edge gets `stroke-dasharray` from `dash_fit()`: `7 5` scaled so the line starts on a dash and a dash sits on the arrowhead back, `HEAD_BACK` = 8 x 0.6 x 2.2 (AK-D25).
-- Paths, label groups `g.fl` (an empty `rect.flbox` plus the `.flabel` text) and badges carry `data-e`, the edge index; a label or badge takes the nearest edge of its flow (`owner()`, AK-D27).
+- Paths, label groups `g.fl` (an empty `rect.flbox` plus the `.flabel` text) and badges carry `data-e`, the edge index (AK-D27). `attach()` matches each label and badge to the nearest segment of its flow in the spec points and moves it across by the distance `route()` moved that segment, y for a horizontal segment and x for a vertical one (AK-D37).
 - Every `path.flow` carries `data-from` / `data-to` from `edge_ends()`: explicit `from` / `to` first, else the nearest node within `END_REACH` (14) of each end by `rect_dist`, then a clickable pool; an end touching only a group boundary gets `data-from-group` / `data-to-group` with the group label (by `edge_dist`). The shell uses these for the neighbourhood highlight, the spotlight and the step captions (AK-D14).
 - An edge with no `flow` is a plain arrow: `<path class="plain">` with inline grey stroke 1.6 and `marker-*` `m-plain`, routed by `route()` like any edge, carrying no `data-from` / `data-to`, so the shell's `path.flow` list, chips and walk never see it (AK-D30). Each connector goes through `snap_connector()`, which moves an end within `END_REACH` of a node onto the icon side, icon top or box bottom (AK-D31).
 - Chips render as `<i>` colour dot, `.n` number, `.t` label, with `aria-label="Flow N: label"`; the SVG root is `role="group"` because it holds focusable nodes.
@@ -131,7 +131,7 @@ One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`
 | Non-ASCII dash in text | warn |
 | Flows without an ordered section, or fewer first-section items than flows (AK-D17) | warn |
 | Group title plus subtitle wider than the group: label offset + 7 per title char + 8 + 6.5 per subtitle char, against `w - 6` (AK-D21) | warn |
-| `layout_warnings()`: arrows side by side under 8 apart, arrow through a group title, label over node icon or text, label on a group border or title, hub over 80 off the middle of 3 or more nodes, straight edge not centrable at both ends, end missing the icon (AK-D28) | warn |
+| `layout_warnings()`: arrows side by side under 8 apart, arrow through a group title, label over node icon or text, label on a group border or title, label on the line of any arrow and badge more than 2 off its own arrow after `attach()` (AK-D37), hub over 80 off the middle of 3 or more nodes, straight edge not centrable at both ends, end missing the icon (AK-D28) | warn |
 
 ## Records checker
 

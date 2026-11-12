@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "hallucination"
 status: "active"
-updated: "2026-11-09"
+updated: "2026-11-10"
 code_ref: "uncommitted"
 ---
 
@@ -36,12 +36,17 @@ code_ref: "uncommitted"
 | AK-D24 | Renderer places arrow ends on nodes as centred, spread ports | decided | AK-D3, AK-D12, AK-D28 |
 | AK-D25 | Dashed pattern stretched to fit the line | lesson | AK-D24 |
 | AK-D26 | March animation starts from offset 0 | lesson | AK-D25 |
-| AK-D27 | Hover keeps linked labels in a still box; no in/out tip | decided | AK-D13 |
+| AK-D27 | Hover keeps linked labels in a still box; no in/out tip | decided; `owner()` replaced by `attach()` in AK-D37 | AK-D13, AK-D37 |
 | AK-D28 | Layout warnings for crowded, stacked or covered drawing | decided | AK-D21, AK-D24 |
 | AK-D29 | No limit on the number of flows | decided | AK-D13, AK-D30 |
 | AK-D30 | An edge may belong to no flow | decided | AK-D13, AK-D14, AK-D29 |
 | AK-D31 | Connector ends are pulled onto the icon edge | decided | AK-D24 |
 | AK-D32 | Each diagram lives in its own folder | decided | AK-D16 |
+| AK-D33 | A target-architecture page draws planned flows as normal solid flows | decided | AK-D16 |
+| AK-D34 | A component with no AWS icon takes a stand-in icon and a recorded reason | decided | AK-D16 |
+| AK-D35 | A link-only source edit is reconciled by comparison, then stamped | decided | AK-D16, AK-D18 |
+| AK-D36 | The chip row scrolls sideways past about five flows | lesson | AK-D29 |
+| AK-D37 | Labels and badges stayed put while routing moved their arrow | lesson | AK-D3, AK-D24, AK-D27, AK-D28 |
 
 ## Closed decisions
 
@@ -266,6 +271,42 @@ Closes AK-Q6.
 - Why: the owner wants a folder per diagram for better management [user]; a folder holds the spec, the page and anything the owner adds for that diagram, and a diagram moved into records mode gains the two record files without moving its spec [agent].
 - Breaks if ignored: three or more diagrams in `diagrams/` leave six or more loose files whose pairs are told apart only by name.
 - Rejected: flat `diagrams/<slug>.json` and `.html` (the rule before this entry; files of several diagrams mix) [user]; a folder only in records mode (leaves the common case flat) [agent].
+
+### AK-D33: A page that shows the target architecture draws planned flows as normal solid flows
+
+- Decision: planned components and flows are drawn like live ones; a dash keeps its meaning (optional, fallback, trust boundary, replication stream); what is not live is listed in the diagram's decisions record so drift is found when each element goes live; `references/layout-rules.md` section Target architecture says so. Owner, 2026-11-10.
+- Why: the page is the target, and a dashed or greyed style turns it into a status board that goes stale as parts land; seen on the Solace PROD and UAT diagrams, where peering, the image pull from ECR and the AMQP consumer were not live [user].
+- Breaks if ignored: a reader takes a dashed line as an optional path, or a later render silently drops the plan.
+- Rejected: dashed or greyed planned flows (mixes two meanings of dash) [user]; a separate "planned" flow colour (the palette is spent on flow identity, and the status changes every release) [agent].
+
+### AK-D34: A component with no AWS icon takes the closest official icon, a label with its real name, and a recorded reason
+
+- Decision: a component without an AWS icon (a Solace broker, Keycloak, Docker Hub) uses the closest official icon, carries the real product name in its label, and the stand-in and the reason are recorded in the decisions record; never an icon that implies a managed AWS service the component is not; `references/layout-rules.md` section Stand-in icons says so. Owner, 2026-11-10.
+- Why: the Solace diagrams needed an EC2 icon for the broker and an SQS icon for Solace queues, and without the label and the record a reader mistakes the EC2 icon for a managed broker [user].
+- Breaks if ignored: the page reads as if SQS or a managed AWS broker were deployed.
+- Rejected: shipping non-AWS brand icons in the icon set (the set is the official AWS package, redistributed under AK-D7) [agent].
+
+### AK-D35: A source edit that only removes or repoints a link still shows as drift; it is reconciled by comparison, then stamped
+
+- Decision: after such an edit `records.py check` reports DRIFT or UPDATED; `show` the node, compare with its `detail`, confirm nothing drawn changed, then `stamp`; never stamp before the comparison; `references/records.md` Workflow says so. Owner, 2026-11-10.
+- Why: removing links to deleted diagrams from the Solace documents changed two routed sections and four source files in the check report, and no drawn fact [user].
+- Breaks if ignored: stamping without the comparison makes real drift invisible.
+- Rejected: teaching `records.py` to ignore link-only edits (it cannot tell a link edit from a fact edit in the same line) [agent].
+
+### AK-D36: The chip row scrolls sideways when the flows do not fit at 1280px
+
+- Decision: the shell is unchanged; `references/layout-rules.md` section Chip row says the row scrolls sideways past about five flows and tells the agent to order `flows` so the important ones come first. Owner, 2026-11-10.
+- Why: the Solace UAT page with six flows hid the sixth chip off screen at 1280px [user].
+- Breaks if ignored: a reader never sees the later flows' chips.
+- Rejected: wrapping the chip row onto several lines (a shell layout change that AK-D13 approved otherwise) [agent].
+
+### AK-D37: Labels and badges stayed at their spec coordinates while `route()` moved their arrow onto a port
+
+- Lesson: two opposite arrows between the same two nodes (a request and its reply) were written 34 apart at y 466 and 500, with each label and badge placed against those lines; `route()` (AK-D24) spread both ends onto ports 20 apart, so the lines moved to 456 and 476 while labels and badges stayed where written. One label landed on its own line, the other 40 below it, and a badge sat between the two lines; on the GitLab OIDC diagrams the badge of one flow read as the other flow's [user]. The bundled example had the same defect on its "LLM calls" label and badge 3.
+- Why it looked fine: the spec coordinates were correct against the spec points, and `layout_warnings()` checked labels against nodes and group borders but never against arrows, so the render gave 0 warnings.
+- Fix: `attach()` in `render.py` replaces `owner()`; it matches each label and badge to the nearest segment of its flow in the spec points and moves it across by the distance routing moved that segment (y for a horizontal segment, x for a vertical one), and still returns the arrow index for `data-e`. `layout_warnings()` now warns on a label on the line of any arrow and on a badge more than 2 off its own arrow, both after the move. `references/layout-rules.md` Flows and `references/spec-format.md` Validation say so [agent].
+- Breaks if ignored: any pair of arrows on one node side reads with crossed labels and badges, and nothing in the render output says so.
+- Rejected: placing labels against the routed ports by hand (the agent must predict port positions, the cost AK-D24 removed for arrow ends) [agent]; a warning only (each spec still needs a manual fix after every routing change) [agent]; a `label` field on each edge (changes the spec format and every existing spec) [agent].
 
 ## Open questions
 

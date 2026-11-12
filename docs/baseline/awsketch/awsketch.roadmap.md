@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "roadmap"
 status: "active"
-updated: "2026-11-09"
+updated: "2026-11-10"
 code_ref: "uncommitted"
 ---
 
@@ -28,10 +28,11 @@ code_ref: "uncommitted"
 | AK-P13 | Arrow ports, label hover and layout warnings | AK-P11, AK-P12 | complete |
 | AK-P14 | No flow limit, plain arrows, snapped connectors | AK-P13 | complete |
 | AK-P15 | One folder per diagram | AK-P7 | complete |
+| AK-P16 | Labels and badges follow routed arrows | AK-P13 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P15) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P16) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -156,6 +157,14 @@ All phases (AK-P1 to AK-P15) are complete. Optional follow-up: the two sample sp
 - Status: complete.
 - Evidence: a search of `SKILL.md` and `README.md` for `diagrams/<slug>.` finds nothing; three diagrams of another repository and the sample `ecommerce-on-aws` were rendered into `diagrams/<slug>/` with the unchanged `render.py`, the sample with 0 warnings.
 - Risk: `/diagrams/` is excluded in `.git/info/exclude`, so the moved sample is local to this machine and the move is not part of any commit.
+
+## AK-P16: Phase 16 - Labels and badges follow routed arrows
+
+- Deliver: `attach()` in place of `owner()` in `render.py`, and two layout warnings, a label on an arrow line and a badge off its arrow (AK-D37, labels and badges left behind by routing); `layout-rules.md` Flows, `spec-format.md` Validation and the sourcecode renderer rules and validator table updated.
+- Acceptance: on the GitLab OIDC diagrams `02-public-jwks` and `03-s3-copy`, with their specs unchanged, each request label sits above its line, each reply label below its line, and each badge on its own line; the two sample specs gain no warning; `render.py` stays ASCII-only.
+- Status: complete.
+- Evidence: the two GitLab OIDC diagrams render with 0 warnings, and in headless Chrome at 1600px the orange and pink lines at y 456 and 476 carry their own badges and labels, where before the badges sat at 466 and 500 and the labels at 458 and 516; `diagrams/ecommerce-on-aws/ecommerce-on-aws.json` stays at 0 warnings with unchanged label and badge output; `awsketch/examples/platform-on-aws.json` stays at 6 warnings after its "HTTPS" label moved to x 596 with anchor end and its "published APIs" label to x 152, the two labels the new check found on a line; its "LLM calls" label and badge 3 moved onto their line; `render.py` holds 0 non-ASCII bytes.
+- Risk: label widths are still estimated at 6.6 per character, so the line check can miss or over-report by a few units; a badge is moved across its segment only, so a segment shortened past the badge is caught by the off-arrow warning, not fixed; `/awsketch/examples/` is excluded in `.git/info/exclude`, so the two example label moves are local to this machine.
 
 ## Risks
 
