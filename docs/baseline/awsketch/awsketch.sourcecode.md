@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "sourcecode"
 status: "active"
-updated: "2026-11-10"
+updated: "2026-11-13"
 code_ref: "uncommitted"
 ---
 
@@ -108,14 +108,14 @@ One block in `assets/shell.html`, state in `flow`, `walking`, `pin`, `hops`, `h`
 | Part | Behaviour |
 |---|---|
 | Chips | Set `body[data-flow]`, spotlight (`.on` arrows, `.lit` icons), caption, then `overview()` |
-| Timeline | `overview()` is step 0; `paint()` draws step `h` of `hops` (pressed flow's arrows, or all); `#pv` / `#pl` / `#nx` / `#scrub` drive `h`; Escape returns to step 0 |
+| Timeline | `overview()` is step 0; `paint()` draws step `h` of `hops` (pressed flow's arrows, or all); `#pv` / `#nx` / `#scrub` in the floating `#bar` drive `h`; no Play (AK-D38); Escape returns to step 0 |
 | Motion | `traffic()` adds `animateMotion` packets; `#motion` pauses them and the dash animation; always on, the OS reduced-motion setting is not read (AK-D23); `march` runs from offset 0 on `path.flow` only (AK-D26) |
 | Neighbourhood | `nbOn()` on hover or focus lights the node's arrows and ends and the labels and badges with the same `data-e`; no tip (AK-D27) |
 | Label boxes | `fitLabels()` sizes each `.flbox` from its text's `getBBox()` on load and after `document.fonts.ready`; the box shows for a linked, pressed or walked label |
-| Card | `openPop()` positions `#pop` next to the icon (CSS pins it above the drawer on a phone); Tab stays inside; Escape closes |
+| Card | `openPop()` positions `#pop` next to the icon (CSS pins it above the floating player on a phone); Tab stays inside; Escape closes |
 | Notes | `localStorage` key `awsk-notes-<path>`; inline form; Enter on a focused icon places one |
-| Night / rail | `localStorage` `awsk-night`, `awsk-rail`; Night adds `.tile` rects once |
-| Phone | `layout()` on the `(max-width:700px)` change moves Night into the chip row and makes the caption a tap-to-open button; `follow()` scrolls the current arrow into view; `--dh` holds the drawer height |
+| Night / rail | `localStorage` `awsk-night`, `awsk-rail`; Night adds `.tile` rects once; `#railbtn`, `#nt`, `#motion`, `#neon` sit in `.tools` inside `#chipbar`, and `body.rail` CSS alone moves chips and tools to the left edge (AK-D38, AK-D39) |
+| Phone | `layout()` on the `(max-width:700px)` change makes the caption a tap-to-open button; `follow()` scrolls the current arrow into view between `#chipbar` and `#bar`; `--dh` holds the floating player's height |
 
 ## Validator
 

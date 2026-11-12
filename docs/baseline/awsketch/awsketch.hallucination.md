@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "hallucination"
 status: "active"
-updated: "2026-11-10"
+updated: "2026-11-13"
 code_ref: "uncommitted"
 ---
 
@@ -22,7 +22,7 @@ code_ref: "uncommitted"
 | AK-D8 | Repo-scoped junction install | decided | AK-Q2, AK-D1 |
 | AK-D10 | Icon files nested by kind and category | decided | - |
 | AK-D12 | Vertical flows start and end at the hit box edge, not the icon | lesson; top end superseded by AK-D24 | AK-D24 |
-| AK-D13 | Approved page shell layout | decided; hover tip removed by AK-D27 | AK-D6, AK-D14, AK-D15, AK-D27 |
+| AK-D13 | Approved page shell layout | decided; hover tip removed by AK-D27; bar, Play and phone drawer replaced by AK-D38 | AK-D6, AK-D14, AK-D15, AK-D27, AK-D38 |
 | AK-D14 | Arrow ends come from the spec, not page geometry | decided | AK-D13, AK-D15 |
 | AK-D15 | Optional `from` / `to` on spec edges | decided | AK-Q3, AK-D14 |
 | AK-D16 | Records mode: sources and decisions files beside the spec, instead of a baseline pack | decided | AK-D17, AK-D18 |
@@ -32,7 +32,7 @@ code_ref: "uncommitted"
 | AK-D20 | `ecs` group type | decided | AK-Q4, AK-D13 |
 | AK-D21 | Warning for a group title and subtitle wider than the group | decided | AK-Q5, AK-D17 |
 | AK-D22 | `render.py` source is ASCII-only | decided | AK-Q6 |
-| AK-D23 | Page motion always runs, the OS reduced-motion setting is ignored | decided | AK-D13 |
+| AK-D23 | Page motion always runs, the OS reduced-motion setting is ignored | decided; Pause moved and walk step timer removed by AK-D38 | AK-D13, AK-D38 |
 | AK-D24 | Renderer places arrow ends on nodes as centred, spread ports | decided | AK-D3, AK-D12, AK-D28 |
 | AK-D25 | Dashed pattern stretched to fit the line | lesson | AK-D24 |
 | AK-D26 | March animation starts from offset 0 | lesson | AK-D25 |
@@ -45,8 +45,10 @@ code_ref: "uncommitted"
 | AK-D33 | A target-architecture page draws planned flows as normal solid flows | decided | AK-D16 |
 | AK-D34 | A component with no AWS icon takes a stand-in icon and a recorded reason | decided | AK-D16 |
 | AK-D35 | A link-only source edit is reconciled by comparison, then stamped | decided | AK-D16, AK-D18 |
-| AK-D36 | The chip row scrolls sideways past about five flows | lesson | AK-D29 |
+| AK-D36 | The chip row scrolls sideways past about five flows | lesson; threshold changed by AK-D38 | AK-D29, AK-D38 |
 | AK-D37 | Labels and badges stayed put while routing moved their arrow | lesson | AK-D3, AK-D24, AK-D27, AK-D28 |
+| AK-D38 | Floating player, slim chip bar and vertical rail view | decided | AK-D13, AK-D23, AK-D36, AK-D39 |
+| AK-D39 | A blurred bar became the containing block of the fixed rail | lesson | AK-D38 |
 
 ## Closed decisions
 
@@ -307,6 +309,21 @@ Closes AK-Q6.
 - Fix: `attach()` in `render.py` replaces `owner()`; it matches each label and badge to the nearest segment of its flow in the spec points and moves it across by the distance routing moved that segment (y for a horizontal segment, x for a vertical one), and still returns the arrow index for `data-e`. `layout_warnings()` now warns on a label on the line of any arrow and on a badge more than 2 off its own arrow, both after the move. `references/layout-rules.md` Flows and `references/spec-format.md` Validation say so [agent].
 - Breaks if ignored: any pair of arrows on one node side reads with crossed labels and badges, and nothing in the render output says so.
 - Rejected: placing labels against the routed ports by hand (the agent must predict port positions, the cost AK-D24 removed for arrow ends) [agent]; a warning only (each spec still needs a manual fix after every routing change) [agent]; a `label` field on each edge (changes the spec format and every existing spec) [agent].
+
+### AK-D38: The page has a floating player and two chip views, a slim bar and a vertical rail
+
+- Decision: `assets/shell.html` centres the title; `#bar` floats at the bottom (16px from the edges, at most 980px wide) and holds only Back, the caption, Next and the scrubber, with round media-style Back and Next icons; Play and its 1100 ms walk timer are removed. The default chip view is `#chipbar`, a slim bar sticky under the title: each flow a rounded rectangle with number and name and its colour as the border, filled when pressed, then a divider and `.tools` (view switch, Note, Pause, Night, 32px). The view switch turns on the vertical rail, the committed rail kept as it was: numbered squares centred on the left that open to the name on hover, the switch top-left, Note, Pause and Night bottom-left. On a phone the player floats 8px from the edges and the chips stay under the title as numbered squares with Pause and Night; Note and the switch are hidden. The example page was edited first and reviewed by the owner, then turned back into the shell. Owner, 2026-11-13.
+- Why: the player at the bottom frees the top for the diagram and reads like a media control; chips with names under the title show every flow without hovering; the owner kept the rail as a second view and wanted it exactly as before [user]. The tools sit with the chips because they are page settings, not playback, and that removes the 88px left gutter in the slim view [agent].
+- Breaks if ignored: removing Pause leaves the moving dashes and packets with no stop (WCAG 2.2.2, AK-D23); moving the tools into the player crowds it again.
+- Rejected: Pause removed with Play (fails WCAG 2.2.2) [user]; tools at the bottom-left in the slim view (keeps the 88px gutter and splits desktop from phone) [user]; the rail as the only wide view (names hidden until hover, the reason AK-D13 rejected it as default) [user]; tools pinned under the rail chips in one column (owner preferred the committed rail layout) [user]; falling back to the slim bar below 640px of height (dropped with the return to the committed rail; below about 650px the rail chips overlap Note) [user].
+- Not verified: a real touch device, a screen reader, more than six flows in the slim bar.
+
+### AK-D39: A blurred bar became the containing block of the fixed rail
+
+- Lesson: rail chips stayed inside the bar and landed under the player instead of on the left edge. `backdrop-filter` on an element makes it the containing block of its `position:fixed` descendants, and the chips are descendants of the bar. The committed shell guarded this with `body.rail #bar{backdrop-filter:none}`, a line with no comment, which was removed during the redesign as if it were dead.
+- Why it looked fine: the rule read as a style tweak, and the bug only shows with the rail switched on.
+- Fix: in the rail view `body.rail .chiprow{display:contents}` drops the slim bar's own box, so nothing between the chips and the viewport carries a filter; the shell states the reason on that line.
+- Breaks if ignored: any blur, filter or transform added to the chip bar again pulls the rail off the left edge.
 
 ## Open questions
 

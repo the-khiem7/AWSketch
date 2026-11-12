@@ -3,7 +3,7 @@ baseline_schema: "3.0"
 pack: "awsketch"
 document: "roadmap"
 status: "active"
-updated: "2026-11-10"
+updated: "2026-11-13"
 code_ref: "uncommitted"
 ---
 
@@ -29,10 +29,11 @@ code_ref: "uncommitted"
 | AK-P14 | No flow limit, plain arrows, snapped connectors | AK-P13 | complete |
 | AK-P15 | One folder per diagram | AK-P7 | complete |
 | AK-P16 | Labels and badges follow routed arrows | AK-P13 | complete |
+| AK-P17 | Floating player and two chip views | AK-P9 | complete |
 
 ## Next action
 
-All phases (AK-P1 to AK-P16) are complete. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
+All phases (AK-P1 to AK-P17) are complete. Planned by the owner: optimise the shell code, then re-create the diagrams as a regression test of AK-P17. The `README.md` screenshots and their alt text still show the AK-P9 bar with Play and the phone drawer. Optional follow-up: the two sample specs now carry layout warnings from AK-D28 (warnings for crowded or covered drawing) and could be re-laid; the AWS icon terms text is still unverified (AK-D7, public repo with redistributed icons).
 
 ## AK-P1: Phase 1 - Repo scaffold
 
@@ -165,6 +166,14 @@ All phases (AK-P1 to AK-P16) are complete. Optional follow-up: the two sample sp
 - Status: complete.
 - Evidence: the two GitLab OIDC diagrams render with 0 warnings, and in headless Chrome at 1600px the orange and pink lines at y 456 and 476 carry their own badges and labels, where before the badges sat at 466 and 500 and the labels at 458 and 516; `diagrams/ecommerce-on-aws/ecommerce-on-aws.json` stays at 0 warnings with unchanged label and badge output; `awsketch/examples/platform-on-aws.json` stays at 6 warnings after its "HTTPS" label moved to x 596 with anchor end and its "published APIs" label to x 152, the two labels the new check found on a line; its "LLM calls" label and badge 3 moved onto their line; `render.py` holds 0 non-ASCII bytes.
 - Risk: label widths are still estimated at 6.6 per character, so the line check can miss or over-report by a few units; a badge is moved across its segment only, so a segment shortened past the badge is caught by the off-arrow warning, not fixed; `/awsketch/examples/` is excluded in `.git/info/exclude`, so the two example label moves are local to this machine.
+
+## AK-P17: Phase 17 - Floating player and two chip views
+
+- Deliver: `assets/shell.html` with the floating player, the slim chip bar with its tools and the committed vertical rail as a second view (AK-D38, AK-D39); `examples/ecommerce-on-aws/ecommerce-on-aws.html` re-rendered from it; `SKILL.md` motion pitfall and `layout-rules.md` Chip row updated.
+- Acceptance: the shell re-renders the example with the same page the owner reviewed; no page error at 1440x900, 1100x800, 1280x600 and 390x800; Back, Next, Pause, Night and the view switch work; the rail matches the committed layout.
+- Status: complete.
+- Evidence: the shell was rebuilt from the reviewed example by putting each `{{slot}}` back where `render.py` had filled it in the committed page; a re-render differed from the reviewed page only in the indentation of five chip lines. In Edge under Playwright: at 1440x900 and 1100x800 the slim bar is 1064 wide with no sideways scroll and the player sits at y 820 to 884; in the rail view the switch is at (16, 16), the chips at y 276 to 644 and Note, Pause, Night at y 736 to 884; Pause sets `body.still`; the switch returns to the slim bar; the Tab order is All, 1 to 6, switch, Note, Pause, Night; at 390 the page has no sideways scroll and the chip bar is 366 wide; Night with the rail was checked on a screenshot; 0 page errors.
+- Risk: below about 650px of height the rail chips overlap Note; no touch device or screen reader was used; the `README.md` screenshots are out of date.
 
 ## Risks
 
