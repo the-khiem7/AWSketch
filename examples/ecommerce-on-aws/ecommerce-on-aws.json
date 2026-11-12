@@ -1,0 +1,1456 @@
+{
+ "title": "E-commerce platform on AWS",
+ "intro": "Customers reach a Fargate-based commerce platform through Route 53, CloudFront and an Application Load Balancer; payments arrive by webhook, data flows to Aurora and an analytics lake, and a Bedrock agent answers assistant questions.",
+ "canvas": {
+  "w": 1620,
+  "h": 1290
+ },
+ "flows": [
+  {
+   "id": "web",
+   "label": "Customer web",
+   "color": "#2563EB"
+  },
+  {
+   "id": "pay",
+   "label": "Payments",
+   "color": "#E07A00"
+  },
+  {
+   "id": "ship",
+   "label": "Shipping",
+   "color": "#0E8F7E"
+  },
+  {
+   "id": "data",
+   "label": "Data and analytics",
+   "color": "#7C3AED"
+  },
+  {
+   "id": "ai",
+   "label": "AI assistant",
+   "color": "#DB2777"
+  },
+  {
+   "id": "ops",
+   "label": "Delivery",
+   "color": "#64748B"
+  }
+ ],
+ "groups": [
+  {
+   "type": "aws-cloud",
+   "x": 150,
+   "y": 16,
+   "w": 1320,
+   "h": 1150,
+   "label": "AWS Cloud"
+  },
+  {
+   "type": "highlight",
+   "x": 370,
+   "y": 44,
+   "w": 290,
+   "h": 92
+  },
+  {
+   "type": "vpc",
+   "x": 396,
+   "y": 250,
+   "w": 794,
+   "h": 640,
+   "label": "VPC"
+  },
+  {
+   "type": "services",
+   "x": 410,
+   "y": 380,
+   "w": 365,
+   "h": 500,
+   "label": "Availability Zone A"
+  },
+  {
+   "type": "services",
+   "x": 795,
+   "y": 380,
+   "w": 380,
+   "h": 500,
+   "label": "Availability Zone B"
+  },
+  {
+   "type": "public-subnet",
+   "x": 424,
+   "y": 412,
+   "w": 150,
+   "h": 120,
+   "label": "Public subnet"
+  },
+  {
+   "type": "public-subnet",
+   "x": 808,
+   "y": 412,
+   "w": 150,
+   "h": 120,
+   "label": "Public subnet"
+  },
+  {
+   "type": "eks",
+   "x": 416,
+   "y": 546,
+   "w": 768,
+   "h": 176,
+   "label": "ECS cluster",
+   "icon": "amazon-elastic-container-service"
+  },
+  {
+   "type": "private-subnet",
+   "x": 424,
+   "y": 574,
+   "w": 338,
+   "h": 136,
+   "label": "Private subnet"
+  },
+  {
+   "type": "private-subnet",
+   "x": 808,
+   "y": 574,
+   "w": 366,
+   "h": 136,
+   "label": "Private subnet"
+  },
+  {
+   "type": "private-subnet",
+   "x": 424,
+   "y": 742,
+   "w": 200,
+   "h": 124,
+   "label": "DB subnet"
+  },
+  {
+   "type": "private-subnet",
+   "x": 808,
+   "y": 742,
+   "w": 200,
+   "h": 124,
+   "label": "DB subnet"
+  },
+  {
+   "type": "services",
+   "x": 164,
+   "y": 740,
+   "w": 120,
+   "h": 320,
+   "label": "Analytics"
+  },
+  {
+   "type": "services",
+   "x": 420,
+   "y": 1030,
+   "w": 240,
+   "h": 120,
+   "label": "Monitoring"
+  },
+  {
+   "type": "services",
+   "x": 680,
+   "y": 1030,
+   "w": 468,
+   "h": 120,
+   "label": "Security and credentials"
+  },
+  {
+   "type": "services",
+   "x": 1164,
+   "y": 1030,
+   "w": 150,
+   "h": 120,
+   "label": "Container registry"
+  }
+ ],
+ "pools": [
+  {
+   "id": "fgA",
+   "x": 432,
+   "y": 600,
+   "w": 232,
+   "h": 108,
+   "color": "#D97706",
+   "title": "Fargate",
+   "clickable": false
+  },
+  {
+   "id": "fgB",
+   "x": 816,
+   "y": 600,
+   "w": 232,
+   "h": 108,
+   "color": "#D97706",
+   "title": "Fargate",
+   "clickable": false
+  }
+ ],
+ "nodes": [
+  {
+   "id": "customer",
+   "icon": "res-user",
+   "x": 16,
+   "y": 56,
+   "w": 120,
+   "label": "Customer",
+   "detail": [
+    "Customer",
+    "Web and mobile shopper",
+    "Browses and orders through the storefront; requests resolve through Route 53 and CloudFront."
+   ]
+  },
+  {
+   "id": "care",
+   "icon": "res-users",
+   "x": 16,
+   "y": 136,
+   "w": 120,
+   "label": "Customer care",
+   "detail": [
+    "Customer care",
+    "Support staff",
+    "Uses the same storefront path to look up and change customer orders."
+   ]
+  },
+  {
+   "id": "paygw",
+   "icon": "res-server",
+   "x": 16,
+   "y": 220,
+   "w": 120,
+   "label": "Payments gateway",
+   "detail": [
+    "Payments gateway",
+    "External payment provider",
+    "Sends payment webhooks into the queue and receives the outbound calls made through the NAT gateway."
+   ]
+  },
+  {
+   "id": "carriers",
+   "icon": "res-internet",
+   "x": 1484,
+   "y": 120,
+   "w": 120,
+   "label": "Shipping carriers",
+   "detail": [
+    "Shipping carriers",
+    "External carrier APIs",
+    "Receive shipment requests from the shipping adapter through the internet gateway."
+   ]
+  },
+  {
+   "id": "dba",
+   "icon": "res-user",
+   "x": 16,
+   "y": 970,
+   "w": 120,
+   "label": "DBA",
+   "detail": [
+    "DBA",
+    "Database administrator",
+    "Builds and reads analytics dashboards over the data lake."
+   ]
+  },
+  {
+   "id": "devops",
+   "icon": "res-users",
+   "x": 560,
+   "y": 1190,
+   "w": 120,
+   "label": "DevOps",
+   "detail": [
+    "DevOps",
+    "Delivery team",
+    "Pushes code that GitHub Actions builds into container images."
+   ]
+  },
+  {
+   "id": "gh",
+   "icon": "res-git-repository",
+   "x": 780,
+   "y": 1190,
+   "w": 130,
+   "label": "GitHub Actions",
+   "detail": [
+    "GitHub Actions",
+    "CI pipeline",
+    "Builds the container images and pushes them to Amazon ECR."
+   ]
+  },
+  {
+   "id": "route53",
+   "icon": "amazon-route-53",
+   "x": 176,
+   "y": 56,
+   "w": 110,
+   "label": "Route 53",
+   "detail": [
+    "DNS",
+    "Amazon Route 53",
+    "Resolves the storefront domain to the CloudFront distribution."
+   ]
+  },
+  {
+   "id": "cf",
+   "icon": "amazon-cloudfront",
+   "x": 380,
+   "y": 56,
+   "w": 130,
+   "label": "CloudFront",
+   "detail": [
+    "CDN",
+    "Amazon CloudFront",
+    "Serves static assets from S3 and forwards dynamic requests to the load balancer."
+   ]
+  },
+  {
+   "id": "waf",
+   "icon": "aws-waf",
+   "x": 526,
+   "y": 56,
+   "w": 120,
+   "label": "WAF",
+   "detail": [
+    "Web firewall",
+    "AWS WAF",
+    "Filters requests in front of CloudFront before they reach the load balancer."
+   ]
+  },
+  {
+   "id": "cognito",
+   "icon": "amazon-cognito",
+   "x": 700,
+   "y": 56,
+   "w": 120,
+   "label": "Cognito",
+   "detail": [
+    "Identity",
+    "Amazon Cognito",
+    "Authenticates customers and issues the tokens the storefront and API accept."
+   ]
+  },
+  {
+   "id": "s3web",
+   "icon": "res-amazon-simple-storage-service-bucket",
+   "x": 380,
+   "y": 150,
+   "w": 130,
+   "label": "S3 bucket",
+   "sub": [
+    "static assets"
+   ],
+   "detail": [
+    "Static assets",
+    "Amazon S3",
+    "Holds the storefront's static files that CloudFront serves."
+   ]
+  },
+  {
+   "id": "alb",
+   "icon": "res-elastic-load-balancing-application-load-balancer",
+   "x": 720,
+   "y": 284,
+   "w": 130,
+   "label": "Application LB",
+   "sub": [
+    "HTTPS 443"
+   ],
+   "detail": [
+    "Ingress",
+    "Application Load Balancer",
+    "Spreads requests across the ECS tasks in both Availability Zones."
+   ]
+  },
+  {
+   "id": "igw",
+   "icon": "res-amazon-vpc-internet-gateway",
+   "x": 1240,
+   "y": 120,
+   "w": 120,
+   "label": "Internet Gateway",
+   "detail": [
+    "Internet egress",
+    "Internet Gateway",
+    "Carries traffic from the NAT gateways out to the internet."
+   ]
+  },
+  {
+   "id": "sqs",
+   "icon": "amazon-simple-queue-service",
+   "x": 176,
+   "y": 220,
+   "w": 130,
+   "label": "SQS + DLQ",
+   "sub": [
+    "payment webhooks"
+   ],
+   "detail": [
+    "Payment webhook queue",
+    "Amazon SQS standard queue with a dead-letter queue",
+    "Buffers payment webhooks so a burst or a failure does not lose a payment event."
+   ]
+  },
+  {
+   "id": "confirm",
+   "icon": "aws-lambda",
+   "x": 176,
+   "y": 330,
+   "w": 130,
+   "label": "Payment confirmer",
+   "detail": [
+    "Payment confirmer",
+    "AWS Lambda",
+    "Reads the queue, validates each webhook and tells the monolith a payment is confirmed."
+   ]
+  },
+  {
+   "id": "nat-a",
+   "icon": "res-amazon-vpc-nat-gateway",
+   "x": 434,
+   "y": 440,
+   "w": 130,
+   "label": "NAT Gateway",
+   "detail": [
+    "Egress, zone A",
+    "NAT Gateway",
+    "Lets private workloads in zone A call the payments gateway without a public address."
+   ]
+  },
+  {
+   "id": "nat-b",
+   "icon": "res-amazon-vpc-nat-gateway",
+   "x": 818,
+   "y": 440,
+   "w": 130,
+   "label": "NAT Gateway",
+   "detail": [
+    "Egress, zone B",
+    "NAT Gateway",
+    "Lets the shipping adapter in zone B reach the carriers through the internet gateway."
+   ]
+  },
+  {
+   "id": "monolith",
+   "icon": "res-amazon-elastic-container-service-task",
+   "x": 437,
+   "y": 628,
+   "w": 70,
+   "label": "Monolith",
+   "size": 36,
+   "detail": [
+    "Monolith",
+    "ECS task on Fargate",
+    "Core commerce application."
+   ]
+  },
+  {
+   "id": "order",
+   "icon": "res-amazon-elastic-container-service-task",
+   "x": 513,
+   "y": 628,
+   "w": 70,
+   "label": "Order",
+   "size": 36,
+   "detail": [
+    "Order service",
+    "ECS task on Fargate",
+    "Handles order lifecycle."
+   ]
+  },
+  {
+   "id": "inventory",
+   "icon": "res-amazon-elastic-container-service-task",
+   "x": 589,
+   "y": 628,
+   "w": 70,
+   "label": "Inventory",
+   "size": 36,
+   "detail": [
+    "Inventory service",
+    "ECS task on Fargate",
+    "Tracks stock levels."
+   ]
+  },
+  {
+   "id": "payproc",
+   "icon": "aws-lambda",
+   "x": 672,
+   "y": 628,
+   "w": 86,
+   "label": "Payments",
+   "sub": [
+    "processor"
+   ],
+   "size": 36,
+   "detail": [
+    "Payment processor",
+    "AWS Lambda",
+    "Calls the payments gateway from zone A through the NAT gateway."
+   ]
+  },
+  {
+   "id": "fulfil",
+   "icon": "res-amazon-elastic-container-service-task",
+   "x": 821,
+   "y": 628,
+   "w": 70,
+   "label": "Fulfilment",
+   "size": 36,
+   "detail": [
+    "Fulfilment service",
+    "ECS task on Fargate",
+    "Prepares shipments once an order is paid."
+   ]
+  },
+  {
+   "id": "dms",
+   "icon": "aws-database-migration-service",
+   "x": 897,
+   "y": 628,
+   "w": 70,
+   "label": "AWS DMS",
+   "size": 36,
+   "detail": [
+    "Replication",
+    "AWS Database Migration Service",
+    "Replicates data between the databases."
+   ]
+  },
+  {
+   "id": "assistant",
+   "icon": "res-amazon-elastic-container-service-task",
+   "x": 973,
+   "y": 624,
+   "w": 70,
+   "label": "Assistant",
+   "sub": [
+    "API"
+   ],
+   "size": 36,
+   "detail": [
+    "Assistant API",
+    "ECS task on Fargate",
+    "Fronts the AI assistant and calls the Bedrock agent."
+   ]
+  },
+  {
+   "id": "shipadapt",
+   "icon": "aws-lambda",
+   "x": 1056,
+   "y": 628,
+   "w": 112,
+   "label": "Shipping",
+   "sub": [
+    "adapter"
+   ],
+   "size": 36,
+   "detail": [
+    "Shipping adapter",
+    "AWS Lambda",
+    "Sends shipment requests to the carriers through the NAT gateway in zone B."
+   ]
+  },
+  {
+   "id": "writer",
+   "icon": "res-amazon-aurora-postgresql-instance",
+   "x": 434,
+   "y": 770,
+   "w": 180,
+   "label": "Aurora PostgreSQL",
+   "sub": [
+    "Writer (primary)"
+   ],
+   "detail": [
+    "Primary database",
+    "Amazon Aurora PostgreSQL writer",
+    "Takes every write from the ECS services in zone A."
+   ]
+  },
+  {
+   "id": "reader",
+   "icon": "res-amazon-aurora-postgresql-instance",
+   "x": 818,
+   "y": 770,
+   "w": 180,
+   "label": "Aurora PostgreSQL",
+   "sub": [
+    "Reader (standby)"
+   ],
+   "detail": [
+    "Standby database",
+    "Amazon Aurora PostgreSQL reader",
+    "Replicates from the writer and serves reads, including the assistant's lookups."
+   ]
+  },
+  {
+   "id": "s3lake",
+   "icon": "res-amazon-simple-storage-service-bucket",
+   "x": 292,
+   "y": 770,
+   "w": 90,
+   "label": "S3 data lake",
+   "detail": [
+    "Data lake",
+    "Amazon S3",
+    "Receives data exported from the writer for analytics."
+   ]
+  },
+  {
+   "id": "glue",
+   "icon": "aws-glue",
+   "x": 174,
+   "y": 770,
+   "w": 100,
+   "label": "AWS Glue",
+   "detail": [
+    "ETL",
+    "AWS Glue",
+    "Catalogs and transforms the data lake files."
+   ]
+  },
+  {
+   "id": "athena",
+   "icon": "amazon-athena",
+   "x": 174,
+   "y": 870,
+   "w": 100,
+   "label": "Amazon Athena",
+   "detail": [
+    "Query",
+    "Amazon Athena",
+    "Runs SQL over the data lake."
+   ]
+  },
+  {
+   "id": "qs",
+   "icon": "amazon-datazone",
+   "x": 174,
+   "y": 970,
+   "w": 100,
+   "label": "QuickSight",
+   "sub": [
+    "BI dashboards"
+   ],
+   "detail": [
+    "Dashboards",
+    "Amazon QuickSight (icon stands in)",
+    "Dashboards the DBA builds over Athena queries."
+   ]
+  },
+  {
+   "id": "backup",
+   "icon": "aws-backup",
+   "x": 464,
+   "y": 930,
+   "w": 120,
+   "label": "AWS Backup",
+   "detail": [
+    "Backup",
+    "AWS Backup",
+    "Takes scheduled backups of the Aurora writer."
+   ]
+  },
+  {
+   "id": "s3bak",
+   "icon": "res-amazon-simple-storage-service-bucket",
+   "x": 330,
+   "y": 930,
+   "w": 110,
+   "label": "S3 backup",
+   "detail": [
+    "Backup storage",
+    "Amazon S3",
+    "Holds the backups AWS Backup writes."
+   ]
+  },
+  {
+   "id": "bagent",
+   "icon": "amazon-bedrock-agentcore",
+   "x": 1210,
+   "y": 620,
+   "w": 130,
+   "label": "Bedrock Agent",
+   "detail": [
+    "AI agent",
+    "Amazon Bedrock Agent",
+    "Answers assistant requests; calls a Lambda for live data and the knowledge base for policy."
+   ]
+  },
+  {
+   "id": "kb",
+   "icon": "amazon-bedrock",
+   "x": 1370,
+   "y": 620,
+   "w": 120,
+   "label": "Bedrock KB",
+   "sub": [
+    "Knowledge Base"
+   ],
+   "detail": [
+    "Knowledge base",
+    "Amazon Bedrock Knowledge Bases",
+    "Retrieves policy text for the agent."
+   ]
+  },
+  {
+   "id": "blambda",
+   "icon": "aws-lambda",
+   "x": 1210,
+   "y": 780,
+   "w": 130,
+   "label": "Lambda",
+   "sub": [
+    "agent actions"
+   ],
+   "detail": [
+    "Agent action",
+    "AWS Lambda",
+    "Looks up stock, cart and idempotency data when the agent needs it."
+   ]
+  },
+  {
+   "id": "s3vec",
+   "icon": "res-amazon-simple-storage-service-s3-vectors",
+   "x": 1370,
+   "y": 780,
+   "w": 120,
+   "label": "S3 vectors",
+   "detail": [
+    "Vector store",
+    "Amazon S3 Vectors",
+    "Stores the knowledge base embeddings."
+   ]
+  },
+  {
+   "id": "ddb",
+   "icon": "amazon-dynamodb",
+   "x": 1200,
+   "y": 900,
+   "w": 150,
+   "label": "DynamoDB",
+   "sub": [
+    "Inventory, cart,",
+    "idempotency"
+   ],
+   "detail": [
+    "Real-time store",
+    "Amazon DynamoDB",
+    "Holds inventory, cart and idempotency data for fast lookups."
+   ]
+  },
+  {
+   "id": "cw",
+   "icon": "amazon-cloudwatch",
+   "x": 430,
+   "y": 1058,
+   "w": 72,
+   "label": "CloudWatch",
+   "detail": [
+    "Logs and metrics",
+    "CloudWatch",
+    "Observability for the platform."
+   ]
+  },
+  {
+   "id": "xray",
+   "icon": "aws-x-ray",
+   "x": 506,
+   "y": 1058,
+   "w": 72,
+   "label": "X-Ray",
+   "detail": [
+    "Tracing",
+    "X-Ray",
+    "Observability for the platform."
+   ]
+  },
+  {
+   "id": "ct",
+   "icon": "aws-cloudtrail",
+   "x": 582,
+   "y": 1058,
+   "w": 72,
+   "label": "CloudTrail",
+   "detail": [
+    "API audit",
+    "CloudTrail",
+    "Observability for the platform."
+   ]
+  },
+  {
+   "id": "sm",
+   "icon": "aws-secrets-manager",
+   "x": 688,
+   "y": 1058,
+   "w": 88,
+   "label": "Secrets",
+   "sub": [
+    "Manager"
+   ],
+   "detail": [
+    "Secrets",
+    "Secrets service",
+    "Security control for the platform."
+   ]
+  },
+  {
+   "id": "kms",
+   "icon": "aws-key-management-service",
+   "x": 780,
+   "y": 1058,
+   "w": 88,
+   "label": "KMS",
+   "detail": [
+    "KMS",
+    "KMS service",
+    "Security control for the platform."
+   ]
+  },
+  {
+   "id": "iam",
+   "icon": "aws-identity-and-access-management",
+   "x": 872,
+   "y": 1058,
+   "w": 88,
+   "label": "IAM",
+   "detail": [
+    "IAM",
+    "IAM service",
+    "Security control for the platform."
+   ]
+  },
+  {
+   "id": "sh",
+   "icon": "aws-security-hub",
+   "x": 964,
+   "y": 1058,
+   "w": 88,
+   "label": "Security Hub",
+   "detail": [
+    "Security Hub",
+    "Security Hub service",
+    "Security control for the platform."
+   ]
+  },
+  {
+   "id": "gd",
+   "icon": "amazon-guardduty",
+   "x": 1056,
+   "y": 1058,
+   "w": 88,
+   "label": "GuardDuty",
+   "detail": [
+    "GuardDuty",
+    "GuardDuty service",
+    "Security control for the platform."
+   ]
+  },
+  {
+   "id": "ecr",
+   "icon": "amazon-elastic-container-registry",
+   "x": 1174,
+   "y": 1058,
+   "w": 130,
+   "label": "Amazon ECR",
+   "sub": [
+    "container images"
+   ],
+   "detail": [
+    "Container registry",
+    "Amazon ECR",
+    "Stores the images the ECS tasks run."
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "flow": "web",
+   "points": [
+    [
+     100,
+     82
+    ],
+    [
+     207,
+     82
+    ]
+   ]
+  },
+  {
+   "flow": "web",
+   "points": [
+    [
+     100,
+     162
+    ],
+    [
+     130,
+     162
+    ],
+    [
+     130,
+     82
+    ]
+   ],
+   "end": false,
+   "to": "route53"
+  },
+  {
+   "flow": "web",
+   "points": [
+    [
+     255,
+     82
+    ],
+    [
+     421,
+     82
+    ]
+   ]
+  },
+  {
+   "flow": "web",
+   "points": [
+    [
+     445,
+     129
+    ],
+    [
+     445,
+     152
+    ]
+   ]
+  },
+  {
+   "flow": "web",
+   "points": [
+    [
+     586,
+     129
+    ],
+    [
+     586,
+     200
+    ],
+    [
+     785,
+     200
+    ],
+    [
+     785,
+     286
+    ]
+   ]
+  },
+  {
+   "flow": "web",
+   "points": [
+    [
+     785,
+     370
+    ],
+    [
+     785,
+     544
+    ]
+   ]
+  },
+  {
+   "flow": "pay",
+   "points": [
+    [
+     100,
+     246
+    ],
+    [
+     217,
+     246
+    ]
+   ]
+  },
+  {
+   "flow": "pay",
+   "points": [
+    [
+     241,
+     306
+    ],
+    [
+     241,
+     332
+    ]
+   ]
+  },
+  {
+   "flow": "pay",
+   "points": [
+    [
+     241,
+     403
+    ],
+    [
+     241,
+     650
+    ],
+    [
+     452,
+     650
+    ]
+   ]
+  },
+  {
+   "flow": "pay",
+   "points": [
+    [
+     715,
+     630
+    ],
+    [
+     715,
+     525
+    ],
+    [
+     499,
+     525
+    ],
+    [
+     499,
+     515
+    ]
+   ]
+  },
+  {
+   "flow": "pay",
+   "points": [
+    [
+     475,
+     466
+    ],
+    [
+     76,
+     466
+    ],
+    [
+     76,
+     293
+    ]
+   ]
+  },
+  {
+   "flow": "ship",
+   "points": [
+    [
+     1112,
+     630
+    ],
+    [
+     1112,
+     525
+    ],
+    [
+     883,
+     525
+    ],
+    [
+     883,
+     515
+    ]
+   ]
+  },
+  {
+   "flow": "ship",
+   "points": [
+    [
+     907,
+     466
+    ],
+    [
+     1300,
+     466
+    ],
+    [
+     1300,
+     193
+    ]
+   ]
+  },
+  {
+   "flow": "ship",
+   "points": [
+    [
+     1324,
+     146
+    ],
+    [
+     1520,
+     146
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     524,
+     724
+    ],
+    [
+     524,
+     772
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     548,
+     796
+    ],
+    [
+     884,
+     796
+    ]
+   ],
+   "dashed": true,
+   "start": true
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     500,
+     796
+    ],
+    [
+     361,
+     796
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     313,
+     796
+    ],
+    [
+     248,
+     796
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     224,
+     843
+    ],
+    [
+     224,
+     872
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     224,
+     943
+    ],
+    [
+     224,
+     972
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     100,
+     996
+    ],
+    [
+     200,
+     996
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     524,
+     856
+    ],
+    [
+     524,
+     932
+    ]
+   ]
+  },
+  {
+   "flow": "data",
+   "points": [
+    [
+     500,
+     956
+    ],
+    [
+     409,
+     956
+    ]
+   ]
+  },
+  {
+   "flow": "ai",
+   "points": [
+    [
+     1186,
+     646
+    ],
+    [
+     1251,
+     646
+    ]
+   ],
+   "from": "assistant"
+  },
+  {
+   "flow": "ai",
+   "points": [
+    [
+     1275,
+     693
+    ],
+    [
+     1275,
+     782
+    ]
+   ]
+  },
+  {
+   "flow": "ai",
+   "points": [
+    [
+     1299,
+     646
+    ],
+    [
+     1406,
+     646
+    ]
+   ]
+  },
+  {
+   "flow": "ai",
+   "points": [
+    [
+     1430,
+     706
+    ],
+    [
+     1430,
+     782
+    ]
+   ]
+  },
+  {
+   "flow": "ai",
+   "points": [
+    [
+     1275,
+     866
+    ],
+    [
+     1275,
+     902
+    ]
+   ]
+  },
+  {
+   "flow": "ai",
+   "points": [
+    [
+     1251,
+     806
+    ],
+    [
+     1100,
+     806
+    ],
+    [
+     1100,
+     796
+    ],
+    [
+     932,
+     796
+    ]
+   ]
+  },
+  {
+   "flow": "ops",
+   "points": [
+    [
+     644,
+     1216
+    ],
+    [
+     821,
+     1216
+    ]
+   ]
+  },
+  {
+   "flow": "ops",
+   "points": [
+    [
+     869,
+     1216
+    ],
+    [
+     1239,
+     1216
+    ],
+    [
+     1239,
+     1144
+    ]
+   ]
+  }
+ ],
+ "labels": [
+  {
+   "flow": "web",
+   "x": 340,
+   "y": 74,
+   "text": "HTTPS",
+   "anchor": "middle"
+  },
+  {
+   "flow": "data",
+   "x": 716,
+   "y": 788,
+   "text": "Sync",
+   "anchor": "middle"
+  },
+  {
+   "flow": "ship",
+   "x": 1420,
+   "y": 138,
+   "text": "Carrier API",
+   "anchor": "middle"
+  },
+  {
+   "flow": "ai",
+   "x": 1352,
+   "y": 638,
+   "text": "Policy lookup",
+   "anchor": "middle"
+  },
+  {
+   "flow": "ops",
+   "x": 1050,
+   "y": 1208,
+   "text": "Push image",
+   "anchor": "middle"
+  }
+ ],
+ "badges": [
+  {
+   "flow": "web",
+   "x": 156,
+   "y": 82
+  },
+  {
+   "flow": "pay",
+   "x": 156,
+   "y": 246
+  },
+  {
+   "flow": "ship",
+   "x": 1000,
+   "y": 525
+  },
+  {
+   "flow": "data",
+   "x": 408,
+   "y": 796
+  },
+  {
+   "flow": "ai",
+   "x": 1275,
+   "y": 737
+  },
+  {
+   "flow": "ops",
+   "x": 730,
+   "y": 1216
+  }
+ ],
+ "connectors": [
+  {
+   "points": [
+    [
+     510,
+     90
+    ],
+    [
+     526,
+     90
+    ]
+   ]
+  }
+ ],
+ "texts": [
+  {
+   "x": 716,
+   "y": 758,
+   "text": "Database",
+   "anchor": "middle",
+   "class": "ns"
+  }
+ ],
+ "sections": [
+  {
+   "title": "The six flows",
+   "open": true,
+   "ordered": true,
+   "items": [
+    {
+     "lead": "Customer web.",
+     "text": "Customers and support staff resolve the domain in Route 53, pass CloudFront and WAF, and the load balancer sends requests to the ECS tasks."
+    },
+    {
+     "lead": "Payments.",
+     "text": "The payments gateway posts webhooks to SQS; a Lambda confirms each payment to the monolith, and a second Lambda calls the gateway back through the NAT gateway."
+    },
+    {
+     "lead": "Shipping.",
+     "text": "The shipping adapter Lambda reaches the carriers through the NAT gateway and the internet gateway."
+    },
+    {
+     "lead": "Data and analytics.",
+     "text": "The ECS tasks write to the Aurora writer, which syncs to the reader, feeds the data lake and Glue, Athena and QuickSight, and is backed up by AWS Backup."
+    },
+    {
+     "lead": "AI assistant.",
+     "text": "The assistant API calls the Bedrock agent, which looks up live data through a Lambda (DynamoDB and the reader) and policy text in the knowledge base on S3 vectors."
+    },
+    {
+     "lead": "Delivery.",
+     "text": "DevOps pushes code, GitHub Actions builds the images and pushes them to ECR."
+    }
+   ]
+  }
+ ]
+}
