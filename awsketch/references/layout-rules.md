@@ -59,6 +59,21 @@ Leave a gutter of at least 14 units between neighbouring columns; flows run in t
 - Use a `connector` for a box that fronts another in the same column, such as WAF above a load balancer, and a `trunk` for a physical link between the outside and AWS. A connector is written between the two boxes; the renderer moves each end that touches a node onto its icon edge, so the line leaves no gap.
 - Give a link that carries no traffic of its own, but needs an arrowhead, an edge with no `flow`: it is a plain grey arrow, routed with ports like the others, always visible, and absent from the chips and the step walk.
 
+## Target architecture
+
+- A page that shows the target architecture draws planned components and planned flows as normal solid flows. A dash keeps its meaning (optional, fallback, trust boundary, replication stream); never dash or grey a flow because it is not live yet.
+- List what is not live in the diagram's decisions record, so drift is found when each element goes live.
+
+## Stand-in icons
+
+- A component with no AWS icon (a Solace broker, Keycloak, Docker Hub) takes the closest official icon, with the real product name in the label.
+- Record the stand-in and the reason in the decisions record.
+- Never pick an icon that implies a managed AWS service the component is not.
+
+## Chip row
+
+- The chip row scrolls sideways when the flows do not fit at 1280px, about five flows. Order `flows` so the most important come first.
+
 ## Palette
 
 Flow colours in order: `#2563EB` blue, `#E07A00` orange, `#7C3AED` purple, `#0E8F7E` teal, `#64748B` slate, `#DB2777` pink, then `#0891B2` cyan, `#65A30D` green, `#B45309` brown, `#BE123C` crimson. The renderer sets no limit on flows; past ten, pick colours that stay apart on a white sheet. Pool bar colours: `#2563EB`, `#059669`, `#7C3AED`, `#D97706`. Give each flow the colour of the pool it mostly serves when that helps the reader link them.
