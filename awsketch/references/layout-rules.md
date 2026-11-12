@@ -72,7 +72,7 @@ Leave a gutter of at least 14 units between neighbouring columns; flows run in t
 
 ## Chip row
 
-- The chip row scrolls sideways when the flows do not fit at 1280px, about five flows. Order `flows` so the most important come first.
+- The slim chip bar under the title scrolls sideways when the flows do not fit; six flows with short names fit at 1100px. Order `flows` so the most important come first.
 
 ## Palette
 

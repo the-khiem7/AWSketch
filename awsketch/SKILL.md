@@ -29,7 +29,7 @@ Use it when the diagram is drawn from other documents (baseline packs, design no
 - The drawing sheet stays white in dark mode on purpose: the AWS icon colours are designed for a white background.
 - Flow labels carry a white halo (`paint-order: stroke`); place them over empty sheet next to their line, not on top of an icon.
 - Every edge segment must be horizontal or vertical. A diagonal is an error.
-- Page motion always runs: the shell does not read `prefers-reduced-motion`, and the Pause switch is the only way to stop it. Do not re-add the media query.
+- Page motion always runs: the shell does not read `prefers-reduced-motion`, and the Pause button (with Note and Night: at the end of the slim chip bar, or bottom-left in the rail view) is the only way to stop it. Do not re-add the media query, and do not remove the Pause button.
 - The sheet keeps a minimum width of 1100px and scrolls sideways on a phone. Do not shrink the canvas to fit a phone.
 - Node ids are the keys of the component card; a node without `detail` is clickable but shows nothing, which the validator warns about.
 - A layer box that only groups other boxes takes `"clickable": false`.
