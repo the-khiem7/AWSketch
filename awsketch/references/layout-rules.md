@@ -54,6 +54,7 @@ Leave a gutter of at least 14 units between neighbouring columns; flows run in t
 - Dash a flow for a path that is optional, a fallback, or crosses a trust boundary through published APIs.
 - Put one badge on each flow, on its first segment, 10 units clear of any box.
 - Put a label next to the segment it names, 6 units above a horizontal line or 6 units right of a vertical one. A horizontal label may sit centred across a vertical line, whose stroke the label's white halo covers; prefer that to widening a gutter for the label.
+- Write labels and badges against the spec points, not against where the ports will land. The renderer moves each label and badge across with the segment it was written next to, so two arrows spread 20 apart onto ports keep a label above the upper one, a label below the lower one, and each badge on its own line.
 - Keep a label clear of node text and group borders; leave a group's edge 14 units beyond a lane that carries a label. Do not shift whole columns to make room for one label.
 - Use a `connector` for a box that fronts another in the same column, such as WAF above a load balancer, and a `trunk` for a physical link between the outside and AWS. A connector is written between the two boxes; the renderer moves each end that touches a node onto its icon edge, so the line leaves no gap.
 - Give a link that carries no traffic of its own, but needs an arrowhead, an edge with no `flow`: it is a plain grey arrow, routed with ports like the others, always visible, and absent from the chips and the step walk.

@@ -415,12 +415,12 @@ def build_svg(spec, index):
         a, z, ag, zg = (escape(v, quote=True) for v in edge_ends(spec, e))
         ends = f' data-from="{a}" data-to="{z}"' + (f' data-from-group="{ag}"' if ag else "") + (f' data-to-group="{zg}"' if zg else "")
         out.append(f'<path class="flow f-{fid}" data-e="{i}"{ends} d="{path_d(paths[i])}"{marks}{dash}></path>')
-    for t in spec.get("labels", []):
+    for t, ei in attach(spec, paths, "labels"):
         fid = t["flow"]
-        out.append(f'<g class="flow f-{fid} fl" data-e="{owner(paths, spec, t)}"><rect class="flbox"></rect><text class="flabel c-{fid}" x="{t["x"]}" y="{t["y"]}" text-anchor="{t.get("anchor", "start")}">{escape(t["text"])}</text></g>')
-    for b in spec.get("badges", []):
+        out.append(f'<g class="flow f-{fid} fl" data-e="{ei}"><rect class="flbox"></rect><text class="flabel c-{fid}" x="{num(t["x"])}" y="{num(t["y"])}" text-anchor="{t.get("anchor", "start")}">{escape(t["text"])}</text></g>')
+    for b, ei in attach(spec, paths, "badges"):
         fid = b["flow"]
-        out.append(f'<g class="flow f-{fid} badge" data-e="{owner(paths, spec, b)}"><circle cx="{b["x"]}" cy="{b["y"]}" r="10" class="b-{fid}"></circle><text x="{b["x"]}" y="{b["y"] + 4}" text-anchor="middle" class="bt">{flows[fid][0]}</text></g>')
+        out.append(f'<g class="flow f-{fid} badge" data-e="{ei}"><circle cx="{num(b["x"])}" cy="{num(b["y"])}" r="10" class="b-{fid}"></circle><text x="{num(b["x"])}" y="{num(b["y"] + 4)}" text-anchor="middle" class="bt">{flows[fid][0]}</text></g>')
     markers = "".join(
         f'<marker id="m-{fid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="mk-{fid}"></path></marker>'
         for fid in flows
@@ -470,15 +470,31 @@ def label_box(t):
     return x, t["y"] - 10, w, 13
 
 
-def owner(paths, spec, item):
-    """Index of the arrow of the same flow nearest to a label or badge, so hovering a node keeps its arrows' labels."""
-    if "text" in item:
-        bx, by, bw, bh = label_box(item)
-        px, py = bx + bw / 2, by + bh / 2
-    else:
-        px, py = item["x"], item["y"]
-    best = [(min(seg_dist(px, py, a, b) for a, b in zip(p, p[1:])), i) for i, (e, p) in enumerate(zip(spec.get("edges", []), paths)) if e.get("flow") == item["flow"]]
-    return min(best)[1] if best else ""
+def attach(spec, paths, kind):
+    """Return (item, arrow index) for each label or badge, the item moved with the arrow segment it was written next to.
+
+    Routing slides arrow ends onto ports, so a spec segment can end up some units away from where it was written; a label or badge left at its spec coordinates then sits on the wrong side of its own arrow or next to another flow's arrow. Each item is matched to the nearest segment of its flow in the spec points, and shifted across that segment by the distance routing moved it: a horizontal segment moves the item up or down, a vertical one left or right. The arrow index lets hovering a node keep its arrows' labels."""
+    edges = spec.get("edges", [])
+    out = []
+    for item in spec.get(kind, []):
+        if "text" in item:
+            bx, by, bw, bh = label_box(item)
+            px, py = bx + bw / 2, by + bh / 2
+        else:
+            px, py = item["x"], item["y"]
+        best = [(seg_dist(px, py, a, b), i, k) for i, e in enumerate(edges) if e.get("flow") == item["flow"] for k, (a, b) in enumerate(zip(e["points"], e["points"][1:]))]
+        if not best:
+            out.append((item, ""))
+            continue
+        _, i, k = min(best)
+        (ax, ay), (bx, by) = edges[i]["points"][k], edges[i]["points"][k + 1]
+        moved = dict(item)
+        if ay == by:
+            moved["y"] = item["y"] + paths[i][k][1] - ay
+        else:
+            moved["x"] = item["x"] + paths[i][k][0] - ax
+        out.append((moved, i))
+    return out
 
 
 def overlaps(a, b):
@@ -523,8 +539,12 @@ def layout_warnings(spec):
         for i, a, b in segs:
             if overlaps(tb, (min(a[0], b[0]) - 1, min(a[1], b[1]) - 1, abs(b[0] - a[0]) + 2, abs(b[1] - a[1]) + 2)):
                 warns.append(f"edge {i} crosses the title of group {g['label']!r}")
-    for t in spec.get("labels", []):
+    for t, _ in attach(spec, paths, "labels"):
         lb = label_box(t)
+        for i, a, b in segs:
+            if overlaps(lb, (min(a[0], b[0]) - 1, min(a[1], b[1]) - 1, abs(b[0] - a[0]) + 2, abs(b[1] - a[1]) + 2)):
+                warns.append(f"label {t['text']!r} sits on the line of edge {i}; move it off the arrow")
+                break
         for n in spec.get("nodes", []):
             if any(overlaps(lb, b) for b in node_text_boxes(n)):
                 warns.append(f"label {t['text']!r} covers the icon or text of {n['id']!r}")
@@ -535,6 +555,10 @@ def layout_warnings(spec):
                 warns.append(f"label {t['text']!r} sits on the border of group {g.get('label') or g['type']!r}; leave room between the arrow and the border")
             elif g.get("label") and overlaps(lb, group_title_box(g)):
                 warns.append(f"label {t['text']!r} covers the title of group {g['label']!r}")
+    for b, ei in attach(spec, paths, "badges"):
+        d = min((seg_dist(b["x"], b["y"], p, q) for p, q in zip(paths[ei], paths[ei][1:])), default=0) if ei != "" else 0
+        if d > 2:
+            warns.append(f"badge of flow {b['flow']!r} at ({num(b['x'])},{num(b['y'])}) sits {d:.0f} off its arrow; put it on the line")
     # A node fed by three or more arrows from one side reads best centred on the nodes at their far ends.
     nodes = {n["id"]: n for n in spec.get("nodes", [])}
     for nid, n in nodes.items():
