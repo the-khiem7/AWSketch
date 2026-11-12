@@ -121,32 +121,37 @@ const chip = (p, x, y, n, c) => {
 };
 
 // ---- hero ----
+// drawHero(sp) draws the orbit with the rings turned by sp degrees (outer and inner clockwise, middle counter-clockwise); the animated banner calls it once per frame. Icons are placed, never rotated, so they stay upright.
 const CX = 930, CY = 210;
 const s = document.getElementById("orbit");
-[{ r: 292, c: "var(--cloud)", d: "0" }, { r: 210, c: "var(--region)", d: "6 4" }, { r: 128, c: "var(--vpc)", d: "0" }]
-  .forEach(f => el(s, "circle", { cx: CX, cy: CY, r: f.r, fill: "none", stroke: f.c, "stroke-width": 2, "stroke-dasharray": f.d }));
-
-// Flow arcs ride between the rings; the numbers are chip labels, not a count of anything.
 const pt = (r, a) => [CX + r * Math.cos(rad(a)), CY + r * Math.sin(rad(a))];
-[{ r: 251, a0: -160, a1: -95, c: "var(--f1)", n: 1 }, { r: 251, a0: 15, a1: 80, c: "var(--f2)", n: 2 },
- { r: 169, a0: -60, a1: 5, c: "var(--f3)", n: 3 }, { r: 169, a0: 130, a1: 195, c: "var(--f4)", n: 4 }].forEach(f => {
-  const [x0, y0] = pt(f.r, f.a0), [x1, y1] = pt(f.r, f.a1), [mx, my] = pt(f.r, (f.a0 + f.a1) / 2);
-  el(s, "path", { d: `M${x0} ${y0} A${f.r} ${f.r} 0 0 1 ${x1} ${y1}`, fill: "none", stroke: f.c, "stroke-width": 4, "stroke-linecap": "round" });
-  el(s, "circle", { cx: mx, cy: my, r: 15, fill: f.c });
-  const t = el(s, "text", { x: mx, y: my + 6, "text-anchor": "middle", "font-family": "IBM Plex Mono", "font-weight": 600, "font-size": 17, fill: "var(--chiptext)" });
-  t.textContent = f.n;
-});
+function drawHero(sp) {
+  s.replaceChildren();
+  [{ r: 292, c: "var(--cloud)", d: "0" }, { r: 210, c: "var(--region)", d: "6 4" }, { r: 128, c: "var(--vpc)", d: "0" }]
+    .forEach(f => el(s, "circle", { cx: CX, cy: CY, r: f.r, fill: "none", stroke: f.c, "stroke-width": 2, "stroke-dasharray": f.d }));
 
-// Icons stay upright and unaltered; a tile in the page colour cuts the ring behind each one.
-const ring = (r, a0, sz, names) => names.forEach((n, i) => {
-  const [x, y] = pt(r, a0 + i * 360 / names.length);
-  el(s, "rect", { x: x - sz / 2 - 7, y: y - sz / 2 - 7, width: sz + 14, height: sz + 14, rx: 8, fill: "var(--paper)" });
-  el(s, "image", { href: ICON(n), x: x - sz / 2, y: y - sz / 2, width: sz, height: sz });
-});
-ring(0, 0, 58, ["networking-content-delivery/amazon-virtual-private-cloud"]);
-ring(128, -90, 42, ["compute/aws-lambda", "databases/amazon-dynamodb", "application-integration/amazon-simple-queue-service", "containers/amazon-elastic-container-service", "application-integration/amazon-eventbridge"]);
-ring(210, -112, 40, ["networking-content-delivery/amazon-cloudfront", "networking-content-delivery/amazon-api-gateway", "compute/amazon-ec2", "databases/amazon-aurora", "containers/amazon-elastic-kubernetes-service", "storage/amazon-simple-storage-service", "management-tools/amazon-cloudwatch", "analytics/amazon-kinesis-data-streams"]);
-ring(292, -160, 38, ["networking-content-delivery/amazon-route-53", "security-identity/aws-identity-and-access-management", "artificial-intelligence/amazon-sagemaker-ai", "databases/amazon-rds", "storage/amazon-simple-storage-service", "compute/aws-lambda", "management-tools/amazon-cloudwatch", "networking-content-delivery/amazon-cloudfront", "databases/amazon-dynamodb", "compute/amazon-ec2"]);
+  // Flow arcs ride between the rings; the numbers are chip labels, not a count of anything.
+  [{ r: 251, a0: -160, a1: -95, c: "var(--f1)", n: 1 }, { r: 251, a0: 15, a1: 80, c: "var(--f2)", n: 2 },
+   { r: 169, a0: -60, a1: 5, c: "var(--f3)", n: 3 }, { r: 169, a0: 130, a1: 195, c: "var(--f4)", n: 4 }].forEach(f => {
+    const [x0, y0] = pt(f.r, f.a0 + sp), [x1, y1] = pt(f.r, f.a1 + sp), [mx, my] = pt(f.r, (f.a0 + f.a1) / 2 + sp);
+    el(s, "path", { d: `M${x0} ${y0} A${f.r} ${f.r} 0 0 1 ${x1} ${y1}`, fill: "none", stroke: f.c, "stroke-width": 4, "stroke-linecap": "round" });
+    el(s, "circle", { cx: mx, cy: my, r: 15, fill: f.c });
+    const t = el(s, "text", { x: mx, y: my + 6, "text-anchor": "middle", "font-family": "IBM Plex Mono", "font-weight": 600, "font-size": 17, fill: "var(--chiptext)" });
+    t.textContent = f.n;
+  });
+
+  // Icons stay upright and unaltered; a tile in the page colour cuts the ring behind each one.
+  const ring = (r, a0, sz, names) => names.forEach((n, i) => {
+    const [x, y] = pt(r, a0 + i * 360 / names.length);
+    el(s, "rect", { x: x - sz / 2 - 7, y: y - sz / 2 - 7, width: sz + 14, height: sz + 14, rx: 8, fill: "var(--paper)" });
+    el(s, "image", { href: ICON(n), x: x - sz / 2, y: y - sz / 2, width: sz, height: sz });
+  });
+  ring(0, 0, 58, ["networking-content-delivery/amazon-virtual-private-cloud"]);
+  ring(128, -90 + sp, 42, ["compute/aws-lambda", "databases/amazon-dynamodb", "application-integration/amazon-simple-queue-service", "containers/amazon-elastic-container-service", "application-integration/amazon-eventbridge"]);
+  ring(210, -112 - sp, 40, ["networking-content-delivery/amazon-cloudfront", "networking-content-delivery/amazon-api-gateway", "compute/amazon-ec2", "databases/amazon-aurora", "containers/amazon-elastic-kubernetes-service", "storage/amazon-simple-storage-service", "management-tools/amazon-cloudwatch", "analytics/amazon-kinesis-data-streams"]);
+  ring(292, -160 + sp, 38, ["networking-content-delivery/amazon-route-53", "security-identity/aws-identity-and-access-management", "artificial-intelligence/amazon-sagemaker-ai", "databases/amazon-rds", "storage/amazon-simple-storage-service", "compute/aws-lambda", "management-tools/amazon-cloudwatch", "networking-content-delivery/amazon-cloudfront", "databases/amazon-dynamodb", "compute/amazon-ec2"]);
+}
+drawHero(0);
 
 // ---- product: same theme as the image, one flow pressed and one card open, discs keyed to the card row ----
 const SCALE = .9375;
