@@ -1,4 +1,4 @@
-"""Render the slowly turning hero as GIF, the README banner (1200x420), light and dark.
+"""Render the slowly swaying banner as GIF, the README banner (1200x420), light and dark.
 Run from the repo root: uvx --from playwright --with pillow python -I assets/source/spin.py . assets
 The rings sway +-AMP degrees on a sine, so the loop is seamless with few frames."""
 import functools, http.server, math, sys, threading
@@ -29,7 +29,7 @@ with sync_playwright() as p:
         pg = b.new_page(viewport={"width": 1500, "height": 800})
         pg.goto(f"http://127.0.0.1:{port}/assets/source/readme.html?theme={theme}", wait_until="networkidle")
         pg.evaluate("document.fonts.ready")
-        el = pg.query_selector("#hero")
+        el = pg.query_selector("#banner")
         raws = []
         for i in range(FRAMES):
             pg.evaluate(f"drawHero({AMP * math.sin(2 * math.pi * i / FRAMES)})")
@@ -38,6 +38,6 @@ with sync_playwright() as p:
             el.screenshot(path=str(f), scale="css")
             raws.append(Image.open(f).convert("RGB").copy())
         f.unlink()
-        save(raws, OUT / f"hero-spin{sfx}.gif", (1200, 420), 128)
+        save(raws, OUT / f"banner{sfx}.gif", (1200, 420), 128)
         pg.close()
     b.close()

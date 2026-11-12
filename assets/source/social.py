@@ -16,7 +16,7 @@ threading.Thread(target=srv.serve_forever, daemon=True).start()
 port = srv.server_address[1]
 
 SOCIAL = """
-const h = document.getElementById('hero'); h.style.width = '1280px'; h.style.height = '640px';
+const h = document.getElementById('banner'); h.style.width = '1280px'; h.style.height = '640px';
 const a = document.getElementById('orbit'); a.setAttribute('viewBox', '130 -46 1024 512'); a.style.width = '1280px';
 const w = h.querySelector('.word'); w.style.left = '90px';
 w.querySelector('p').remove();
@@ -32,7 +32,7 @@ with sync_playwright() as p:
         pg.evaluate(SOCIAL)
         pg.wait_for_timeout(300)
         raw = OUT / "_s.png"
-        pg.query_selector("#hero").screenshot(path=str(raw), scale="css")
+        pg.query_selector("#banner").screenshot(path=str(raw), scale="css")
         dst = OUT / ("banner-social.png" if theme == "light" else "banner-social-dark.png")
         Image.open(raw).convert("RGB").resize((1280, 640), Image.LANCZOS).save(dst, optimize=True)
         raw.unlink()

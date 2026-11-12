@@ -1,4 +1,4 @@
-<h1 align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-spin-dark.gif"><img src="assets/hero-spin.gif" alt="awsketch - AWS deployment diagrams as one interactive page. AWS service icons sit upright on three orbit rings drawn like the cloud, region and VPC frames of a diagram, with numbered flow arcs running between them." width="100%"></picture></h1>
+<h1 align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.gif"><img src="assets/banner.gif" alt="awsketch - AWS deployment diagrams as one interactive page. AWS service icons sit upright on three orbit rings drawn like the cloud, region and VPC frames of a diagram, with numbered flow arcs running between them." width="100%"></picture></h1>
 
 **Ask your agent for an AWS architecture diagram and get one interactive page: official AWS icons, nested frames, numbered flows you can walk arrow by arrow, and a card that explains every component.**
 
