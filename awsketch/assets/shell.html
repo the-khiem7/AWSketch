@@ -19,7 +19,7 @@
 :root[data-theme="dark"]{--bg:#0F151C; --fg:#E6EBF0; --muted:#9AA6B3; --line:#2A3540; --card:#17202A; --accent:#F59E0B; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5}
 .wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 48px;display:grid;gap:16px}
-header h1{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+header h1{font-size:24px;margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance;text-align:center}
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .sheet,#pop,details,#notes{border-radius:var(--r-l)}
 .sheet{position:relative;background:var(--sheet);border:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -30,41 +30,43 @@ summary{cursor:pointer;font-weight:600;padding:14px 0;min-height:24px}
 details ol,details ul{margin:0 0 14px;padding-left:20px}
 details li{margin:4px 0}
 
-/* control bar: flow chips, then Back / caption / Play / Next, then the scrubber on the bottom edge */
-#bar{position:sticky;top:8px;z-index:20;display:grid;gap:8px;padding:10px 16px 12px;border:1px solid var(--line);border-radius:var(--r-l);
-  background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(6px)}
-#bar.stuck{box-shadow:0 8px 24px rgba(15,21,28,.10)}
-.chiprow{display:flex;gap:8px;align-items:center}
-.chips{display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:thin;padding:2px}
-.chip{flex:0 0 auto;font:500 14px var(--sans);border:1.5px solid var(--line);background:var(--card);color:var(--fg);border-radius:var(--r-s);
-  padding:9px 14px;min-height:40px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
-.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+/* control bar: a floating media-style player at the bottom - Back / caption / Next, the scrubber on its lower edge; the flow chips sit in the rail on the left */
+#bar{position:fixed;left:16px;right:16px;bottom:16px;z-index:20;width:min(980px,calc(100% - 32px));margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;gap:0 10px;padding:6px 10px 0;border:1px solid var(--line);border-radius:var(--r-l);
+  background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(6px);box-shadow:0 8px 24px rgba(15,21,28,.16)}
+.steps{display:contents}
+.chiprow{position:sticky;top:8px;z-index:20;justify-self:center;max-width:100%;min-width:0;display:flex;align-items:center;gap:6px;padding:4px;border:1px solid var(--line);border-radius:var(--r-l);
+  background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(6px);box-shadow:0 6px 18px rgba(15,21,28,.12)}
+.chips{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.chip{flex:0 0 auto;font:500 13px var(--sans);border:2px solid var(--c,var(--fg));background:transparent;color:var(--fg);border-radius:var(--r-s);
+  padding:0 10px;height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip i{display:none}
+.chip .n{font:700 13px var(--mono)}
 .chip .n::after{content:" \00B7"}
+#f-all{--c:var(--fg)}
 #f-all .n::after{content:""}
-.chip[aria-pressed="true"]{border-color:var(--c,var(--fg));box-shadow:inset 0 0 0 1.5px var(--c,var(--fg));background:color-mix(in srgb,var(--c,var(--fg)) 10%,var(--card))}
-.steps{display:flex;gap:8px 12px;align-items:center}
-#cap{flex:1 1 320px;margin:0;font-size:14px;border-left:4px solid var(--c,var(--line));padding:2px 0 2px 10px}
-.stepl,.stepr{display:flex;gap:6px}
-.stepr{margin-left:auto}
+.chip[aria-pressed="true"]{background:var(--c);color:#fff}
+#f-all[aria-pressed="true"]{color:var(--bg)}
+#cap{margin:0;min-width:0;font-size:14px;line-height:1.35;border-left:4px solid var(--c,var(--line));padding:2px 0 2px 10px}
+.stepl,.stepr{display:flex}
 .tool{min-height:40px;min-width:40px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:var(--r-s);padding:0 12px;
   font:500 14px var(--sans);cursor:pointer;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.stepl .tool,.stepr .icon{padding:0;font-size:16px}
+.media{width:40px;height:40px;padding:0;border-radius:50%}
+.media svg{width:16px;height:16px;fill:currentColor}
 .tool[aria-pressed="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
 .tool:disabled{opacity:.4;cursor:default}
 .chip:focus-visible,.tool:focus-visible,#scrub:focus-visible,#cap:focus-visible,.nform textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#scrub{width:100%;margin:2px 0 -8px;height:14px;accent-color:var(--c,var(--muted))}
-/* edge buttons: rail switch top-left, Note and Night bottom-left */
-#railbtn{position:fixed;left:16px;top:16px;z-index:22}
-#dock{position:fixed;left:16px;bottom:16px;z-index:22;display:flex;flex-direction:column;gap:8px}
-#railbtn,#dock .tool{width:44px;min-height:44px;padding:0;box-shadow:0 4px 14px rgba(15,21,28,.12)}
-@media (min-width:701px){body:not(.rail) .wrap{padding-left:76px}}
+#scrub{grid-column:1/-1;width:100%;margin:0;height:14px;accent-color:var(--c,var(--muted))}
+/* page tools: Note, Pause and Night at the end of the chip bar */
+.tools{display:flex;gap:4px;flex:0 0 auto;padding-left:6px;border-left:1px solid var(--line)}
+.tools .tool{width:32px;min-height:32px;height:32px;padding:0}
 
 /* tooltips on hover and keyboard focus; Escape hides them */
 .tip{position:relative}
 .tip::after{content:attr(data-tip);position:absolute;right:0;top:calc(100% + 8px);z-index:40;pointer-events:none;background:var(--fg);color:var(--bg);
   font:500 12.5px/1.35 var(--sans);padding:6px 9px;border-radius:var(--r-s);width:max-content;max-width:240px;text-align:left;opacity:0;visibility:hidden;transition:opacity .12s .35s}
+#bar .tip::after{top:auto;bottom:calc(100% + 8px)}
 .stepl .tip::after{right:auto;left:0}
-#railbtn.tip::after,#dock .tip::after{right:auto;left:calc(100% + 10px);top:50%;transform:translateY(-50%)}
 .tip:hover::after,.tip:focus-visible::after{opacity:1;visibility:visible}
 body.notip .tip::after{opacity:0;visibility:hidden}
 @media (hover:none){.tip::after{display:none}}
@@ -125,7 +127,6 @@ path.flow.on,.sheet.nb path.flow.link,.sheet.walk path.flow.now{stroke-dasharray
 /* a highlighted arrow's label sits still in a box instead of glowing */
 .flbox{fill:#fff;stroke:currentColor;stroke-width:1.2;opacity:0;transition:opacity .2s}
 .sheet.nb .fl.link .flbox,.sheet.walk .fl.seen .flbox{opacity:1}
-body.still .flow{animation-play-state:paused}
 .pkt{filter:drop-shadow(0 0 4px currentColor)}
 .sheet.nb .flow{opacity:.08!important}
 .sheet.nb .node{opacity:.3}
@@ -140,9 +141,11 @@ body.still .flow{animation-play-state:paused}
 .sheet.walk .node{opacity:1}
 .sheet.walk .node.off{opacity:.12}
 
+body.still .flow{animation-play-state:paused}
+
 /* Night: an opt-in dark sheet; every icon sits on a white tile so AWS colours still read on white */
 body.night{background:#05070D}
-body.night #bar{background:rgba(5,7,13,.85);border-color:#22304A}
+body.night #bar,body.night .chiprow{background:rgba(5,7,13,.85);border-color:#22304A}
 body.night .sheet{background:radial-gradient(ellipse at 30% 0%,#13254A 0%,#070B16 60%);border-color:#1C2A44}
 body.night .sheet svg rect:not(.hit):not(.tile){fill:transparent!important;stroke:#3A5A8C!important}
 body.night .sheet svg text{fill:#C9D6EC!important}
@@ -152,39 +155,49 @@ body.night .flow{filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 8px cu
 body.night .flabel{stroke:#070B16}
 body.night .poolbox{fill:transparent}
 
-/* vertical rail (opt-in, wide screens): numbered squares on the left that open to the flow name */
+/* wide screens: clear space under the floating player */
 @media (min-width:701px){
-  body.rail #bar{backdrop-filter:none}
+  .wrap{max-width:none;padding-bottom:calc(var(--dh,60px) + 48px)}
+}
+
+/* vertical rail (opt-in, wide screens): the committed rail - numbered squares on the left that open to the flow name,
+   the switch top-left, and Note, Pause and Night bottom-left */
+@media (min-width:701px){
+  /* display:contents drops the slim bar's own box, so its backdrop-filter cannot become the containing block of the fixed rail */
+  body.rail .chiprow{display:contents}
   body.rail .wrap{max-width:none;padding-left:88px}
-  body.rail .chips{position:fixed;left:14px;top:calc(50% + 10px);transform:translateY(-50%);flex-direction:column;overflow:visible;gap:10px;z-index:21}
-  body.rail .chip{width:44px;height:44px;min-height:44px;padding:0;overflow:hidden;white-space:nowrap;border:2.5px solid var(--c,var(--muted));transition:width .22s ease}
+  body.rail #bar{left:88px;width:min(980px,calc(100% - 104px))}
+  body.rail .chips{position:fixed;left:14px;top:calc(50% + 10px);transform:translateY(-50%);flex:none;flex-direction:column;overflow:visible;gap:10px;z-index:21}
+  body.rail .chip{width:44px;height:44px;min-height:44px;padding:0;overflow:hidden;white-space:nowrap;background:var(--card);border:2.5px solid var(--c,var(--muted));transition:width .22s ease}
+  body.rail #f-all{--c:var(--muted)}
   body.rail .chip i,body.rail .chip .n::after{display:none}
   body.rail .chip .n{flex:0 0 39px;text-align:center;font:700 14px var(--mono)}
   body.rail .chip .t{opacity:0;transition:opacity .15s;padding-right:16px}
   body.rail .chip:hover,body.rail .chip:focus-visible{width:240px}
   body.rail .chip:hover .t,body.rail .chip:focus-visible .t{opacity:1}
   body.rail .chip[aria-pressed="true"]{background:var(--c,var(--muted));color:#fff;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--c,var(--muted))}
+  body.rail #f-all[aria-pressed="true"]{color:#fff}
+  body.rail .tools{position:fixed;left:16px;bottom:16px;z-index:22;flex-direction:column;gap:8px;padding:0;border:0}
+  body.rail #railbtn{position:fixed;left:16px;top:16px}
+  body.rail .tools .tool{width:44px;height:44px;min-height:44px;box-shadow:0 4px 14px rgba(15,21,28,.12)}
+  body.rail .tools .tip::after{right:auto;left:calc(100% + 10px);top:50%;transform:translateY(-50%)}
 }
 
-/* phone: centred title, controls in a bottom drawer, service card floating above it */
+/* phone: the player floats at the bottom, the flow chips stay under the title, service card floating above it */
 @media (max-width:700px){
-  .wrap{padding-inline:12px;gap:12px;padding-bottom:calc(var(--dh,200px) + 16px)}
-  header h1{text-align:center}
-  #bar{position:fixed;top:auto;left:0;right:0;bottom:0;z-index:30;display:flex;flex-direction:column;border:0;border-top:1px solid var(--line);
-    border-radius:var(--r-l) var(--r-l) 0 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -8px 24px rgba(15,21,28,.12);
+  .wrap{padding-inline:12px;gap:12px;padding-bottom:calc(var(--dh,200px) + 28px)}
+  #bar{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));width:auto;margin:0;z-index:30;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:8px 8px 4px;
     background:color-mix(in srgb,var(--card) 94%,transparent)}
-  .steps{order:1;gap:6px}#scrub{order:2;margin:0}.chiprow{order:3}
+  .steps{display:flex;order:1;gap:6px;align-items:center}#scrub{order:2}
   #cap{flex:1 1 0;min-width:0;font-size:13.5px;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   #cap.open{display:block;max-height:40vh;overflow:auto}
-  .stepl .tool,.stepr .tool{min-width:44px;min-height:44px;padding:0}
-  .chips{scrollbar-width:none;padding:3px}
-  .chip{width:44px;height:44px;min-height:44px;padding:0;justify-content:center;border:2.5px solid var(--c,var(--muted));flex:0 0 44px}
-  .chip i,.chip .t,.chip .n::after{display:none}
-  .chip .n{font:700 14px var(--mono)}
-  .chip[aria-pressed="true"]{background:var(--c,var(--muted));color:#fff;box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--c,var(--muted))}
-  .chiprow #neon{width:44px;min-height:44px;padding:0}
-  #nt,#railbtn,#dock,#motion .lbl{display:none!important}
-  #pop{position:fixed!important;left:12px!important;right:12px;top:auto!important;bottom:calc(var(--dh,200px) + 8px);width:auto;max-height:45vh;overflow:auto;z-index:31}
+  .media{width:44px;height:44px}
+  .chiprow{justify-self:stretch;top:6px}
+  .chip{width:36px;height:36px;padding:0;justify-content:center;flex:0 0 36px}
+  .chip .t,.chip .n::after{display:none}
+  .tools .tool{width:36px;min-height:36px;height:36px}
+  #nt,#railbtn{display:none!important}
+  #pop{position:fixed!important;left:12px!important;right:12px;top:auto!important;bottom:calc(var(--dh,200px) + 24px);width:auto;max-height:45vh;overflow:auto;z-index:31}
 }
 </style>
 </head><body><main class="wrap">
@@ -192,20 +205,25 @@ body.night .poolbox{fill:transparent}
     <h1>{{title}}</h1>
   </header>
 
-  <div id="bar">
-    <div class="chiprow">
-      <div class="chips" role="group" aria-label="Highlight a flow">
-        <button class="chip" id="f-all" data-f="" aria-pressed="true" aria-label="All flows"><span class="n">All</span><span class="t">flows</span></button>
-        {{chips}}
-      </div>
+  <div class="chiprow" id="chipbar">
+    <div class="chips" role="group" aria-label="Highlight a flow">
+      <button class="chip" id="f-all" data-f="" aria-pressed="true" aria-label="All flows"><span class="n">All</span><span class="t">flows</span></button>
+      {{chips}}
     </div>
+    <div class="tools" role="toolbar" aria-label="Notes, motion and theme">
+  <button type="button" class="tool tip" id="railbtn" aria-label="Vertical rail" aria-pressed="false" data-tip="Switch the flows between the bar and a vertical rail on the left">&#8645;</button>
+  <button type="button" class="tool tip" id="nt" aria-label="Add a note" aria-pressed="false" data-tip="Add a note: then click a spot or press Enter on an icon">&#9998;</button>
+  <button type="button" class="tool tip" id="motion" aria-label="Pause motion" aria-pressed="false" data-tip="Pause or resume moving dashes and packets"><span aria-hidden="true">&#10074;&#10074;</span></button>
+  <button type="button" class="tool tip" id="neon" aria-label="Night mode" aria-pressed="false" data-tip="Night mode: dark sheet, glowing arrows">&#9790;</button>
+    </div>
+  </div>
+
+  <div id="bar">
     <div class="steps">
-      <span class="stepl"><button type="button" class="tool tip" id="pv" aria-label="Previous arrow" data-tip="Previous arrow (back to overview from arrow 1)">&#8249;</button></span>
+      <span class="stepl"><button type="button" class="tool media tip" id="pv" aria-label="Previous arrow" data-tip="Previous arrow (back to overview from arrow 1)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h2v12H3zM14 2v12L6 8z"/></svg></button></span>
       <p id="cap" aria-live="polite">{{intro}}</p>
       <span class="stepr">
-        <button type="button" class="tool icon tip" id="pl" aria-label="Play the arrows" aria-pressed="false" data-tip="Play every arrow in order">&#9654;</button>
-        <button type="button" class="tool icon tip" id="nx" aria-label="Next arrow" data-tip="Next arrow - starts the walk from arrow 1">&#8250;</button>
-        <button type="button" class="tool tip" id="motion" aria-label="Pause motion" aria-pressed="false" data-tip="Pause or resume moving dashes and packets"><span aria-hidden="true">&#10074;&#10074;</span><span class="lbl">Pause motion</span></button>
+        <button type="button" class="tool media tip" id="nx" aria-label="Next arrow" data-tip="Next arrow - starts the walk from arrow 1"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2h2v12h-2zM2 2l8 6-8 6z"/></svg></button>
       </span>
     </div>
     <input id="scrub" type="range" min="0" max="1" value="0" aria-label="Arrow" title="Drag to walk the arrows; far left shows them all">
@@ -217,11 +235,6 @@ body.night .poolbox{fill:transparent}
 
   {{sections}}
 
-<button type="button" class="tool tip" id="railbtn" aria-label="Vertical rail" aria-pressed="false" data-tip="Show flows as a vertical rail on the left">&#8645;</button>
-<div id="dock" role="toolbar" aria-label="Notes and theme">
-  <button type="button" class="tool tip" id="nt" aria-label="Add a note" aria-pressed="false" data-tip="Add a note: then click a spot or press Enter on an icon">&#9998;</button>
-  <button type="button" class="tool tip" id="neon" aria-label="Night mode" aria-pressed="false" data-tip="Night mode: dark sheet, glowing arrows">&#9790;</button>
-</div>
 </main>
 
 <script>
@@ -230,7 +243,7 @@ const D = {{detail_map}};
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const phone=matchMedia('(max-width:700px)');
 const NS='http://www.w3.org/2000/svg',bar=$('#bar'),sheet=$('.sheet'),svg=sheet.querySelector('svg'),cap=$('#cap'),intro=cap.textContent;
-const pv=$('#pv'),pl=$('#pl'),nx=$('#nx'),mo=$('#motion'),rg=$('#scrub'),hopEl=$('#hop'),nt=$('#nt'),nn=$('#neon'),rl=$('#railbtn'),dock=$('#dock');
+const pv=$('#pv'),nx=$('#nx'),mo=$('#motion'),rg=$('#scrub'),hopEl=$('#hop'),nt=$('#nt'),nn=$('#neon'),rl=$('#railbtn'),cb=$('#chipbar');
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const nodesOf=id=>$$(`.node[data-id="${CSS.escape(id)}"]`);
 const nm=(id,g)=>id&&D[id]?D[id][0]:g?`the ${g} boundary`:'outside the diagram';
@@ -238,7 +251,6 @@ const FLOWS=$$('details ol li').map(li=>li.innerHTML),FIDS=$$('.chip').map(c=>c.
 const EDGES=$$('path.flow').map(p=>({p,f:[...p.classList].find(c=>c.startsWith('f-')).slice(2),a:p.dataset.from,z:p.dataset.to,ag:p.dataset.fromGroup,zg:p.dataset.toGroup}));
 $$('.flow').forEach(el=>{const f=[...el.classList].find(c=>c.startsWith('f-'));if(f)el.style.color=`var(--${f.slice(2)})`});
 $$('.chip').forEach(c=>{const i=c.querySelector('i');if(i)c.style.setProperty('--c',i.style.background);if(c.dataset.f)FNAME[c.dataset.f]=c.querySelector('.t').textContent});
-new IntersectionObserver(([e])=>bar.classList.toggle('stuck',e.intersectionRatio<1),{threshold:[1],rootMargin:'-9px 0px 0px 0px'}).observe(bar);
 new ResizeObserver(()=>document.documentElement.style.setProperty('--dh',bar.offsetHeight+'px')).observe(bar);
 
 // packets along arrows
@@ -248,7 +260,7 @@ function traffic(list){svg.querySelectorAll('.pkt').forEach(x=>x.remove());
       const a=document.createElementNS(NS,'animateMotion');a.setAttribute('dur',dur+'s');a.setAttribute('repeatCount','indefinite');a.setAttribute('begin',(svg.getCurrentTime()+i*.2+j*dur/k)+'s');a.setAttribute('path',e.p.getAttribute('d'));c.append(a);svg.append(c)}})}
 
 // flow selection and spotlight
-let flow='',walking=false,pin=false,hops=[],h=0,timer=null;
+let flow='',walking=false,pin=false,hops=[],h=0;
 function spot(){$$('.flow.on').forEach(e=>e.classList.remove('on'));$$('.node.lit').forEach(n=>n.classList.remove('lit'));
   EDGES.filter(e=>e.f===flow).forEach(e=>{e.p.classList.add('on');[e.a,e.z].forEach(x=>x&&nodesOf(x).forEach(n=>n.classList.add('lit')))})}
 function caption(){cap.classList.remove('open');if(phone.matches)cap.setAttribute('aria-expanded','false');
@@ -269,8 +281,7 @@ function nbOn(n){if(walking||pin)return;nbOff();const id=n.dataset.id,mine=EDGES
   sheet.classList.add('nb');n.classList.add('me');mine.forEach(e=>{e.p.classList.add('link');svg.querySelectorAll(`.fl[data-e="${e.p.dataset.e}"],.badge[data-e="${e.p.dataset.e}"]`).forEach(t=>t.classList.add('link'));[e.a,e.z].forEach(x=>x&&nodesOf(x).forEach(m=>m.classList.add('near')))})}
 
 // timeline: step 0 is the overview, steps 1..N walk the arrows of the pressed flow (or all of them)
-function stop(){clearInterval(timer);timer=null;pl.innerHTML='&#9654;';pl.setAttribute('aria-pressed','false')}
-function overview(){stop();walking=false;sheet.classList.remove('walk');$$('.past,.now,.seen,.off').forEach(x=>x.classList.remove('past','now','seen','off'));
+function overview(){walking=false;sheet.classList.remove('walk');$$('.past,.now,.seen,.off').forEach(x=>x.classList.remove('past','now','seen','off'));
   hops=flow?EDGES.filter(e=>e.f===flow):EDGES.slice();rg.max=hops.length;rg.value=0;rg.style.setProperty('--c',flow?`var(--${flow})`:'var(--muted)');
   rg.setAttribute('aria-valuetext','Overview, all arrows shown');pv.disabled=true;nx.disabled=!hops.length;traffic(EDGES.filter(e=>e.f===flow))}
 function paint(){walking=true;sheet.classList.add('walk');nbOff();const seen=new Set(),reached=new Set();
@@ -282,12 +293,10 @@ function paint(){walking=true;sheet.classList.add('walk');nbOff();const seen=new
   pv.disabled=false;nx.disabled=h>=hops.length-1;traffic([e]);setTimeout(follow,30)}
 function follow(){if(!phone.matches||!walking||!hops[h])return;const r=hops[h].p.getBoundingClientRect(),s=sheet.getBoundingClientRect(),b=bar.getBoundingClientRect();
   sheet.scrollBy({left:(r.left+r.width/2)-(s.left+s.width/2),behavior:'smooth'});
-  const top=12,bot=b.top-12;if(r.top<top||r.bottom>bot)scrollBy({top:r.top-top-Math.max(0,(bot-top-r.height)/2),behavior:'smooth'})}
-nx.onclick=()=>{stop();h=walking?h+1:0;paint()};
-pv.onclick=()=>{stop();if(h<=0){overview();return}h--;paint()};
-rg.oninput=()=>{stop();const v=+rg.value;if(v===0){overview();return}h=v-1;paint()};
-pl.onclick=()=>{if(timer){stop();return}if(!walking||h>=hops.length-1)h=-1;pl.innerHTML='&#10074;&#10074;';pl.setAttribute('aria-pressed','true');
-  const tick=()=>{h++;paint();if(h>=hops.length-1)stop()};tick();if(h<hops.length-1)timer=setInterval(tick,1100)};
+  const top=cb.getBoundingClientRect().bottom+8,bot=b.top-12;if(r.top<top||r.bottom>bot)scrollBy({top:r.top-top-Math.max(0,(bot-top-r.height)/2),behavior:'smooth'})}
+nx.onclick=()=>{h=walking?h+1:0;paint()};
+pv.onclick=()=>{if(h<=0){overview();return}h--;paint()};
+rg.oninput=()=>{const v=+rg.value;if(v===0){overview();return}h=v-1;paint()};
 
 // one switch for dashes and packets (WCAG 2.2.2); motion always starts on, the switch is the only way to stop it
 mo.onclick=()=>{const on=!document.body.classList.contains('still');document.body.classList.toggle('still',on);mo.setAttribute('aria-pressed',on);on?svg.pauseAnimations():svg.unpauseAnimations()};
@@ -311,8 +320,8 @@ $$('.node').forEach(n=>{n.addEventListener('click',()=>openPop(n));n.addEventLis
 // caption opens on tap on a phone
 cap.addEventListener('click',()=>{if(!phone.matches)return;const o=cap.classList.toggle('open');cap.setAttribute('aria-expanded',o)});
 cap.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&phone.matches){e.preventDefault();cap.click()}});
-function layout(){const p=phone.matches;if(p){cap.tabIndex=0;cap.setAttribute('role','button');cap.setAttribute('aria-expanded','false');$('.chiprow').append(nn)}
-  else{cap.removeAttribute('tabindex');cap.removeAttribute('role');cap.removeAttribute('aria-expanded');cap.classList.remove('open');dock.append(nn)}}
+function layout(){const p=phone.matches;if(p){cap.tabIndex=0;cap.setAttribute('role','button');cap.setAttribute('aria-expanded','false')}
+  else{cap.removeAttribute('tabindex');cap.removeAttribute('role');cap.removeAttribute('aria-expanded');cap.classList.remove('open')}}
 phone.addEventListener('change',layout);layout();
 
 // notes, kept in this browser only
