@@ -68,6 +68,7 @@ Get a new identifier from `records.py next-id <dir> D` or `Q`; never reuse one. 
    - MISSING: find the renamed or closed entry, fix the anchor, or drop the route when the fact left the diagram.
    - NEW unrouted: read it; add a route when it changes something drawn.
    - UNROUTED file: add it to Source files, or its folder to Skip with the reason in `decisions.md`.
+   - DRIFT or UPDATED from a source edit that only removes or repoints a link to a deleted file: still reported. `show` the node, compare with its `detail`, confirm nothing drawn changed, then `stamp`; never stamp before that comparison.
 4. Re-render, look, update `## Verified`, `stamp`, `check`.
 
 Never stamp before every finding is reconciled: the stamp makes the drift invisible. Where sources disagree, draw what code shows, list the disagreement on the page, and leave the correction to the source's owner.
