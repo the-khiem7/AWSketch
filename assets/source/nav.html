@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>awsketch README section icons and buttons</title>
+<!-- Source of assets/icon-<name>.webp, assets/nav-<name>.webp and their -dark pairs. Render from the repository root with:
+     uvx --from playwright --with pillow python -I <frontdoor-illustrate>/scripts/render.py assets/source/nav.html --root . --out assets
+     --root is the repository root because the AWS icons glyph loads awsketch/assets/icons/. icon-* items are 56 px square (112 px images),
+     nav-* items are 64 px high buttons; the renderer rounds and borders each one, so an icon reads as one more tile of the hero.
+
+     Signature note (same as readme.html):
+     Concept: awsketch spins an AWS deployment into one page; the picture is an orrery - the diagram's nested frames turned into orbits.
+     Shape language: thin rings in the group-frame colours, upright unaltered AWS icons on tiles, 4 px flow lines with round caps and chip discs.
+     Typeface: IBM Plex Sans Condensed 700 for titles, IBM Plex Mono for text.
+     Palette logic: white sheet in light, #0F151C in dark; flow arcs take the layout-rules flow palette; the frames take their renderer colours.
+     Presentation: one glyph per README section, drawn on a 56 unit grid, ink for structure and one flow colour for the moving part.
+     What it is not: not an AWS logo or look-alike; the only AWS mark is a real service icon, upright and unaltered. -->
+<script src="shared.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@700&display=block">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="sheet">
+<div class="item ic" id="icon-install"><svg data-g="install" viewBox="0 0 56 56"></svg></div>
+<div class="item ic" id="icon-what"><svg data-g="what" viewBox="0 0 56 56"></svg></div>
+<div class="item ic" id="icon-how"><svg data-g="how" viewBox="0 0 56 56"></svg></div>
+<div class="item ic" id="icon-use"><svg data-g="use" viewBox="0 0 56 56"></svg></div>
+<div class="item ic" id="icon-records"><svg data-g="records" viewBox="0 0 56 56"></svg></div>
+<div class="item ic" id="icon-aws"><svg data-g="aws" viewBox="0 0 56 56"></svg></div>
+
+<div class="item btn" id="nav-install"><svg data-g="install" viewBox="0 0 56 56"></svg>Install</div>
+<div class="item btn" id="nav-what"><svg data-g="what" viewBox="0 0 56 56"></svg>What you get</div>
+<div class="item btn" id="nav-how"><svg data-g="how" viewBox="0 0 56 56"></svg>How it works</div>
+<div class="item btn" id="nav-use"><svg data-g="use" viewBox="0 0 56 56"></svg>Use</div>
+<div class="item btn" id="nav-records"><svg data-g="records" viewBox="0 0 56 56"></svg>Records</div>
+<div class="item btn" id="nav-aws"><svg data-g="aws" viewBox="0 0 56 56"></svg>AWS icons</div>
+</div>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const el = (p, t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+const rad = a => a * Math.PI / 180;
+const S = { fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" };
+// Arrowhead with its tip at x, y, pointing along angle a (degrees).
+const head = (p, x, y, a, c, s = 10) => {
+  const pts = [[0, 0], [-s, -s * .55], [-s, s * .55]].map(([u, v]) => [x + u * Math.cos(rad(a)) - v * Math.sin(rad(a)), y + u * Math.sin(rad(a)) + v * Math.cos(rad(a))]);
+  el(p, "polygon", { points: pts.map(q => q.join(",")).join(" "), fill: c });
+};
+const path = (p, d, c, w) => el(p, "path", { ...S, d, stroke: c, "stroke-width": w });
+
+const G = {
+  // a package dropping into a tray
+  install(p) {
+    path(p, "M13 35v9h30v-9", "var(--ink)", 3.5);
+    path(p, "M28 9v17", "var(--f1)", 4.5);
+    head(p, 28, 34, 90, "var(--f1)", 11);
+  },
+  // the hero in miniature: cloud ring, dashed region ring, one chip disc
+  what(p) {
+    el(p, "circle", { cx: 28, cy: 28, r: 20, ...S, stroke: "var(--ink)", "stroke-width": 3 });
+    el(p, "circle", { cx: 28, cy: 28, r: 11, ...S, stroke: "var(--region)", "stroke-width": 3, "stroke-dasharray": "4 3" });
+    el(p, "circle", { cx: 28, cy: 28, r: 3.2, fill: "var(--ink)" });
+    el(p, "circle", { cx: 28 + 20 * Math.cos(rad(-40)), cy: 28 + 20 * Math.sin(rad(-40)), r: 6, fill: "var(--f2)", stroke: "var(--paper)", "stroke-width": 2.5 });
+  },
+  // spec box, a flow with a numbered chip, page box
+  how(p) {
+    el(p, "rect", { x: 5, y: 20, width: 12, height: 16, rx: 3, ...S, stroke: "var(--ink)", "stroke-width": 3 });
+    el(p, "rect", { x: 39, y: 20, width: 12, height: 16, rx: 3, ...S, stroke: "var(--vpc)", "stroke-width": 3 });
+    path(p, "M17 28h14", "var(--f3)", 4);
+    head(p, 37, 28, 0, "var(--f3)", 9);
+    el(p, "circle", { cx: 27, cy: 28, r: 5.5, fill: "var(--f3)", stroke: "var(--paper)", "stroke-width": 2.5 });
+  },
+  // a prompt: chevron and cursor line
+  use(p) {
+    path(p, "M13 15l14 13-14 13", "var(--f4)", 5);
+    path(p, "M31 42h13", "var(--ink)", 5);
+  },
+  // a loop with a document at its centre
+  records(p) {
+    const pt = a => [28 + 17 * Math.cos(rad(a)), 28 + 17 * Math.sin(rad(a))];
+    const [x0, y0] = pt(-35), [x1, y1] = pt(232);
+    path(p, `M${x0} ${y0} A17 17 0 1 1 ${x1} ${y1}`, "var(--region)", 4);
+    const [tx, ty] = pt(246);
+    head(p, tx, ty, 246 + 90, "var(--region)", 10);
+    el(p, "rect", { x: 22, y: 21, width: 12, height: 14, rx: 2.5, ...S, stroke: "var(--ink)", "stroke-width": 3 });
+  },
+  // a real AWS service icon, upright and unaltered
+  aws(p) {
+    el(p, "image", { href: "../../awsketch/assets/icons/service/networking-content-delivery/amazon-virtual-private-cloud.svg", x: 8, y: 8, width: 40, height: 40 });
+  },
+};
+document.querySelectorAll("svg[data-g]").forEach(s => G[s.dataset.g](s));
+</script>
+</body>
+</html>

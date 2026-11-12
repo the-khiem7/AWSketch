@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>awsketch README illustrations</title>
+<!-- Source of assets/<id>.webp and assets/<id>-dark.webp. Render from the repository root with:
+     uvx --from playwright --with pillow python -I <frontdoor-illustrate>/scripts/render.py assets/source/readme.html --root . --out assets
+     --root is the repository root because the hero loads icons from awsketch/assets/icons/ and the
+     product shot loads examples/ecommerce-on-aws/ecommerce-on-aws.html; render that page first with
+     uv run awsketch/scripts/render.py examples/ecommerce-on-aws/ecommerce-on-aws.json -o examples/ecommerce-on-aws/ecommerce-on-aws.html
+     Each .item is 1200 CSS px wide, so 2400 px in the image.
+
+     Signature note:
+     Concept: awsketch spins an AWS deployment into one page; the picture is an orrery - the diagram's nested frames turned into orbits.
+     Shape language: thin concentric rings in the renderer's group-frame colours (cloud solid, region dashed 6 4, VPC solid), real AWS service icons upright and unaltered on square tiles, flow arcs 4 px with round caps and numbered chip discs; no rotated or mirrored icons, no gradients.
+     Typeface: IBM Plex Sans Condensed 700 for the wordmark and card titles, IBM Plex Mono 500 for text - the Plex family of the awsketch page shell.
+     Palette logic: white drawing sheet in light, the shell's dark chrome (#0F151C) in dark; the shell accent orange only on "sketch"; flow arcs take the layout-rules flow palette in order.
+     Presentation: wordmark dominant on the left, the orbit bleeding off the right edge; diagrams draw their stages as the renderer's frames and their order as one numbered flow; process diagrams show the thing being made (the same small deployment drawn once per render step, fingerprints as bar strips that can be compared by eye) rather than boxes of text, because box-and-label diagrams read as documentation and do not carry the brand; the product picture is a real render of the page, not a mock-up.
+     What it is not: not an AWS logo or AWS look-alike, no Amazon Ember, no kaleidoscope mirroring of icons.
+
+     Hero choices and what was ruled out:
+     - Orbit (kept): real AWS icons upright and unaltered on rings drawn like the cloud, region and VPC frames; the wordmark stays the dominant mark.
+     - Literal kaleidoscope (ruled out): rotating and mirroring the icons alters them, which the AWS trademark guidelines forbid, mirrored glyphs read backwards, and the icon disc outweighs the wordmark.
+     - Own rosette without AWS icons (ruled out): zero trademark risk, but it drops the AWS icons that are the branding element, and its diagonal lines break the renderer's orthogonal-edge look.
+     - Amazon Ember (ruled out): AWS's own typeface is proprietary and would read as an AWS product; Plex matches the page shell instead. -->
+<script src="shared.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans+Condensed:wght@700&display=block">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="sheet">
+
+<div class="item" id="hero" style="height: 420px">
+  <svg class="art" id="orbit" viewBox="0 0 1200 420" data-bleed></svg>
+  <div class="word"><h1>aw<b>sketch</b></h1><p>AWS deployment diagrams as one interactive page.</p></div>
+</div>
+
+<div class="item" id="product" style="height: 866px">
+  <div class="shotbox" id="shotbox"><iframe class="shot" id="shot" src="../../examples/ecommerce-on-aws/ecommerce-on-aws.html" scrolling="no" data-bleed></iframe></div>
+  <div class="keys">
+    <div class="card"><div class="gl"><svg class="glyph" id="gk1" viewBox="0 0 84 84"></svg><span class="disc">1</span></div><div><h3>Flow chips</h3><p>Press a chip to light up one flow's path.</p></div></div>
+    <div class="card"><div class="gl"><svg class="glyph" id="gk2" viewBox="0 0 84 84"></svg><span class="disc">2</span></div><div><h3>Arrow walk</h3><p>Step or play the flow arrow by arrow.</p></div></div>
+    <div class="card"><div class="gl"><svg class="glyph" id="gk3" viewBox="0 0 84 84"></svg><span class="disc">3</span></div><div><h3>Nested frames</h3><p>Account, region, VPC, subnet and cluster.</p></div></div>
+    <div class="card"><div class="gl"><svg class="glyph" id="gk4" viewBox="0 0 84 84"></svg><span class="disc">4</span></div><div><h3>Component card</h3><p>Click any part for its name, AWS service and role.</p></div></div>
+  </div>
+</div>
+
+<div class="item" id="how" style="height: 530px">
+  <svg class="art" id="pipe" viewBox="0 0 1200 530"></svg>
+  <div class="card cloud" style="left:24px; top:66px; width:224px; padding:12px 14px"><code>&lt;slug&gt;.json</code>
+<pre class="json"><b>"nodes"</b>: [
+ { <b>"id"</b>: <s>"alb"</s>,
+   <b>"x"</b>: <u>720</u>,
+   <b>"y"</b>: <u>284</u>,
+   <b>"w"</b>: <u>130</u> },
+ ...
+<b>"edges"</b>: [
+ { <b>"flow"</b>: <s>"web"</s>,
+   <b>"points"</b>: [...] }</pre>
+    <p style="font-size:15px">Your agent places every box by coordinates.</p></div>
+  <div class="tag" style="left:288px; top:22px"><i style="background:var(--region)"></i><code>render.py</code></div>
+  <div class="out" style="left:285px; top:432px; width:196px"><svg viewBox="0 0 34 34"><rect x="2" y="2" width="30" height="30" rx="7" fill="var(--stop)"/><path d="M11 11 L23 23 M23 11 L11 23" stroke="var(--paper)" stroke-width="3.5" stroke-linecap="round"/></svg><div><code>error</code><small>exit code 1</small></div></div>
+  <div class="out" style="left:497px; top:432px; width:196px"><svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="14" fill="none" stroke="var(--f4)" stroke-width="3"/><path d="M10 17.5 L15 22.5 L24 12.5" fill="none" stroke="var(--f4)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><code>--check</code><small>no page</small></div></div>
+  <div class="out" style="left:709px; top:432px; width:196px"><svg viewBox="0 0 34 34"><path d="M17 3 L32 30 H2 Z" fill="none" stroke="var(--f2)" stroke-width="3" stroke-linejoin="round"/><path d="M17 12 V20" stroke="var(--f2)" stroke-width="3.5" stroke-linecap="round"/><circle cx="17" cy="25" r="2" fill="var(--f2)"/></svg><div><code>warning</code><small>page written</small></div></div>
+  <div class="card vpc" style="left:948px; top:426px; width:228px; padding:10px 14px"><code>&lt;slug&gt;.html</code><p style="font-size:15px">One interactive page.</p></div>
+</div>
+
+<div class="item" id="phone" style="height: 650px">
+  <div class="card" style="left:24px; top:236px; width:236px; border:0; padding:0; background:none"><h3>Bottom drawer</h3><p>Steps, the arrow slider and the numbered flow chips sit under your thumb.</p></div>
+  <div class="phone" style="left:284px"><iframe id="ph-walk" src="../../examples/ecommerce-on-aws/ecommerce-on-aws.html"></iframe></div>
+  <div class="phone" style="left:604px"><iframe id="ph-card" src="../../examples/ecommerce-on-aws/ecommerce-on-aws.html"></iframe></div>
+  <div class="card" style="left:940px; top:236px; width:236px; border:0; padding:0; background:none"><h3>Card on tap</h3><p>Tap a component; its card floats above the drawer.</p></div>
+</div>
+
+<div class="item" id="sources" style="height: 560px">
+  <svg class="art" id="route" viewBox="0 0 1200 560"></svg>
+  <div class="row" style="left:44px; top:50px"><code>design.md</code></div>
+  <div class="row" style="left:444px; top:54px; gap:6px"><div class="mini">aw<b>sketch</b></div><small><code style="font-size:17px">&lt;slug&gt;.sources.md</code> routes</small></div>
+  <div class="row" style="left:880px; top:50px"><code>&lt;slug&gt;.json</code></div>
+  <p class="foot" style="top:496px">check re-reads every anchored passage and compares it with the fingerprint saved at the last stamp. A changed passage is reported as DRIFT on the diagram element it feeds.</p>
+</div>
+
+<div class="item" id="records" style="height: 500px">
+  <svg class="art" id="loop" viewBox="0 0 1200 500"></svg>
+  <div class="term" style="left:340px; top:20px; width:520px"><b>records.py init shop/shop.json --prefix ABC</b><pre>wrote shop.sources.md and shop.decisions.md beside shop.json</pre></div>
+  <div class="term" id="k-check" style="left:784px; width:392px"><b>records.py check shop</b><pre><em>Routes</em>
+  <span class="x">DRIFT</span>   R2   id:ABC-D7  (design.md, line 12)
+<em>Source files</em>
+<em>Watched folders</em>
+<em>Diagram elements to re-check</em>
+  <span class="hi">orders-db</span>: R2
+stamped 2026-11-02; 1 finding(s)</pre></div>
+  <div class="term" id="k-show" style="left:784px; width:392px"><b>records.py show shop orders-db</b><pre>R2 id:ABC-D7 - docs/design.md (line 12)
+## ABC-D7 Orders database
+Orders move to Aurora PostgreSQL,
+Multi-AZ, in the private subnets.</pre></div>
+  <div class="term" id="k-edit" style="left:24px; width:392px"><b>you: edit shop.json, render again</b><pre>  { "id": <span class="hi">"orders-db"</span>,
+<span class="x">-   "sub": ["Aurora MySQL"],</span>
+<span class="ad">+   "sub": ["Aurora PostgreSQL"],</span></pre></div>
+  <div class="term" id="k-stamp" style="left:24px; width:392px"><b>records.py stamp shop</b><pre>stamped shop.sources.md</pre><div class="note">R2 <svg id="newprint" width="108" height="22" viewBox="0 0 108 22"></svg> 41c7f0d8a3e9</div></div>
+</div>
+
+</div>
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const el = (p, t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+const ICON = n => "../../awsketch/assets/icons/service/" + n + ".svg";
+const rad = a => a * Math.PI / 180;
+// Arrowhead pointing along angle a (degrees) with its tip at x, y.
+const head = (p, x, y, a, c) => {
+  const pts = [[0, 0], [-14, -7], [-14, 7]].map(([u, v]) => [x + u * Math.cos(rad(a)) - v * Math.sin(rad(a)), y + u * Math.sin(rad(a)) + v * Math.cos(rad(a))]);
+  el(p, "polygon", { points: pts.map(q => q.join(",")).join(" "), fill: c });
+};
+const line = (p, pts, c, w = 4) => el(p, "polyline", { points: pts.map(q => q.join(",")).join(" "), fill: "none", stroke: c, "stroke-width": w, "stroke-linecap": "round", "stroke-linejoin": "round" });
+const chip = (p, x, y, n, c) => {
+  el(p, "circle", { cx: x, cy: y, r: 18, fill: c });
+  const t = el(p, "text", { x, y: y + 7, "text-anchor": "middle", "font-family": "IBM Plex Mono", "font-weight": 700, "font-size": 20, fill: "var(--chiptext)" });
+  t.textContent = n;
+};
+
+// ---- hero ----
+const CX = 930, CY = 210;
+const s = document.getElementById("orbit");
+[{ r: 292, c: "var(--cloud)", d: "0" }, { r: 210, c: "var(--region)", d: "6 4" }, { r: 128, c: "var(--vpc)", d: "0" }]
+  .forEach(f => el(s, "circle", { cx: CX, cy: CY, r: f.r, fill: "none", stroke: f.c, "stroke-width": 2, "stroke-dasharray": f.d }));
+
+// Flow arcs ride between the rings; the numbers are chip labels, not a count of anything.
+const pt = (r, a) => [CX + r * Math.cos(rad(a)), CY + r * Math.sin(rad(a))];
+[{ r: 251, a0: -160, a1: -95, c: "var(--f1)", n: 1 }, { r: 251, a0: 15, a1: 80, c: "var(--f2)", n: 2 },
+ { r: 169, a0: -60, a1: 5, c: "var(--f3)", n: 3 }, { r: 169, a0: 130, a1: 195, c: "var(--f4)", n: 4 }].forEach(f => {
+  const [x0, y0] = pt(f.r, f.a0), [x1, y1] = pt(f.r, f.a1), [mx, my] = pt(f.r, (f.a0 + f.a1) / 2);
+  el(s, "path", { d: `M${x0} ${y0} A${f.r} ${f.r} 0 0 1 ${x1} ${y1}`, fill: "none", stroke: f.c, "stroke-width": 4, "stroke-linecap": "round" });
+  el(s, "circle", { cx: mx, cy: my, r: 15, fill: f.c });
+  const t = el(s, "text", { x: mx, y: my + 6, "text-anchor": "middle", "font-family": "IBM Plex Mono", "font-weight": 600, "font-size": 17, fill: "var(--chiptext)" });
+  t.textContent = f.n;
+});
+
+// Icons stay upright and unaltered; a tile in the page colour cuts the ring behind each one.
+const ring = (r, a0, sz, names) => names.forEach((n, i) => {
+  const [x, y] = pt(r, a0 + i * 360 / names.length);
+  el(s, "rect", { x: x - sz / 2 - 7, y: y - sz / 2 - 7, width: sz + 14, height: sz + 14, rx: 8, fill: "var(--paper)" });
+  el(s, "image", { href: ICON(n), x: x - sz / 2, y: y - sz / 2, width: sz, height: sz });
+});
+ring(0, 0, 58, ["networking-content-delivery/amazon-virtual-private-cloud"]);
+ring(128, -90, 42, ["compute/aws-lambda", "databases/amazon-dynamodb", "application-integration/amazon-simple-queue-service", "containers/amazon-elastic-container-service", "application-integration/amazon-eventbridge"]);
+ring(210, -112, 40, ["networking-content-delivery/amazon-cloudfront", "networking-content-delivery/amazon-api-gateway", "compute/amazon-ec2", "databases/amazon-aurora", "containers/amazon-elastic-kubernetes-service", "storage/amazon-simple-storage-service", "management-tools/amazon-cloudwatch", "analytics/amazon-kinesis-data-streams"]);
+ring(292, -160, 38, ["networking-content-delivery/amazon-route-53", "security-identity/aws-identity-and-access-management", "artificial-intelligence/amazon-sagemaker-ai", "databases/amazon-rds", "storage/amazon-simple-storage-service", "compute/aws-lambda", "management-tools/amazon-cloudwatch", "networking-content-delivery/amazon-cloudfront", "databases/amazon-dynamodb", "compute/amazon-ec2"]);
+
+// ---- product: same theme as the image, one flow pressed and one card open, discs keyed to the card row ----
+const SCALE = .9375;
+document.getElementById("shot").addEventListener("load", e => {
+  const d = e.target.contentDocument;
+  d.documentElement.dataset.theme = document.documentElement.dataset.theme;
+  const chips = d.querySelectorAll(".chip");
+  if (chips[1]) chips[1].click();
+  const alb = d.querySelector('.node[data-id="alb"]');
+  // An SVG <g> has no .click(), so dispatch the event the node listens for.
+  if (alb) alb.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  d.fonts.ready.then(() => requestAnimationFrame(() => {
+    // Opening the card moves focus to its close button; drop it so no focus ring shows.
+    if (d.activeElement) d.activeElement.blur();
+    const box = document.getElementById("shotbox");
+    const at = (node, corner, n) => {
+      if (!node) return;
+      const r = node.getBoundingClientRect(), k = document.createElement("span");
+      k.className = "disc"; k.textContent = n;
+      k.style.cssText = `position:absolute; left:${(corner[0] ? r.right : r.left) * SCALE - 17}px; top:${(corner[1] ? r.bottom : r.top) * SCALE - 17}px; box-shadow:0 0 0 3px var(--paper)`;
+      box.appendChild(k);
+    };
+    at(chips[1], [1, 0], 1);
+    at(d.getElementById("nx"), [1, 0], 2);
+    at(d.querySelector('rect.grp[stroke="#8C4FFF"]'), [0, 0], 3);
+    at(d.getElementById("pop"), [1, 0], 4);
+  }));
+});
+
+// ---- how it works: the same small diagram in four frames, one per render step, so the reader watches it take shape ----
+const p = document.getElementById("pipe"), how = document.getElementById("how");
+const hd = (g, x, y, a, c, s = 9) => {
+  const pts = [[0, 0], [-s, -s / 2], [-s, s / 2]].map(([u, v]) => [x + u * Math.cos(rad(a)) - v * Math.sin(rad(a)), y + u * Math.sin(rad(a)) + v * Math.cos(rad(a))]);
+  el(g, "polygon", { points: pts.map(q => q.join(",")).join(" "), fill: c });
+};
+const tick = (g, x, y, c) => {
+  el(g, "circle", { cx: x, cy: y, r: 8, fill: c });
+  el(g, "path", { d: `M${x - 4} ${y} L${x - 1} ${y + 3} L${x + 4.5} ${y - 3}`, fill: "none", stroke: "var(--paper)", "stroke-width": 2.2, "stroke-linecap": "round", "stroke-linejoin": "round" });
+};
+// One small deployment: CloudFront outside the VPC, load balancer, ECS and Aurora inside it.
+const NODES = [[32, 64, "networking-content-delivery/amazon-cloudfront"], [96, 64, "networking-content-delivery/elastic-load-balancing"],
+  [96, 140, "containers/amazon-elastic-container-service"], [152, 140, "databases/amazon-aurora"]];
+const EDGES = [[[49, 64], [79, 64], 0], [[96, 81], [96, 123], 90], [[113, 140], [135, 140], 0]];
+const arrows = g => EDGES.forEach(([a, b, ang]) => { line(g, [a, [b[0] - (ang ? 0 : 6), b[1] - (ang ? 6 : 0)]], "var(--f1)", 3); hd(g, b[0], b[1], ang, "var(--f1)"); });
+const drawing = (g, stage) => {
+  if (stage === 1) {
+    for (let x = 14; x < 190; x += 16) for (let y = 14; y < 192; y += 16) el(g, "circle", { cx: x, cy: y, r: 1.4, fill: "var(--line)" });
+    // Guides from the panel edges to one box corner: every box is placed by x, y.
+    line(g, [[79, 0], [79, 47]], "var(--f2)", 1.5).setAttribute("stroke-dasharray", "3 3");
+    line(g, [[0, 47], [79, 47]], "var(--f2)", 1.5).setAttribute("stroke-dasharray", "3 3");
+    el(g, "circle", { cx: 79, cy: 47, r: 3.5, fill: "var(--f2)" });
+    NODES.forEach(([x, y]) => el(g, "rect", { x: x - 17, y: y - 17, width: 34, height: 34, rx: 5, fill: "none", stroke: "var(--muted)", "stroke-width": 2, "stroke-dasharray": "4 3" }));
+    NODES.forEach(([x, y]) => tick(g, x + 17, y - 17, "var(--f4)"));
+    return;
+  }
+  if (stage >= 3) {
+    el(g, "rect", { x: 6, y: 14, width: 178, height: 172, fill: "none", stroke: "var(--cloud)", "stroke-width": 2 });
+    el(g, "image", { href: "../../awsketch/assets/icons/group/group-aws-cloud.svg", x: 6, y: 14, width: 16, height: 16 });
+    el(g, "rect", { x: 66, y: 30, width: 112, height: 148, fill: "none", stroke: "var(--vpc)", "stroke-width": 2 });
+    el(g, "image", { href: "../../awsketch/assets/icons/group/group-virtual-private-cloud-vpc.svg", x: 66, y: 30, width: 16, height: 16 });
+  }
+  arrows(g);
+  NODES.forEach(([x, y, n]) => stage === 2
+    ? el(g, "rect", { x: x - 17, y: y - 17, width: 34, height: 34, rx: 5, fill: "var(--paper)", stroke: "var(--muted)", "stroke-width": 2 })
+    : el(g, "image", { href: ICON(n), x: x - 17, y: y - 17, width: 34, height: 34 }));
+};
+el(p, "rect", { x: 268, y: 40, width: 908, height: 356, rx: 12, fill: "none", stroke: "var(--region)", "stroke-width": 2, "stroke-dasharray": "6 4" });
+const steps = [["validate", "icon ids, flow refs, overlapping boxes"], ["route", "the arrows between the boxes"], ["draw", "the SVG with the AWS icons"], ["fill", "the fixed page shell"]];
+const PY = 184;
+steps.forEach(([t, n], i) => {
+  const px = 288 + i * 226, stage = i + 1;
+  const c = document.createElement("div");
+  c.className = "step"; c.style.cssText = `left:${px}px; top:76px`;
+  c.innerHTML = `<code><i>${stage}</i>${t}</code><p>${n}</p>`;
+  how.appendChild(c);
+  const g = el(p, "g", { transform: `translate(${px} ${PY})` });
+  el(g, "rect", { x: 0, y: 0, width: 190, height: 192, rx: 10, fill: "var(--paper)", stroke: stage === 4 ? "var(--bezel)" : "var(--line)", "stroke-width": stage === 4 ? 3 : 2 });
+  if (stage < 4) drawing(g, stage);
+  else {
+    // The page shell: a window bar, the flow chips, the finished drawing and the arrow slider.
+    el(g, "path", { d: "M0 10 A10 10 0 0 1 10 0 H180 A10 10 0 0 1 190 10 V20 H0 Z", fill: "var(--bezel)" });
+    [12, 24, 36].forEach(x => el(g, "circle", { cx: x, cy: 10, r: 3, fill: "var(--paper)" }));
+    el(g, "rect", { x: 12, y: 28, width: 34, height: 12, rx: 6, fill: "var(--f1)" });
+    el(g, "rect", { x: 50, y: 28, width: 34, height: 12, rx: 6, fill: "none", stroke: "var(--f2)", "stroke-width": 2 });
+    el(g, "rect", { x: 88, y: 28, width: 34, height: 12, rx: 6, fill: "none", stroke: "var(--f3)", "stroke-width": 2 });
+    drawing(el(g, "g", { transform: "translate(34 36) scale(.66)" }), 4);
+    el(g, "path", { d: "M14 168 L24 174 L14 180 Z", fill: "var(--ink)" });
+    line(g, [[34, 174], [176, 174]], "var(--line)", 3);
+    line(g, [[34, 174], [96, 174]], "var(--f1)", 3);
+    el(g, "circle", { cx: 96, cy: 174, r: 6, fill: "var(--f1)" });
+  }
+  if (i < 3) { line(p, [[px + 196, PY + 96], [px + 214, PY + 96]], "var(--f1)", 4); hd(p, px + 222, PY + 96, 0, "var(--f1)", 12); }
+});
+// The spec enters the first frame; the page leaves the last one.
+line(p, [[252, PY + 96], [272, PY + 96]], "var(--f1)", 4); hd(p, 282, PY + 96, 0, "var(--f1)", 12);
+line(p, [[1061, PY + 198], [1061, 410]], "var(--f1)", 4); hd(p, 1061, 422, 90, "var(--f1)", 12);
+// Outcomes leave the validate frame on one trunk; the outcome tags are centred at 383, 595 and 807.
+line(p, [[383, PY + 198], [383, 412]], "var(--muted)", 3);
+line(p, [[383, 412], [807, 412]], "var(--muted)", 3);
+[595, 807].forEach(x => { line(p, [[x, 412], [x, 418]], "var(--muted)", 3); hd(p, x, 430, 90, "var(--muted)", 11); });
+hd(p, 383, 430, 90, "var(--muted)", 11);
+
+// ---- phone: the real page in a 390 px viewport; one walks a flow, one shows a component card ----
+const phoneShot = (id, act) => {
+  const f = document.getElementById(id);
+  const run = () => {
+    const d = f.contentDocument;
+    d.documentElement.dataset.theme = document.documentElement.dataset.theme;
+    const chips = d.querySelectorAll(".chip");
+    if (chips[1]) chips[1].click();
+    act(d);
+  };
+  if (f.contentDocument && f.contentDocument.readyState === "complete" && f.contentDocument.querySelector(".chip")) run();
+  else f.addEventListener("load", run);
+};
+phoneShot("ph-walk", d => { const n = d.getElementById("nx"); if (n) n.click(); });
+phoneShot("ph-card", d => { const a = d.querySelector('.node[data-id="alb"]'); if (a) a.dispatchEvent(new MouseEvent("click", { bubbles: true })); });
+
+// ---- sources: a highlighted passage in a document, its route and fingerprint in the record set, the element it feeds in the diagram ----
+const g = document.getElementById("route"), src = document.getElementById("sources");
+const put = (html, css, cls = "row") => { const e = document.createElement("div"); e.className = cls; e.style.cssText = css; e.innerHTML = html; src.appendChild(e); return e; };
+const txt = (p, x, y, s, fill, size = 15, weight = 500) => { const t = el(p, "text", { x, y, "font-family": "IBM Plex Mono", "font-weight": weight, "font-size": size, fill }); t.textContent = s; return t; };
+// Orthogonal thread with rounded corners: right to xj, vertical to y1, right to x1, arrowhead at x1.
+const thread = (x0, y0, xj, y1, x1, c, dash) => {
+  const r = Math.min(10, Math.abs(y1 - y0) / 2), s = Math.sign(y1 - y0);
+  const d = r ? `M${x0} ${y0} H${xj - r} Q${xj} ${y0} ${xj} ${y0 + s * r} V${y1 - s * r} Q${xj} ${y1} ${xj + r} ${y1} H${x1 - 12}` : `M${x0} ${y0} H${x1 - 12}`;
+  const e = el(g, "path", { d, fill: "none", stroke: c, "stroke-width": 4, "stroke-linecap": "round" });
+  if (dash) e.setAttribute("stroke-dasharray", dash);
+  head(g, x1, y1, 0, c);
+};
+// A fingerprint as a strip of 12 bars, one per hex digit, so two prints can be compared at a glance.
+const barcode = (x, base, hex, c) => [...hex].forEach((h, i) => { const v = parseInt(h, 16); el(g, "rect", { x: x + i * 9, y: base - 5 - v * 1.1, width: 6, height: 5 + v * 1.1, rx: 1.5, fill: c }); });
+
+// Left: a stack of two sheets, the front one with a folded corner.
+el(g, "path", { d: "M34 50 H314 L354 90 V480 H34 Z", fill: "var(--paper)", stroke: "var(--line)", "stroke-width": 2 });
+el(g, "path", { d: "M24 40 H304 L344 80 V470 H24 Z", fill: "var(--paper)", stroke: "var(--cardline)", "stroke-width": 2, "stroke-linejoin": "round" });
+el(g, "path", { d: "M304 40 V80 H344", fill: "none", stroke: "var(--cardline)", "stroke-width": 2, "stroke-linejoin": "round" });
+el(g, "rect", { x: 44, y: 92, width: 230, height: 8, rx: 4, fill: "var(--line)" });
+// Centre: the record set, framed in ink like the wordmark it carries.
+el(g, "rect", { x: 424, y: 40, width: 352, height: 430, rx: 10, fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 2 });
+// Right: a small diagram in the renderer's frames - AWS Cloud, VPC, public and private subnet.
+el(g, "rect", { x: 836, y: 40, width: 340, height: 430, fill: "var(--paper)", stroke: "var(--cloud)", "stroke-width": 2 });
+el(g, "image", { href: "../../awsketch/assets/icons/group/group-aws-cloud.svg", x: 836, y: 40, width: 32, height: 32 });
+el(g, "rect", { x: 856, y: 96, width: 304, height: 266, fill: "none", stroke: "var(--vpc)", "stroke-width": 2 });
+el(g, "image", { href: "../../awsketch/assets/icons/group/group-virtual-private-cloud-vpc.svg", x: 856, y: 96, width: 26, height: 26 });
+txt(g, 890, 115, "VPC", "var(--muted)");
+el(g, "rect", { x: 872, y: 132, width: 272, height: 88, fill: "var(--pubfill)", stroke: "var(--pub)", "stroke-width": 2 });
+el(g, "image", { href: "../../awsketch/assets/icons/group/group-public-subnet.svg", x: 872, y: 132, width: 22, height: 22 });
+el(g, "rect", { x: 872, y: 236, width: 272, height: 110, fill: "var(--privfill)", stroke: "var(--priv)", "stroke-width": 2 });
+el(g, "image", { href: "../../awsketch/assets/icons/group/group-private-subnet.svg", x: 872, y: 236, width: 22, height: 22 });
+
+[
+  { hy: 136, ty: 176, h: "## ABC-D3 Ingress", r: "R1 id:ABC-D3", fp: "3f9a0c71b2e4", icon: "networking-content-delivery/elastic-load-balancing", ex: 930, n: "Load balancer" },
+  { hy: 250, ty: 290, h: "## ABC-D7 Orders database", r: "R2 id:ABC-D7", fp: "9b14e2a07c5d", now: "41c7f0d8a3e9", icon: "databases/amazon-aurora", ex: 960, n: "Orders DB" },
+  { hy: 372, ty: 404, h: "## Queue", r: "R3 heading:Queue", fp: "07cd4e9f12a6", icon: "application-integration/amazon-simple-queue-service", ex: 930, n: "Order queue" },
+].forEach((x, i) => {
+  const c = `var(--f${i + 1})`, drift = !!x.now;
+  // The passage: a margin mark in its flow colour, the heading, two body lines; the edited line is red.
+  el(g, "rect", { x: 31, y: x.hy - 14, width: 5, height: 66, rx: 2.5, fill: c });
+  put(`<code></code>`, `left:44px; top:${x.hy - 12}px`).querySelector("code").textContent = x.h;
+  [[0, 270], [1, 210]].forEach(([k, w]) => el(g, "rect", { x: 44, y: x.hy + 22 + k * 18, width: w - (i * 24), height: 8, rx: 4, fill: drift && k === 1 ? "var(--stop)" : "var(--line)" }));
+  el(g, "circle", { cx: 344, cy: x.hy, r: 7, fill: c });
+  thread(351, x.hy, 384, x.ty, 424, c);
+  // The route and its fingerprint; a drifted route shows the stamped print against the one check computes now.
+  put(`<code></code>`, `left:444px; top:${x.ty - 12}px`).querySelector("code").textContent = x.r;
+  txt(g, 444, x.ty + 38, "stamp", "var(--muted)");
+  barcode(500, x.ty + 39, x.fp, drift ? "var(--muted)" : c);
+  txt(g, 616, x.ty + 38, x.fp, "var(--muted)");
+  if (drift) {
+    txt(g, 444, x.ty + 66, "now", "var(--stop)", 15, 600);
+    barcode(500, x.ty + 67, x.now, "var(--stop)");
+    txt(g, 616, x.ty + 66, x.now, "var(--stop)", 15, 600);
+    el(g, "rect", { x: 664, y: x.ty - 14, width: 92, height: 28, rx: 14, fill: "var(--stop)" });
+    txt(g, 710, x.ty + 6, "DRIFT", "var(--chiptext)", 16, 700).setAttribute("text-anchor", "middle");
+  } else tick(g, 746, x.ty, "var(--f4)");
+  // The element the route feeds; a drifted element gets a red ring.
+  thread(776, x.ty, 806, x.ty, x.ex - 30, c, drift ? "8 6" : "");
+  if (drift) el(g, "rect", { x: x.ex - 30, y: x.ty - 30, width: 60, height: 60, rx: 10, fill: "none", stroke: "var(--stop)", "stroke-width": 3 });
+  el(g, "image", { href: ICON(x.icon), x: x.ex - 24, y: x.ty - 24, width: 48, height: 48 });
+  put(`<code></code>`, `left:${x.ex + 38}px; top:${x.ty - 12}px`).querySelector("code").textContent = x.n;
+});
+
+// ---- records: the record set at the centre, the commands as stations on one orbit ----
+const q = document.getElementById("loop");
+const RX = 600, RY = 300, R = 150;
+const rp = (r, a) => [RX + r * Math.cos(rad(a)), RY + r * Math.sin(rad(a))];
+el(q, "circle", { cx: RX, cy: RY, r: R, fill: "none", stroke: "var(--cloud)", "stroke-width": 2 });
+const stations = [["k-check", -40], ["k-show", 40], ["k-edit", 140], ["k-stamp", 220]];
+stations.forEach(([id, a], i) => {
+  const a0 = a + 12, a1 = stations[(i + 1) % 4][1] + (i === 3 ? 360 : 0) - 14, c = `var(--f${i + 1})`;
+  const [x0, y0] = rp(R, a0), [x1, y1] = rp(R, a1);
+  el(q, "path", { d: `M${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1}`, fill: "none", stroke: c, "stroke-width": 4, "stroke-linecap": "round" });
+  head(q, ...rp(R, a1 + 2), a1 + 2 + 90, c);
+  const [sx, sy] = rp(R, a), card = document.getElementById(id);
+  card.style.top = 0;
+  card.style.top = (sy - card.offsetHeight / 2) + "px";
+  line(q, [[sx, sy], [sx < RX ? 416 : 784, sy]], "var(--muted)", 2);
+  el(q, "circle", { cx: sx, cy: sy, r: 12, fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 3 });
+});
+// init writes the files at the centre once, from outside the loop.
+line(q, [[RX, 96], [RX, 206]], "var(--muted)", 3);
+head(q, RX, 220, 90, "var(--muted)");
+[["shop.json", "var(--cloud)"], ["shop.sources.md", "var(--region)"], ["shop.decisions.md", "var(--region)"]].forEach(([t, c], i) => {
+  const g = document.createElement("div");
+  g.className = "tag"; g.style.cssText = `left:${RX}px; top:${228 + i * 46}px; transform:translateX(-50%)`;
+  g.innerHTML = `<i style="background:${c}"></i><code></code>`;
+  g.querySelector("code").textContent = t;
+  document.getElementById("records").appendChild(g);
+});
+const ch = document.createElement("span");
+ch.className = "lbl"; ch.textContent = "sources change"; ch.style.cssText = "left:614px; top:106px";
+document.getElementById("records").appendChild(ch);
+// stamp writes the new print of the drifted route: the same strip that showed red in the sources picture, now in its flow colour.
+[..."41c7f0d8a3e9"].forEach((h, i) => { const v = parseInt(h, 16); el(document.getElementById("newprint"), "rect", { x: i * 9, y: 22 - 5 - v * 1.1, width: 6, height: 5 + v * 1.1, rx: 1.5, fill: "var(--f2)" }); });
+
+// ---- product key cards: a glyph of each feature ----
+const gk = n => document.getElementById("gk" + n);
+for (let n = 1; n <= 4; n++) el(gk(n), "rect", { x: 1, y: 1, width: 82, height: 82, rx: 12, fill: "none", stroke: "var(--line)", "stroke-width": 2 });
+// 1: three flow chips, the first one pressed, with a pointer on it.
+[["var(--f1)", 1], ["var(--f2)", 0], ["var(--f3)", 0]].forEach(([c, on], i) => {
+  el(gk(1), "rect", { x: 12, y: 14 + i * 20, width: 52, height: 15, rx: 7.5, fill: on ? c : "none", stroke: c, "stroke-width": 2 });
+  el(gk(1), "circle", { cx: 21, cy: 21.5 + i * 20, r: 3, fill: on ? "var(--chiptext)" : c });
+});
+el(gk(1), "path", { d: "M52 24 L52 44 L57 39 L61 48 L65 46 L61 37 L68 37 Z", fill: "var(--ink)", stroke: "var(--paper)", "stroke-width": 1.5, "stroke-linejoin": "round" });
+// 2: a dashed flow walked to its second hop, the step buttons and the slider.
+line(gk(2), [[14, 22], [40, 22], [40, 36]], "var(--f1)", 3).setAttribute("stroke-dasharray", "5 4");
+line(gk(2), [[40, 36], [40, 40], [70, 40]], "var(--line)", 3).setAttribute("stroke-dasharray", "5 4");
+[[14, 22], [40, 36]].forEach(([x, y]) => el(gk(2), "circle", { cx: x, cy: y, r: 4, fill: "var(--f1)" }));
+el(gk(2), "path", { d: "M18 54 L12 59 L18 64 Z M37 53 L45 59 L37 65 Z M60 54 L66 59 L60 64 Z", fill: "var(--ink)" });
+line(gk(2), [[12, 72], [72, 72]], "var(--line)", 3);
+line(gk(2), [[12, 72], [36, 72]], "var(--f1)", 3);
+el(gk(2), "circle", { cx: 36, cy: 72, r: 4.5, fill: "var(--f1)" });
+// 3: the frames nest - cloud, VPC, public subnet - around one service icon.
+el(gk(3), "rect", { x: 10, y: 10, width: 64, height: 64, fill: "none", stroke: "var(--cloud)", "stroke-width": 2 });
+el(gk(3), "rect", { x: 18, y: 20, width: 48, height: 46, fill: "none", stroke: "var(--vpc)", "stroke-width": 2 });
+el(gk(3), "rect", { x: 26, y: 30, width: 32, height: 28, fill: "var(--pubfill)", stroke: "var(--pub)", "stroke-width": 2 });
+el(gk(3), "image", { href: ICON("compute/amazon-ec2"), x: 34, y: 36, width: 16, height: 16 });
+// 4: a component and the card that opens on click.
+el(gk(4), "image", { href: ICON("networking-content-delivery/elastic-load-balancing"), x: 10, y: 46, width: 26, height: 26 });
+el(gk(4), "rect", { x: 30, y: 12, width: 44, height: 40, rx: 5, fill: "var(--paper)", stroke: "var(--cardline)", "stroke-width": 2 });
+line(gk(4), [[32, 13.5], [72, 13.5]], "var(--f2)", 3);
+[[38, 24, 26], [38, 33, 20], [38, 42, 28]].forEach(([x, y, w], i) => el(gk(4), "rect", { x, y, width: w, height: 4, rx: 2, fill: i ? "var(--line)" : "var(--ink)" }));
+</script>
+</body>
+</html>
